@@ -8,11 +8,12 @@
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
+            "program": "__main__.py",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "env": {"PYTHONPATH": "${workspaceRoot}"}
-
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/data_export"
+            },
         }
     ]
 }
