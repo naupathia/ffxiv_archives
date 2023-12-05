@@ -15,9 +15,7 @@ def iter_dir_files(dir_path):
 
     for f in dir.iterdir():
         if f.is_dir():
-
             for file_path in f.iterdir():
-
                 yield file_path
 
 
@@ -78,7 +76,7 @@ def flatten_speaker_dialogue(transcript):
     return ' '.join(result)
 
 
-def print_speaker_dialogue(transcript):
+def format_speaker_dialogue(transcript):
 
     result = []
     for lines in transcript:

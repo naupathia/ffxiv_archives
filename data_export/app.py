@@ -1,6 +1,5 @@
-from .exports import quests, cut_scenes
+from .parse import quests, cut_scenes
 # from pymongo.mongo_client import MongoClient
-
 
 def run():
     # uri = "mongodb+srv://tea_admin:BC5AOSNbRuhJPge4@cluster0.1buu3qz.mongodb.net/?retryWrites=true&w=majority"
@@ -17,5 +16,5 @@ def run():
 
     # print(quests.get_metadata())
 
-    quests.output_quests()
-    cut_scenes.output_cutscenes()
+    quests.dump_quests_text_file()
+    # cut_scenes.output_cutscenes()
