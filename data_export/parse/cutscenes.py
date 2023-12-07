@@ -6,9 +6,8 @@ from dataclasses import dataclass
 @dataclass
 class CutsceneData:
     filename: str = None 
-    transcript: dict = None 
-    raw: str = None 
     datatype: str = None
+    text: str = None 
 
 
 def iter_cutscenes():
@@ -16,7 +15,6 @@ def iter_cutscenes():
 
     for filepath in scrub.iter_dir_files(dir):
         yield _parse_cutscene_data(filepath)
-        print(f"processed cutscene: {filepath}")
 
 
 def dump_cutscene_text_file():
@@ -33,8 +31,7 @@ def _parse_cutscene_data(filepath) -> CutsceneData:
 
     result = {
         "filename": file_name,
-        "transcript": contents,
-        "raw": scrub.flatten_speaker_dialogue(contents)
+        "text": contents,
     }
     result["datatype"] = "CUTSCENE"
 
@@ -42,12 +39,10 @@ def _parse_cutscene_data(filepath) -> CutsceneData:
 
 def _dump_cutscene_text(fh, cutscene_data: CutsceneData):
    
-   contents = scrub.format_speaker_dialogue(cutscene_data.transcript)
    dumpstr = f"""
 ---------------------------------------------------------------------
 
-{contents}
-
+{cutscene_data.text}
 """
    
    fh.write(dumpstr)

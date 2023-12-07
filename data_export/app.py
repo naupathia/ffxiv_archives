@@ -1,4 +1,6 @@
-from .parse import quests, cut_scenes
+import os
+from .parse import quests, cutscenes
+from . import settings
 # from pymongo.mongo_client import MongoClient
 
 def run():
@@ -13,8 +15,6 @@ def run():
     #     print("Pinged your deployment. You successfully connected to MongoDB!")
     # except Exception as e:
     #     print(e)
-
-    # print(quests.get_metadata())
 
     quests.dump_quests_text_file()
     # cut_scenes.output_cutscenes()

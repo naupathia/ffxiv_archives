@@ -8,28 +8,28 @@ from dataclasses import dataclass
 pd.options.display.max_rows = 10
 
 QUEST_METADATA_COLS = [
-            "#",
-            "Name",
-            "Id",
-            "Expansion",
-            "PreviousQuest[0]",
-            "Issuer{Start}",
-            "PlaceName",
-            "JournalGenre",
-            "Icon",
-        ]
+    "#",
+    "Name",
+    "Id",
+    "Expansion",
+    "PreviousQuest[0]",
+    "Issuer{Start}",
+    "PlaceName",
+    "JournalGenre",
+    "Icon",
+]
 
-QUEST_METADATA_COL_ALIASES = [
-            "key",
-            "name",
-            "id",
-            "expansion",
-            "previous_quest",
-            "issuer",
-            "place_name",
-            "journal_genre",
-            "icon",
-        ]
+QUEST_METADATA_COL_ALIASES = {
+    "#": "key",            
+    "Name": "name",            
+    "Id": "id",            
+    "Expansion": "expansion",            
+    "PreviousQuest[0]": "previous_quest",            
+    "Issuer{Start}": "issuer",            
+    "PlaceName": "place_name",            
+    "JournalGenre": "journal_genre",            
+    "Icon": "icon",
+}
 
 @dataclass
 class QuestData:
@@ -41,18 +41,19 @@ class QuestData:
     issuer: str = None 
     place_name:str = None 
     journal_genre: str = None 
-    transcript: dict = None
     filename: str = None 
-    raw: str = None 
     datatype: str = None 
+    text: dict = None
+    icon: str = None
 
 def iter_quests():
     dir = pathlib.Path(f"{DATA_PATH}\\quest")
     metadata = _get_metadata()
 
     for filepath in scrub.iter_dir_files(dir):
-        yield _parse_quest_data(metadata, filepath)
-        print(f"processed quest: {filepath}")
+        quest_data = _parse_quest_data(metadata, filepath)
+        if quest_data:
+            yield quest_data
 
 def dump_quests_text_file():
 
@@ -73,23 +74,21 @@ def _parse_quest_data(metadata, filepath) -> QuestData:
     contents = scrub.parse_speaker_transcript(filepath)
 
     result = row.to_dict('records')[0]
-    result["transcript"] = contents
     result["filename"] = filename
-    result["raw"] = scrub.flatten_speaker_dialogue(contents)
     result["datatype"] = "QUEST"
+    result["text"] = contents
 
     return QuestData(**result)
 
 def _dump_quest_info(fh, quest_data: QuestData):
 
-    dialogue = scrub.format_speaker_dialogue(quest_data.transcript)
     dumpstr = f"""
 ---------------------------------------------------------------------
 {quest_data.name}
 Issuer: {quest_data.issuer} [{quest_data.place_name}]
-Journal: {quest_data.expansion} [{quest_data.journal_genre}]
+Journal: {quest_data.journal_genre} [{quest_data.expansion}]
 
-{dialogue}
+{quest_data.text}
 """
 
     fh.write(dumpstr)
@@ -107,7 +106,8 @@ def _get_metadata():
         na_filter=False
     )
 
-    df.columns = QUEST_METADATA_COL_ALIASES
+    df = df.rename(columns=QUEST_METADATA_COL_ALIASES)
 
+    print(df)
     return df
 
