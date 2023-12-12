@@ -1,6 +1,4 @@
-import os
-from .parse import quests, cutscenes
-from . import settings
+from .parse import quests, cutscenes, items, tripletriadcards, statuses, fates, fishes, mounts
 # from pymongo.mongo_client import MongoClient
 
 def run():
@@ -16,5 +14,12 @@ def run():
     # except Exception as e:
     #     print(e)
 
-    quests.dump_quests_text_file()
-    # cut_scenes.output_cutscenes()
+    # quests.dump_quests_text_file()
+    # cutscenes.dump_cutscene_text_file()
+    # items.dump_items_text_file()
+    # tripletriadcards.dump_text_file()
+    # statuses.dump_text_file()
+    # fates.dump_text_file()
+    # fishes.dump_text_file()
+    mounts.dump_text_file()
+

@@ -43,7 +43,7 @@ class QuestData:
     journal_genre: str = None 
     filename: str = None 
     datatype: str = None 
-    text: dict = None
+    text: str = None
     icon: str = None
 
 def iter_quests():

@@ -1,3 +1,4 @@
+
 import re
 from data_export.settings import SPEAKER_SKIPS
 import csv
@@ -9,7 +10,6 @@ def get_col_value(row, col_name):
     value = row[col_name].values[0]
 
     return str(value)
-
 
 def iter_dir_files(dir_path):
     
@@ -30,42 +30,56 @@ def get_speaker(description, speaker_pos=3):
         return ''
 
 
+def iter_csv_dict(file_path):
+    
+    with open(file_path, 'rt', encoding="UTF-8") as fh:
+        fh.readline()
+        reader = csv.DictReader(fh)
+        next(reader)
+        for item in reader:
+            yield item
+
+
+def iter_csv_rows(file_path, skip_row_count=3):
+    
+    with open(file_path, 'rt', encoding="UTF-8") as fh:
+
+        reader = csv.reader(fh)
+        for line in reader:
+            if skip_row_count > 0:
+                skip_row_count -= 1
+                continue
+
+            yield line
+
+
 def parse_speaker_transcript(file_path, speaker_pos=3):
 
     speaker_lines = []
     parsed = []
-    skip_count = 3
-
-    with open(file_path, 'rt', encoding="UTF-8") as fh:
-
-        reader = csv.reader(fh)
-        previous_speaker = ''
+    previous_speaker = ''
         
-        for line in reader:
+    for line in iter_csv_rows(file_path):
 
-            if skip_count > 0:
-                skip_count -= 1
-                continue
-
-            text = line[2]
-            description = line[1]
-            speaker = get_speaker(description, speaker_pos)
-                
-            if speaker in SPEAKER_SKIPS:
-                continue
-
-            if previous_speaker and previous_speaker != speaker:
-
-                if speaker_lines and speaker_lines:
-                    dialogue = ' '.join(speaker_lines)
-                    parsed.append(f"**{speaker}:** {dialogue}")
-                    parsed.append('')
-                    speaker_lines = []
-
-            if text:
-                speaker_lines.append(sanitize_text(text))
+        text = line[2]
+        description = line[1]
+        speaker = get_speaker(description, speaker_pos)
             
-            previous_speaker = speaker
+        if speaker in SPEAKER_SKIPS:
+            continue
+
+        if previous_speaker and previous_speaker != speaker:
+
+            if speaker_lines and speaker_lines:
+                dialogue = ' '.join(speaker_lines)
+                parsed.append(f"**{speaker}:** {dialogue}")
+                parsed.append('')
+                speaker_lines = []
+
+        if text:
+            speaker_lines.append(sanitize_text(text))
+        
+        previous_speaker = speaker
 
     return '\n'.join(parsed)
 
