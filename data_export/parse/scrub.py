@@ -235,15 +235,11 @@ def parse_syntax_tree(input: str, start_pattern, end_pattern, operator_pattern=N
                 m_else = operator_pattern.search(input, start_endpos, end_pos)
                 
                 if m_else:
-                    else_stmt = input[m_else.end(): end_pos]
-
                     node.left = input[start_endpos: m_else.start()]
-                    node.right = else_stmt
+                    node.right = input[m_else.end(): end_pos]
 
         node_key = f"{node.key}:" if node.key else ""
-        node_str = f"[?{node_key} {node.left}]"
-        if node.right:
-            node_str = f"[?{node_key} {node.left} :: {node.right}]"
+        node_str = f"[?{node_key} {node.left} :: {node.right}]" if node.right else f"[?{node_key} {node.left}]"
 
         new_input = input[:m_start.start()] + node_str + input[m_end.end():]
         new_input = parse_syntax_tree(new_input, start_pattern, end_pattern, operator_pattern)
