@@ -84,7 +84,7 @@ def _dump_quest_info(fh, quest_data: QuestData):
 
     dumpstr = f"""
 ---------------------------------------------------------------------
-{quest_data.name}
+{quest_data.name} ({quest_data.filename})
 Issuer: {quest_data.issuer} [{quest_data.place_name}]
 Journal: {quest_data.journal_genre} [{quest_data.expansion}]
 
