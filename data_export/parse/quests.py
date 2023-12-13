@@ -47,6 +47,7 @@ class QuestIterator(_shared.DirIterator):
 
         self._metadata = df.rename(columns=QUEST_METADATA_COL_ALIASES)
 
+
     def _process_file(self, filepath):
         
         filename = filepath.stem
@@ -72,7 +73,7 @@ def dump_text_file():
             fh.write(serialize(quest))
 
 
-def serialize(fh, record):
+def serialize(record):
 
     return f"""
 ---------------------------------------------------------------------
@@ -80,7 +81,7 @@ def serialize(fh, record):
 Issuer: {record["issuer"]} [{record["place_name"]}]
 Journal: {record["journal_genre"]} [{record["expansion"]}]
 
-{record.text}
+{record["text"]}
 
 """
 

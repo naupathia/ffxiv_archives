@@ -4,8 +4,7 @@ from . import _shared
 OUTPUT_FILE = "fishes.txt"
 
 class FishReader(_shared.GameTypeRowAdapter):
-
-    
+   
     NAME = "Item"
     DESCRIPTION = "Text"
     KEY = "#"
@@ -22,7 +21,7 @@ class FishReader(_shared.GameTypeRowAdapter):
 
 class FishIterator(_shared.FileIterator):
     GAME_FILE = "FishParameter.csv"
-    SERDE = FishReader
+    ADAPTER = FishReader
 
 
 def dump_text_file():

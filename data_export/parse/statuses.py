@@ -23,7 +23,7 @@ class StatusReader(_shared.GameTypeRowAdapter):
 
 class StatusIterator(_shared.FileIterator):
     GAME_FILE = "Status.csv"
-    SERDE = StatusReader
+    ADAPTER = StatusReader
 
 
 def dump_text_file():

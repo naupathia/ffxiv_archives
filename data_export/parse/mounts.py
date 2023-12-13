@@ -37,7 +37,7 @@ class MountReader(_shared.GameTypeRowAdapter):
 
 class MountIterator(_shared.FileIterator):
     GAME_FILE = "Mount.csv"
-    SERDE = MountReader
+    ADAPTER = MountReader
 
     def __init__(self, fh) -> None:
         super().__init__(fh)
@@ -56,7 +56,7 @@ class MountIterator(_shared.FileIterator):
     def _process_row(self, row: dict):
         result = super()._process_row(row)
         
-        if not result["name"]:
+        if not result or result["name"] is None:
             return None
 
         dr = self._metadata.loc[self._metadata["key"] == result["key"]]

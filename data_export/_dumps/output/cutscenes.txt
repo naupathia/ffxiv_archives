@@ -286,6 +286,7 @@ Lord of the Whorl, deliver us from our misery!
 **GILGAMESH:** Revolution.
 
 
+
 ---------------------------------------------------------------------
 
 **RAUBAHN:** Come, you must have gathered by now that Tataru is given to exaggeration. As you can see, I am quite well. Ul'dah, on the other hand, is not. This riot was anything but an isolated incident. There is a restlessness in the air. Tensions long simmering are at last threatening to boil over. Ul'dah is a nation infamous for the great disparity between the wealthy and the poor. The majority of the populace accepts this state of affairs because they believe that every man bears responsibility for his own lot in life. To an Ul'dahn, money is the foremost─and some would say the *only*─measure of a man's worth. Small wonder that the wealthiest wield the greatest influence. So where do the refugees fit into this social hierarchy? What place is there for those who fled Ala Mhigo and the destruction of the Calamity? Plainly, there *is* none. They have no wealth, no power, and no worth. To the Ul'dahn way of thinking, they may as well not exist. Choosing to ignore their existence, however, is patently not an option. General Raubahn and the sultana understand this, which is why they ordered the Immortal Flames to provide the refugees aid and succor. Yet none would dispute that the expenses incurred by this policy grow by the day, with no end in sight. This has prompted more and more Ul'dahns to question their obligation to aid these worthless wanderers...  While more and more refugees have come to resent their treatment at the hands of the sneering citizenry. The manner of Lord Lolorito's refusal to grant the Domans asylum bespoke a disdain for all refugees─an attitude shared by the rest of the Monetarists. And you may be sure they make no effort to conceal their opinions. It was only a matter of time before the refugees united in protest. Nor is it any surprise that some among them would ultimately resort to violence. That the Immortal Flames should choose this of all occasions to engage in joint training exercises with the other Grand Companies... By the time they return, the situation may well have deteriorated beyond mending.
@@ -435,6 +436,7 @@ Lord of the Whorl, deliver us from our misery!
 **ALPHINAUD:** A rousing speech, Alphinaud. Or should I say, Crystal Brave Commander Leveilleur?
 
 **MINFILIA:** Please, Antecedent...the title is honorary. I shall not be “leading the troops into battle,” as it were. We are of the same purpose. Let us join hands, and do what must be done to save this land.
+
 
 
 ---------------------------------------------------------------------
@@ -804,6 +806,7 @@ Lord of the Whorl, deliver us from our misery!
 **NANAMOULNAMO:** Your Grace... Are you certain of this?
 
 
+
 ---------------------------------------------------------------------
 
 **ALPHINAUD:** Gods, he is almost whole again!
@@ -893,6 +896,7 @@ Lord of the Whorl, deliver us from our misery!
 **ALPHINAUD:** Which particular truth was that, Brother? The fact that desperate prayer gave rise to the primal Phoenix? That this new god was responsible for setting Eorzea on the path to rebirth? Should such a tale become common knowledge, people would soon offer up their prayers in earnest─they would beseech Phoenix to complete the healing that was begun.
 
 **ALISAIE:** Yet as you and I know all too well, the very act of calling forth this savior would do more harm to the land than good. We cannot encourage such worship for this very reason. Were Grandfather forced to return as an aether-draining primal, 'twould undo all that he had worked to protect. Your abiding love for him was the key that unlocked the truth of the Calamity. But keys may also serve to seal doors that were best left unopened. Let your love now guide your actions, and lock away deep inside the fate of both Grandfather and Bahamut.
+
 
 
 ---------------------------------------------------------------------
@@ -1455,7 +1459,9 @@ Lord of the Whorl, deliver us from our misery!
 **MIDGARDSORMR:** Hmph.
 
 
+
 ---------------------------------------------------------------------
+
 
 
 
@@ -1594,6 +1600,7 @@ ever scanned the skies for winged shadows, she came...
 **ALPHINAUD:** Ahhh! In the midst of all the excitement, I completely forgot to tell you! When I was asking around about the Scions, I heard the most awful rumor! General Raubahn is to be executed for crimes against the sultanate!
 
 
+
 ---------------------------------------------------------------------
 
 **ALPHINAUD:** Friends. 'Tis good to see you safe and well. I will admit, I had not counted on you seeking─let alone finding─refuge within the Holy See, but full glad was I to learn that you had.
@@ -1697,6 +1704,7 @@ ever scanned the skies for winged shadows, she came...
 **RAUBAHN:** Were I to guess, I would say Her Grace is being held somewhere, dreaming dreams of a brighter Ul'dah, even as we speak.
 
 **DEWLALA:** Oh, Nanamo... I will never forgive Lolorito for his part in this.
+
 
 
 ---------------------------------------------------------------------
@@ -2166,6 +2174,7 @@ no mortal eye had glimpsed for nigh on a thousand years, they came.
 **LAHABREA:** Your will be done.
 
 
+
 ---------------------------------------------------------------------
 
 **ICEHEART:** There!
@@ -2403,6 +2412,7 @@ no mortal eye had glimpsed for nigh on a thousand years, they came.
 **HAURCHEFANT:** As they fled, my father spoke of Azys Lla. Though I know not what he intends, I fear no good shall come of it. His ambitions are too great, and his minions too powerful... We must find the Heavens' Ward, and stop my father, before it is too late.
 
 
+
 ---------------------------------------------------------------------
 
 **HYDAELYN:** To the northern reaches of the Sea of Clouds,
@@ -2482,6 +2492,7 @@ and the unmasked villain who sought to claim its secrets... Oblivious to the new
 **ALPHINAUD:** I've lost the auxiliary propeller!
 
 **CID:** Cid, it's no use! We must return to Ishgard and find another way!
+
 
 
 ---------------------------------------------------------------------
@@ -2666,6 +2677,7 @@ now abandoned by her keepers, they came.
 **YSHTOLA:** Twelve be praised, thou hast not yet set forth! 'Cross sand and snow have I journeyed, that I might deliver this gift unto thee.
 
 **URIANGER:** White auracite... But whence did it come?
+
 
 
 ---------------------------------------------------------------------
@@ -2856,6 +2868,7 @@ and the Eye's power combined─and still you stand? Who─*what* are you?
 **MIDGARDSORMR:** Come what may, we will never cease to believe. Upon the souls of they who have sacrificed themselves to pave the way for peace, we will never abandon our cause.
 
 
+
 ---------------------------------------------------------------------
 
 **AYMERIC:** Let all here present attest that Ser Aymeric, acting on
@@ -2889,6 +2902,7 @@ and that man and dragon may live in harmony once more. Let the deeds writ herein
 **YSHTOLA:** Remind me: why is there no rest for the righteous?
 
 **CID:** Because they *care*, Master Garlond.
+
 
 
 ---------------------------------------------------------------------
@@ -3143,6 +3157,7 @@ Nor was he alone in this misbegotten desire...
 **EDMONT:** You sound just like him. Aye, I suspect that is what Haurchefant would have said. “To aid those in need...” ...But then I thought of my brother. “A knight lives to serve─to aid those in need.” When you look on that shield, I trust you will remember his words. And should I once more find my resolve wavering, I ask that you show me the way. You were a sister to Haurchefant. Will you be a sister to me as well? Come, Emmanellain. There is much to be done. For Father, and for Ser Aymeric. And for Ishgard. <sigh> To think we share the same blood... Pray excuse us.
 
 **NARRATION:** Those were the days of promises and vows─of tentative first steps into an uncertain future. A future shaped by the choices we made, in ways we could never have foreseen. Born of good and evil, of light and darkness, and shepherded by our hand. Be it for weal, or be it for woe.
+
 
 
 ---------------------------------------------------------------------
@@ -3425,7 +3440,9 @@ and his brethren raise their voices for the final chorus of the Dragonsong War.
 *Heavensward: The Gears of Change*
 
 
+
 ---------------------------------------------------------------------
+
 
 
 
@@ -3669,6 +3686,7 @@ only to be raised unto the highest seat in the House of Lords. Though he strove 
 the unexpectedly strident voice of the Count de Durendaire left him little choice but to accept... And so it was that the winds of gentle revolution came to stir. Prominent among the many honored guests at Ser Aymeric's investiture were the ambassadors of dragonkind,
 a fitting symbol of Ishgard's newfound peace. The people looked on in awe as he soared through the heavens on dragonback,
 and by their cheers did they hail him an Azure Dragoon for a new age. Thus were the notes of the Dragonsong rewritten, the din of war giving way to a rising litany of peace and hope.
+
 
 
 ---------------------------------------------------------------------
@@ -4013,9 +4031,11 @@ and by their cheers did they hail him an Azure Dragoon for a new age. Thus were 
 **PAPALYMO:** The path behind us was fraught with hardship, and the path before us will be no less unforgiving. But a new dawn *shall* break over the realm, and I see before me the faces of those who will deliver it.
 
 
+
 ---------------------------------------------------------------------
 
 **CID:** I leave the Goddess in your capable hands. Just watch out for her worshipers...
+
 
 
 ---------------------------------------------------------------------
@@ -4392,7 +4412,9 @@ Take care of that brute, will you!
 **GOSETSU:** To claim that I never doubted the decision would be a lie. But I made my choice, and I have defended it with blade in hand ever since.
 
 
+
 ---------------------------------------------------------------------
+
 
 
 
@@ -4846,6 +4868,7 @@ I have a bad feeling about this.
 **LYSENARRATION:** I swear, if I never hear another ghost story, it will be too soon...
 
 
+
 ---------------------------------------------------------------------
 
 **TATARU:** By the Twelve... I thought Ishgard remarkable, but this...
@@ -5002,6 +5025,7 @@ Allow me to explain...
 
 **LYSENARRATION:** Ah. And we had just concluded negotiations.
 I gather my assistance was not required?
+
 
 
 ---------------------------------------------------------------------
@@ -5638,6 +5662,7 @@ she won't escape this time! Not this time, oh no!
 And yet here you are... Yet if this be the work of the Eyes, what choice do you have but to end it? <sigh> Or so the boy would say. Damn you, Alphinaud.
 
 
+
 ---------------------------------------------------------------------
 
 **GOSETSU:** Hey! How goes the search? Any luck?
@@ -5939,6 +5964,7 @@ It is a pleasure to meet you both.
 **HIEN:** What will you say? ...Then victory will soon be ours! ...But are we ready?
 
 
+
 ---------------------------------------------------------------------
 
 **LYSE:** If all are in agreement, I will outline my plan to retake Doma Castle. First, Lyse and the Doman irregulars will conduct a series of raids against imperial targets throughout the surrounding area, with the aim of drawing the garrison's attention. Shortly thereafter, our Xaela allies will launch a surprise attack on the castle's airborne defenses. In this way, we will prevent the enemy's airships from rendering support, and cut off one means of escape. Alisaie and I, together with the shinobi, will exploit the ensuing chaos to infiltrate the Moon Gates and disable the magitek field generators. Once the barrier is down, we will be free to cross the One River and reach Doma Castle. It is at this point that we must turn to our Confederate and
@@ -6198,6 +6224,7 @@ A ravenous, insatiable fiend.
 **FORDOLA:** A reward given in recognition of your service. I trust you will prove more capable than its former owner.
 
 **ZENOS:** I...I swear I'll not disappoint you, my lord!
+
 
 
 ---------------------------------------------------------------------
@@ -6619,6 +6646,7 @@ You are indeed your father's daughter...
 **LYSE:** What will you say? It suits you. It's not quite your style... ...
 
 
+
 ---------------------------------------------------------------------
 
 **RAUBAHN:** I remember my father's words.
@@ -6847,6 +6875,7 @@ I also have responsibilities to Ala Mhigo... When I put it like that, though...I
 Now and ever after. Is that not so? There you have it. Come what may, you may count on us in your hour of need. We shall never refuse you.
 
 **GOSETSU:** Y'shtola... Oh gods, I swore I wouldn't cry...
+
 
 
 ---------------------------------------------------------------------
@@ -7148,7 +7177,9 @@ Now and ever after. Is that not so? There you have it. Come what may, you may co
 **ALPHINAUD:** "If,“ he says! Welcome home, Raubahn.
 
 
+
 ---------------------------------------------------------------------
+
 
 
 
@@ -7491,7 +7522,9 @@ Now and ever after. Is that not so? There you have it. Come what may, you may co
 **ROBEMAN:** How are you feeling, my lord?
 
 
+
 ---------------------------------------------------------------------
+
 
 
 
@@ -7801,7 +7834,9 @@ Now and ever after. Is that not so? There you have it. Come what may, you may co
 **ALISAIE:** Oh dear. We seem to be missing a corpse.
 
 
+
 ---------------------------------------------------------------------
+
 
 
 
@@ -8184,11 +8219,13 @@ Now and ever after. Is that not so? There you have it. Come what may, you may co
 **SOLUSZOSGALVUS:** You fiends are overfond of your own voices. Mark me, Ascian. Man is the master of his own destiny!
 
 
+
 ---------------------------------------------------------------------
 
 **HIEN:** Make ready, friends. We are come to the Burn.
 
 **SUZAKU:** Everyone! Land where you can! We must wait out the storm!
+
 
 
 ---------------------------------------------------------------------
@@ -8550,6 +8587,7 @@ Now and ever after. Is that not so? There you have it. Come what may, you may co
 **HIEN:** No! Not now... Not...like...
 
 
+
 ---------------------------------------------------------------------
 
 **SEIRYU:** Is it sanctum you seek, my wayward children?
@@ -8557,6 +8595,7 @@ Or perhaps you are come in search of power. That which lies at your feet─that 
 You need but will it so. Now take up your salvation and begone.
 Mortal agency in matters divine shall not be suffered. I am your mother. I am your maker! I. Am. Ivalice!
 Consign me unto darkness and your light will be forever lost!
+
 
 
 ---------------------------------------------------------------------
@@ -8636,6 +8675,7 @@ Consign me unto darkness and your light will be forever lost!
 **IMPERIALSOLDIER04505:** My enemy. My friend. Had I been but a step faster...
 
 **KATANASOLDIER:** Bloody savages! [PAINED SHOUT]
+
 
 
 ---------------------------------------------------------------------
@@ -9069,6 +9109,7 @@ That all may return to the sunless sea.” ...Well, that's the version I was tau
 **ESTINIEN:** Ser Estinien. I have an offer for you, but I will make it only once. Since it would seem we seek the same answers...you are welcome to join us.
 
 **SHADOWHUNTER:** Hah! From what I hear, you need all the help you can get. In case you don't know, Varis himself confessed that your empire was a creation of the Ascians.
+
 
 
 ---------------------------------------------------------------------
@@ -9564,6 +9605,7 @@ That all may return to the sunless sea.” ...Well, that's the version I was tau
 **WARRIOROFDARKNESS:** What will you say? Not everything. Tell me about Seto. You're putting me off my dinner.
 
 
+
 ---------------------------------------------------------------------
 
 **EMETSELCH:** Ah, there you are. You're just in time to welcome our guest...
@@ -9991,6 +10033,7 @@ That all may return to the sunless sea.” ...Well, that's the version I was tau
 **ZENOS:** Elidibus plainly has no need of a new host, so the question becomes, who? It may be that another player has joined the game. Something to consider, at any rate. But come, there is work to be done.
 
 
+
 ---------------------------------------------------------------------
 
 **ALPHINAUD:** (-Distressed Townsman-)Sin eaters sighted! They're coming!
@@ -10334,6 +10377,7 @@ That all may return to the sunless sea.” ...Well, that's the version I was tau
 **000:** Ahem. Forgive the intrusion, but Minfilia─that is, Ryne and the others were asking after you. Is everything all right? That pain again? And did it pass? Thank goodness for that. I would not wish to see you suffer. Though I know only too well how much you have suffered on our behalf in recent days. Indeed, I have no right to impose upon you further. Nevertheless, I must ask one thing of you. That you survive this, no matter what. When the dust settles, you *must* return to your world. For the battles to come and the wars yet unwon. The final Lightwarden is all that stands between us and victory. There is still much we must do to prepare, but for now, I will see if there is aught that may remedy the strange affliction which plagues you.
 
 **MYSTERYVOICE:** What will you say? I'll see it through. The end is finally in sight. When the Warden is dead, will your work finally be done?
+
 
 
 ---------------------------------------------------------------------
@@ -10709,6 +10753,7 @@ That all may return to the sunless sea.” ...Well, that's the version I was tau
 **000:** Ah. Finally.
 
 **WARRIOROFDARKNESS:** What will you say? Was it just a dream? What happened?
+
 
 
 ---------------------------------------------------------------------
@@ -11118,11 +11163,13 @@ That all may return to the sunless sea.” ...Well, that's the version I was tau
 **HYTHLODAEUS:** _WARRIOR_OF_LIGHT_...?
 
 
+
 ---------------------------------------------------------------------
 
 **VAUTHRY:** Who goes there? Are you the one who broke the seal? Ah, so much time lost... So much frolicking and feasting left undone... We must make up for it, we must... Beginning by playing with *you*! We can play...no more...
 
 **EMETSELCH:** Are you so determined to die? One last chance, villains: bow down and acknowledge your king. Your god! But...I am all-powerful...
+
 
 
 ---------------------------------------------------------------------
@@ -11377,9 +11424,11 @@ I call forth to reality! [Report if label displays]
 **KRILE:** Hmph. Farewell, my friend. See that you don't make a habit of dozing off in battle.
 
 
+
 ---------------------------------------------------------------------
 
 **9S:** 出たぞ！ アイツが機械を操っている元凶だ！！
+
 
 
 ---------------------------------------------------------------------
@@ -11787,6 +11836,7 @@ I call forth to reality! [Report if label displays]
 **MYSTERIOUSCOOPERATOR:** The Final Days?
 
 
+
 ---------------------------------------------------------------------
 
 **GAIA:** There's no turning back... Get ready!
@@ -11798,6 +11848,7 @@ I call forth to reality! [Report if label displays]
 **RYNE:** Ryne! Are you all right!?
 
 **GAIA:** So many of them... But nothing we can't handle! I call...upon the power of Shiva! Aaaaaahhh!
+
 
 
 ---------------------------------------------------------------------
@@ -12277,6 +12328,7 @@ I call forth to reality! [Report if label displays]
 **GRAHATIA:** ...Do as you will. It has been too, too long, my friend...and insufferably dull in your absence. When you return to me, you will share everything. Every blow will be a story unto itself. Every triumph. Every kill. Rest assured we shall have a fitting stage for our reunion. Oh, yes. To reprise that transcendent moment, I will set this world ablaze. And we shall dance before the pyre.
 
 
+
 ---------------------------------------------------------------------
 
 **ALISAIE:** [SURPRISED REAX]
@@ -12286,6 +12338,7 @@ I call forth to reality! [Report if label displays]
 **THANCRED:** [SURPRISED REAX “Ahhh!”]
 
 **ELIDIBUS:** Damn it! Hang on to something!
+
 
 
 ---------------------------------------------------------------------
@@ -12699,6 +12752,7 @@ I call forth to reality! [Report if label displays]
 **ZENOS:** Ah, my apologies. I must guard my tongue lest it be the end of me. Though...there is something to be said for such a glorious death. Better to fall to one who *has it all* than falter before an inferior... I shall keep it in mind as a contingency. For now, however, I shall proceed with the plan. My lord.
 
 
+
 ---------------------------------------------------------------------
 
 **RYNE:** I'm drawing out the Darkness. Get ready!
@@ -12712,6 +12766,7 @@ I call forth to reality! [Report if label displays]
 **EDEN3BOSS4:** She's still in there, somewhere... I won't give up on our future, Gaia! No matter what!
 
 **EDEN3BOSS5:** Our utopia... Our dream!
+
 
 
 ---------------------------------------------------------------------
@@ -13025,6 +13080,7 @@ I call forth to reality! [Report if label displays]
 **FANDANIEL:** There is one that I have been meaning to test...
 
 
+
 ---------------------------------------------------------------------
 
 **IXALICHIEFTAIN:** Esteemed guests. You honor us with your presence. As there is much to discuss, let us begin.
@@ -13242,6 +13298,7 @@ I call forth to reality! [Report if label displays]
 **MYSTERIOUSLADY:** Our allies must be informed of this. We should return to the Rising Stones and have Tataru relay our findings to them.
 
 **ESTINIEN:** Hear me... Hear me... Darkness comes...and with it...the end... The fate...of the star...is in your hands...
+
 
 
 ---------------------------------------------------------------------
@@ -14107,6 +14164,7 @@ I call forth to reality! [Report if label displays]
 **AMON:** You question my disinterest, but what of yours? Despite your noisome antics, I sense you take little pleasure in this endeavor.
 
 
+
 ---------------------------------------------------------------------
 
 **ALPHINAUD:** Ah, I remember you.
@@ -14856,6 +14914,7 @@ I call forth to reality! [Report if label displays]
 **ZENOS:** What will you say? Hope will win the day. I will not fight for your amusement.
 
 
+
 ---------------------------------------------------------------------
 
 **YSHTOLA:** I thank you for affording me this short reprieve...
@@ -15123,6 +15182,7 @@ I call forth to reality! [Report if label displays]
 **SYSTEM:** Won't need to think about it for a while yet. They're to be looked after in Ala Gannha for the time being...
 
 **ERENVILLE:** Meanwhile, in Ishgard...
+
 
 
 ---------------------------------------------------------------------
@@ -15510,6 +15570,7 @@ I call forth to reality! [Report if label displays]
 **ALPHINAUD:** Keep me abreast of your findings. I can seek out and slay the worst of the immediate threats, if only to slow the spread.
 
 **EMETSELCH:** Unease, terror, despair... Try as we might to suppress them, these emotions will return to harry us time and time again. But when they do, remember this... Your friends and loved ones are out there, somewhere, sharing in your struggle. You are not alone.
+
 
 
 ---------------------------------------------------------------------
@@ -16105,6 +16166,7 @@ I call forth to reality! [Report if label displays]
 **VENAS:** You would destroy it? Our beautiful world?
 
 **HYDAELYN:** Lands that stretched on forever. Skies one could drown in. The heartbeat of nature, silent yet strong. And amidst it all a people. Beacons of light and life. Laughter that warmed my heart like naught else before. They are my meaning and my purpose. My love. In spite of...or perhaps because of this, I choose to believe. In mankind's potential. In his ability to find a way forward. So let there be no way back. From that temptation I sunder us. No more shall man have wings to bear him to paradise. Henceforth, he shall walk. All is excruciating pain. I breathe fire and torment. I birth a world of suffering to mire and plague. In one fleeting moment, lives come and go. Ever moving towards the unknown. And in that fleeting moment, they cry for the answer to the question: Why, given life, are they meant to suffer. To die... As fragmented, imperfect beings, yours is a never-ending quest. A quest to find your purpose, knowing your end is assured. To find the strength to continue, when all strength has left you. To find joy, even as darkness descends... ...And amidst deepest despair, light everlasting.
+
 
 
 ---------------------------------------------------------------------
@@ -16740,6 +16802,7 @@ I call forth to reality! [Report if label displays]
 **HYDAELYN:** What will you say? Thank you, Hydaelyn. We will find our way, Venat.
 
 **HYTHLODAEUS:** It is I who should thank thee. For all thou hast done...and may yet accomplish. Long after I have gone, though not even my soul remaineth... My love will be with you forever, my dearest children. Report if displayed. Of this, I have no doubt. For yours is a light brilliant beyond measure. Long after I have gone, though not even my soul remaineth... My love will be with you forever, my dearest children.
+
 
 
 ---------------------------------------------------------------------
@@ -17561,6 +17624,7 @@ I call forth to reality! [Report if label displays]
 **ELIDIBUS:** So. What's next for our humble adventurer?
 
 
+
 ---------------------------------------------------------------------
 
 **000:** It's so much quieter these days without everyone around... ...Not that I'm pining for your return, you understand. I have my sources, and I know that each and every one of you is doing well and keeping busy with your endeavors! Meanwhile, I'm left with a surplus of free time─and the question of how to make the most of it! What about you? Any plans for the immediate future?
@@ -18011,9 +18075,11 @@ Time to play!
 **MYSTERIOUSPERSON:** Meanwhile, in the Thirteenth...
 
 
+
 ---------------------------------------------------------------------
 
 **ENDSINGER:** I am Nald, keeper of the realm of the living. I am Thal, keeper of the realm of the dead. Prepare to be judged, children of man. You have been found worthy.
+
 
 
 ---------------------------------------------------------------------
@@ -18575,7 +18641,9 @@ Time to play!
 **BLACKKNIGHT:** (-Cagnazzo-)Heh heh, some excitement for a change!
 
 
+
 ---------------------------------------------------------------------
+
 
 
 
@@ -19024,9 +19092,11 @@ Time to play!
 **BLACKKNIGHT:** I will not fail you again, Sister...
 
 
+
 ---------------------------------------------------------------------
 
 **MENPHINA:** At last, the time is come!
+
 
 
 ---------------------------------------------------------------------
@@ -19522,6 +19592,7 @@ Time to play!
 **SYSTEM:** Zeromus is risen, but not yet at full strength. It will take time before the fiend is able to breach the veil. But what is another moment on this long journey I have endured. It remains as fresh as if it were yesterday, old friend. The memory of your passing...and the pain. As I promised you then, I promise you now: they shall sing of Golbez─the hero who shattered the wheel and brought salvation to the world.
 
 
+
 ---------------------------------------------------------------------
 
 **PANDAEMONIUM:** My feast...must not end... My feast...must not be interrupted! My feast...must not end... My feast...must not be interrupted!
@@ -19533,6 +19604,7 @@ Time to play!
 **THEMIS:** You have done well to reach the seat of godhood. Now, bare your souls to me!
 
 **ELIDIBUS:** ...I see. Then Hephaistos's story has been laid bare. As has the nature of our mysterious crystal. The questions which led us into Pandæmonium are answered, and soon order shall be restored. I, too, can fade away, unburdened by regret. I could not have reached this point without you, friend.   So many revelations, but there are more, if you would dig a little deeper. Elidibus's soul was plucked from the aetherial sea, and from it I was wrought. Surely you have a passing interest in what I remember. In what I feel... You deserve what answers I can provide. While my memories of Pandæmonium are clear, all else is...hazy at best. Perhaps Athena made me this way, or...perhaps it is the result of who or what I was before. Still, I can recall vague figures. Scenes from my future, and your past... At the Crystal Tower's peak we clash. And later, from that selfsame spire, I send you forth... Into our age. Into Elpis. Why do I decide on such a course? Formless as these images are, I cannot say... ...However, I can hazard a guess. Somewhere within my fragmented memories, I catch a glimpse of our journey into Pandæmonium. A glimpse which shows not the path we took or the destination where it led us, yet by its very presence demands that you are required in Elpis. And even if that act is but one link in the chain of events which ends in Etheirys's salvation... Then this all has meaning. Our time together─every moment─is worthwhile... ...and I am unburdened by regret. That said, it is possible my motivations become something else entirely. That you would cross this vast expanse in the hopes of being reunited with your allies... A devotion that once would have baffled me. But after having been to the depths of that twisted prison and back, I think I can understand. Now, I have pulled back the curtain as far as I dare. The people of your age call this the aetherial sea─a name I quite enjoy. For it teems with life, each star a soul on its journey. And among these uncountable stars, it was yours that crossed my path. For that I shall be forever grateful. I wish you well on your journey. A journey as long as your star is bright─a journey not bound by the confines of this world, or any other. 
+
 
 
 ---------------------------------------------------------------------
@@ -19908,20 +19980,15 @@ From river flow and life be born... Come forth, my servant! I revised the incant
 **ERENVILLE:** Everything appears to be in order... Ahhh! Finished at last. So time-consuming... How nice would it be to have a mammet to handle such tasks. Now then, let's have a look at you. Quite old, this letter. We'll need to store it carefully. [GASP] Report if displayed.  Addressed to Grandfather! And come all the way from Tuliyollal, from a Guloo...someone. The ink's too faded. Hardly anything is legible. Come on, give me something... A commission to investigate the golden city...in Tural!? How odd... No one ever mentioned such a commission, nor have I seen any records. Hm? Something else in here... What an unusual earring. How does it relate to the petition, I wonder... Did you go there, Grandfather? To the golden city, in Tural?
 
 
+
 ---------------------------------------------------------------------
 
 **THETWELVE:** The will of the star has entrusted the future to you and yours. As entities charged with ensuring life on Etheirys, we rejoice in this outcome with all our hearts.
 
 
----------------------------------------------------------------------
-
-
 
 ---------------------------------------------------------------------
 
-
-
----------------------------------------------------------------------
 
 
 
@@ -19929,14 +19996,28 @@ From river flow and life be born... Come forth, my servant! I revised the incant
 
 
 
----------------------------------------------------------------------
-
-
 
 ---------------------------------------------------------------------
 
 
 
+
 ---------------------------------------------------------------------
+
+
+
+
+---------------------------------------------------------------------
+
+
+
+
+---------------------------------------------------------------------
+
+
+
+
+---------------------------------------------------------------------
+
 
 

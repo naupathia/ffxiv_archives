@@ -1,5 +1,6 @@
 import pathlib
 import csv 
+from data_export.settings import DATA_PATH
 
 def iter_dir_files(dir_path):
     
@@ -12,7 +13,7 @@ def iter_dir_files(dir_path):
 
 
 def open_csv_for_iteration(filepath):
-    fh = open(filepath, 'rt', encoding="UTF-8")
+    fh = open(f"{DATA_PATH}\\{filepath}", 'rt', encoding="UTF-8")
     fh.readline()
 
     return fh
@@ -54,9 +55,6 @@ class FileIterator:
         return self 
     
     def __next__(self):
-
-        if not self._iterator:
-            raise "Must use 'with' statement to initialize iterator"
         
         self.current = None 
 
@@ -67,15 +65,28 @@ class FileIterator:
         return self.current
 
     def _process_row(self, row: dict):
-        return self.ADAPTER.read_record(row)
+        result = self.ADAPTER.read_record(row)
+
+        try:
+            if result and "name" in result:
+                if result["name"] in (None, '', '0'):
+                    return None 
+        except TypeError:
+            print (result)
+            raise 
+
+        return result
 
 
 class DirIterator:
 
     def __init__(self, dirname: str) -> None:
-        self._iterator = None 
-        self._dirname = dirname
-        self._fh = None
+        
+        self._iterator = (
+            filename
+            for innerdirname in pathlib.Path(f"{DATA_PATH}\\{dirname}").iterdir()
+            for filename in pathlib.Path(innerdirname).iterdir()
+        )
         
         self.current = None
 
@@ -83,9 +94,6 @@ class DirIterator:
         return self 
     
     def __next__(self):
-
-        if not self._iterator:
-            raise "Must use 'with' statement to initialize iterator"
         
         self.current = None 
 

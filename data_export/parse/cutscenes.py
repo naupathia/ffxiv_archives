@@ -21,7 +21,7 @@ class CutsceneIterator(_shared.DirIterator):
 def dump_text_file():
     
     with open(f"{OUTPUT_PATH}\\{OUTPUT_FILE}", "w+", encoding="UTF-8") as fh:    
-        for quest in CutsceneIterator("cutscene"):
+        for quest in CutsceneIterator("cut_scene"):
             fh.write(serialize(quest))
             
 
@@ -30,6 +30,6 @@ def serialize(record):
    return f"""
 ---------------------------------------------------------------------
 
-{record.text}
+{record["text"]}
 
 """

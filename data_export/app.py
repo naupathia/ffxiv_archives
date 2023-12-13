@@ -14,12 +14,12 @@ def run():
     # except Exception as e:
     #     print(e)
 
-    # quests.dump_quests_text_file()
-    # cutscenes.dump_cutscene_text_file()
-    # items.dump_items_text_file()
-    # tripletriadcards.dump_text_file()
-    # statuses.dump_text_file()
-    # fates.dump_text_file()
-    # fishes.dump_text_file()
+    # quests.dump_text_file()
+    # cutscenes.dump_text_file()
+    items.dump_text_file()
+    tripletriadcards.dump_text_file()
+    statuses.dump_text_file()
+    fates.dump_text_file()
+    fishes.dump_text_file()
     mounts.dump_text_file()
 

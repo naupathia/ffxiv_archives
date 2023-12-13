@@ -27,7 +27,7 @@ class ItemReader(_shared.GameTypeRowAdapter):
 
 class ItemIterator(_shared.FileIterator):
     GAME_FILE = "Item.csv"
-    SERDE = ItemReader
+    ADAPTER = ItemReader
 
 
 def dump_text_file():
@@ -39,7 +39,7 @@ def dump_text_file():
 
 def serialize(data: dict):
 
-    dumpstr = f"""
+    return f"""
 ---------------------------------------------------------------------
 {data["name"]} ({data["subtype"]})
 

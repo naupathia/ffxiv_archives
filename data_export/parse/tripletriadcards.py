@@ -23,7 +23,7 @@ class TripleTriadCardReader(_shared.GameTypeRowAdapter):
 
 class TripleTriadCardIterator(_shared.FileIterator):
     GAME_FILE = "TripleTriadCard.csv"
-    SERDE = TripleTriadCardReader
+    ADAPTER = TripleTriadCardReader
 
 
 def dump_text_file():
