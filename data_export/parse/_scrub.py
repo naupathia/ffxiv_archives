@@ -1,9 +1,10 @@
 
 import re
-from data_export.settings import SPEAKER_SKIPS
-import csv
-import pathlib
 from types import SimpleNamespace
+from ._shared import iter_csv_rows
+
+SKIP_LINES = 3
+SPEAKER_SKIPS = ("SEQ", "TODO",)
 
 def get_col_value(row, col_name):
 
@@ -11,49 +12,7 @@ def get_col_value(row, col_name):
 
     return str(value)
 
-def iter_dir_files(dir_path):
-    
-    dir = pathlib.Path(dir_path)
-
-    for f in dir.iterdir():
-        if f.is_dir():
-            for file_path in f.iterdir():
-                yield file_path
-
-
-def get_speaker(description, speaker_pos=3): 
-    description_tokens = description.split('_')
-    
-    try:
-        return description_tokens[speaker_pos]
-    except IndexError:
-        return ''
-
-
-def iter_csv_dict(file_path):
-    
-    with open(file_path, 'rt', encoding="UTF-8") as fh:
-        fh.readline()
-        reader = csv.DictReader(fh)
-        next(reader)
-        for item in reader:
-            yield item
-
-
-def iter_csv_rows(file_path, skip_row_count=3):
-    
-    with open(file_path, 'rt', encoding="UTF-8") as fh:
-
-        reader = csv.reader(fh)
-        for line in reader:
-            if skip_row_count > 0:
-                skip_row_count -= 1
-                continue
-
-            yield line
-
-
-def parse_speaker_transcript(file_path, speaker_pos=3):
+def parse_speaker_transcript_file(file_path, speaker_pos=3):
 
     speaker_lines = []
     parsed = []
@@ -82,6 +41,14 @@ def parse_speaker_transcript(file_path, speaker_pos=3):
         previous_speaker = speaker
 
     return '\n'.join(parsed)
+
+def get_speaker(description, speaker_pos=3): 
+    description_tokens = description.split('_')
+    
+    try:
+        return description_tokens[speaker_pos]
+    except IndexError:
+        return ''
 
 RE_HIGHLIGHT = re.compile(r'<Highlight>(.*?)<\/Highlight>')
 RE_SPLIT = re.compile(r'<Split\((.*?), ,\d\)\/>')

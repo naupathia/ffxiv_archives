@@ -1,48 +1,35 @@
-import pathlib
-from data_export.settings import DATA_PATH, OUTPUT_PATH
-from . import scrub
-from dataclasses import dataclass
+from data_export.settings import OUTPUT_PATH
+from . import _scrub, _shared
 
-@dataclass
-class CutsceneData:
-    filename: str = None 
-    datatype: str = None
-    text: str = None 
+OUTPUT_FILE = "cutscenes.txt"
 
 
-def iter_cutscenes():
-    dir = pathlib.Path(f"{DATA_PATH}\\cut_scene")
+class CutsceneIterator(_shared.DirIterator):
 
-    for filepath in scrub.iter_dir_files(dir):
-        yield _parse_cutscene_data(filepath)
+    def _process_file(self, filepath):
+        file_name = filepath.stem
+        contents = _scrub.parse_speaker_transcript_file(filepath, 4)
 
+        result = {
+            "filename": file_name,
+            "text": contents,
+            "datatype": "CUTSCENE"
+        }
 
-def dump_cutscene_text_file():
+        return result
 
-    with open(f"{OUTPUT_PATH}\\cutscenes.txt", "w+", encoding="UTF-8") as fh:
-        for result in iter_cutscenes():
-            _dump_cutscene_text(fh, result)
-
-
-def _parse_cutscene_data(filepath) -> CutsceneData:
+def dump_text_file():
     
-    file_name = filepath.stem
-    contents = scrub.parse_speaker_transcript(filepath, 4)
+    with open(f"{OUTPUT_PATH}\\{OUTPUT_FILE}", "w+", encoding="UTF-8") as fh:    
+        for quest in CutsceneIterator("cutscene"):
+            fh.write(serialize(quest))
+            
 
-    result = {
-        "filename": file_name,
-        "text": contents,
-    }
-    result["datatype"] = "CUTSCENE"
-
-    return CutsceneData(**result)
-
-def _dump_cutscene_text(fh, cutscene_data: CutsceneData):
+def serialize(record):
    
-   dumpstr = f"""
+   return f"""
 ---------------------------------------------------------------------
 
-{cutscene_data.text}
+{record.text}
+
 """
-   
-   fh.write(dumpstr)

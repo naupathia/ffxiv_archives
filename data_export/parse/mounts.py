@@ -1,9 +1,7 @@
-import pathlib
 from data_export.settings import DATA_PATH, OUTPUT_PATH
-from . import scrub
+from . import _scrub, _shared
 import pandas as pd
 from collections import defaultdict
-from dataclasses import dataclass
 
 pd.options.display.max_rows = 10
 
@@ -19,75 +17,79 @@ METADATA_COL_ALIASES = {
     "Tooltip": "tooltip",
 }
 
-NAME = "Singular"
-KEY = "#"
+OUTPUT_FILE = "mounts.txt"
 
-def iter_items():
-    metadata = _get_metadata()
+class MountReader(_shared.GameTypeRowAdapter):
 
-    for item in scrub.iter_csv_dict(f"{DATA_PATH}\\Mount.csv"):
-        result = _parse_data(metadata, item)
-        if result:
-            yield result
+    NAME = "Singular"
+    KEY = "#"
+
+    @classmethod
+    def read_record(cls, row: dict):
+        return {
+            "key": row[cls.KEY],
+            "name": str(row[cls.NAME]).title(),
+            "text": None,
+            "datatype": "MOUNT"
+        }
+
+
+
+class MountIterator(_shared.FileIterator):
+    GAME_FILE = "Mount.csv"
+    SERDE = MountReader
+
+    def __init__(self, fh) -> None:
+        super().__init__(fh)
+
+        df = pd.read_csv(
+            f"{DATA_PATH}\\MountTransient.csv",
+            skiprows=[0, 2],
+            usecols=METADATA_COLS,
+            dtype=str,
+            converters=defaultdict(lambda i: str),
+            na_filter=False
+        )
+
+        self._metadata = df.rename(columns=METADATA_COL_ALIASES)
+
+    def _process_row(self, row: dict):
+        result = super()._process_row(row)
+        
+        if not result["name"]:
+            return None
+
+        dr = self._metadata.loc[self._metadata["key"] == result["key"]]
+
+        if not dr.empty:
+            text = _scrub.get_col_value(dr, "text")
+            tooltip = _scrub.get_col_value(dr, "tooltip")
+
+            result["text"] = f"{text}\n\n*Tooltip*:\n {tooltip}" if tooltip else text
+
+        return result
+
+
 
 def dump_text_file():
-
-    with open(f"{OUTPUT_PATH}\\mounts.txt", "w+", encoding="UTF-8") as fh:
-            
-        for result in iter_items():
-            _dump_quest_info(fh, result)
-
-
-def _parse_data(metadata, row) -> dict:
-
-    result = {
-        "key": row[KEY],
-        "name": str(row[NAME]).title(),
-        "text": None,
-        "datatype": "MOUNT"
-    }
-
-    if not result["name"]:
-        return None
+    
+    with open(f"{OUTPUT_PATH}\\{OUTPUT_FILE}", "w+", encoding="UTF-8") as fh:
+        with _shared.open_csv_for_iteration(MountIterator.GAME_FILE) as ifh:    
+            for item in MountIterator(ifh):
+                fh.write(serialize(item))
 
 
-    dr = metadata.loc[metadata["key"] == result["key"]]
 
-    if not dr.empty:
-        text = scrub.get_col_value(dr, "text")
-        tooltip = scrub.get_col_value(dr, "tooltip")
+def serialize(data):
 
-        result["text"] = f"{text}\n\n*Tooltip*:\n {tooltip}" if tooltip else text
-
-    return result
-
-
-def _dump_quest_info(fh, data):
-
-    dumpstr = f"""
+    return f"""
 ---------------------------------------------------------------------
 {data["name"]}
 
 {data["text"]}
+
 """
 
-    fh.write(dumpstr)
-    fh.write("\n")
 
 
-
-def _get_metadata():
-    df = pd.read_csv(
-        f"{DATA_PATH}\\MountTransient.csv",
-        skiprows=[0, 2],
-        usecols=METADATA_COLS,
-        dtype=str,
-        converters=defaultdict(lambda i: str),
-        na_filter=False
-    )
-
-    df = df.rename(columns=METADATA_COL_ALIASES)
-
-    print(df)
-    return df
 

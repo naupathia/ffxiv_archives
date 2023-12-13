@@ -1,44 +1,44 @@
-from data_export.settings import DATA_PATH, OUTPUT_PATH
-import csv
-from . import scrub
+from data_export.settings import OUTPUT_PATH
+from . import _shared
 
-NAME = "Item"
-DESCRIPTION = "Text"
-KEY = "#"
+OUTPUT_FILE = "fishes.txt"
 
-def iter_items():
-        
-    for item in scrub.iter_csv_dict(f"{DATA_PATH}\\FishParameter.csv"):
-        result = _parse_item(item)
-        if result and result["name"]:
-            yield result
+class FishReader(_shared.GameTypeRowAdapter):
+
     
-    
+    NAME = "Item"
+    DESCRIPTION = "Text"
+    KEY = "#"
+
+    @classmethod
+    def read_record(cls, row: dict):
+        return {
+            "name": row[cls.NAME],
+            "text": row[cls.DESCRIPTION],
+            "key": row[cls.KEY],
+            "datatype": "FISH"
+        }
+
+
+class FishIterator(_shared.FileIterator):
+    GAME_FILE = "FishParameter.csv"
+    SERDE = FishReader
+
 
 def dump_text_file():
+    
+    with open(f"{OUTPUT_PATH}\\{OUTPUT_FILE}", "w+", encoding="UTF-8") as fh:
+        with _shared.open_csv_for_iteration(FishIterator.GAME_FILE) as ifh:    
+            for item in FishIterator(ifh):
+                fh.write(serialize(item))
 
-    with open(f"{OUTPUT_PATH}\\fishes.txt", "w+", encoding="UTF-8") as fh:
-            
-        for result in iter_items():
-            _dump_str(fh, result)
 
+def serialize(data: dict):
 
-def _parse_item(row) -> dict:
-    return {
-        "name": row[NAME],
-        "text": row[DESCRIPTION],
-        "key": row[KEY],
-        "datatype": "FISH"
-    }
-
-def _dump_str(fh, data: dict):
-
-    dumpstr = f"""
+    return f"""
 ---------------------------------------------------------------------
 {data["name"]}
 
 {data["text"]}
-"""
 
-    fh.write(dumpstr)
-    fh.write("\n")
+"""
