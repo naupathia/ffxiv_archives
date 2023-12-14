@@ -1,46 +1,46 @@
-from data_export.settings import DATA_PATH, OUTPUT_PATH
-import csv
-from . import scrub
+from data_export.settings import OUTPUT_PATH
+from . import _scrub, _shared
 
-NAME = "Name"
-DESCRIPTION = "Description"
-KEY = "#"
-LOCATION = "Location"
+OUTPUT_FILE = "fates.txt"
 
-def iter_items():
-        
-    for item in scrub.iter_csv_dict(f"{DATA_PATH}\\Fate.csv"):
-        result = _parse_item(item)
-        if result and result["name"]:
-            yield result
+class FateReader(_shared.GameTypeRowAdapter):
+
+    NAME = "Name"
+    DESCRIPTION = "Description"
+    KEY = "#"
+    LOCATION = "Location"
     
-    
+    @classmethod
+    def read_record(cls, row: dict):        
+        return {
+            "name": row[cls.NAME],
+            "text": _scrub.sanitize_text(row[cls.DESCRIPTION]),
+            "key": row[cls.KEY],
+            "location": row[cls.LOCATION],
+            "datatype": "FATE",
+        }
+
+class FatesIterator(_shared.FileIterator):
+    GAME_FILE = "Fate.csv"
+    ADAPTER = FateReader
+
 
 def dump_text_file():
+    
+    with open(f"{OUTPUT_PATH}\\{OUTPUT_FILE}", "w+", encoding="UTF-8") as fh:
+        with _shared.open_csv_for_iteration(FatesIterator.GAME_FILE) as ifh:    
+            for item in FatesIterator(ifh):
+                print(item)
+                fh.write(serialize(item))
 
-    with open(f"{OUTPUT_PATH}\\fates.txt", "w+", encoding="UTF-8") as fh:
-            
-        for result in iter_items():
-            _dump_str(fh, result)
 
 
-def _parse_item(row) -> dict:
-    return {
-        "name": row[NAME],
-        "text": scrub.sanitize_text(row[DESCRIPTION]),
-        "key": row[KEY],
-        "datatype": "FATE",
-        "location": row[LOCATION]
-    }
+def serialize(data: dict):
 
-def _dump_str(fh, data: dict):
-
-    dumpstr = f"""
+    return f"""
 ---------------------------------------------------------------------
 {data["name"]} ({data["location"]})
 
 {data["text"]}
-"""
 
-    fh.write(dumpstr)
-    fh.write("\n")
+"""
