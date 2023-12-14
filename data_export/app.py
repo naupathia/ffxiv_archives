@@ -1,6 +1,5 @@
-from .exports import quests, cut_scenes
+from .parse import quests, cutscenes, items, tripletriadcards, statuses, fates, fishes, mounts
 # from pymongo.mongo_client import MongoClient
-
 
 def run():
     # uri = "mongodb+srv://tea_admin:BC5AOSNbRuhJPge4@cluster0.1buu3qz.mongodb.net/?retryWrites=true&w=majority"
@@ -15,7 +14,12 @@ def run():
     # except Exception as e:
     #     print(e)
 
-    # print(quests.get_metadata())
+    # quests.dump_quests_text_file()
+    # cutscenes.dump_cutscene_text_file()
+    # items.dump_items_text_file()
+    # tripletriadcards.dump_text_file()
+    # statuses.dump_text_file()
+    # fates.dump_text_file()
+    # fishes.dump_text_file()
+    mounts.dump_text_file()
 
-    quests.output_quests()
-    cut_scenes.output_cutscenes()
