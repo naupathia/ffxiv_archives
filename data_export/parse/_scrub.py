@@ -31,7 +31,7 @@ def parse_speaker_transcript_file(file_path, speaker_pos=3):
 
             if speaker_lines and speaker_lines:
                 dialogue = ' '.join(speaker_lines)
-                parsed.append(f"**{speaker}:** {dialogue}")
+                parsed.append(f"**{previous_speaker}:** {dialogue}")
                 parsed.append('')
                 speaker_lines = []
 
