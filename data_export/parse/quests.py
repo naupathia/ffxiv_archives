@@ -78,6 +78,8 @@ def serialize(record):
 
     return f"""
 ---------------------------------------------------------------------
+[QUEST]
+
 {record["name"]} ({record["filename"]})
 Issuer: {record["issuer"]} [{record["place_name"]}]
 Journal: {record["journal_genre"]} [{record["expansion"]}]

@@ -38,6 +38,8 @@ def serialize(data: dict):
 
     return f"""
 ---------------------------------------------------------------------
+[FATE]
+
 {data["name"]} ({data["location"]})
 
 {data["text"]}

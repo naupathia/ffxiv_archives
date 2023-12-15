@@ -41,6 +41,8 @@ def serialize(data: dict):
 
     return f"""
 ---------------------------------------------------------------------
+[ITEM]
+
 {data["name"]} ({data["subtype"]})
 
 {data["text"]}

@@ -36,6 +36,8 @@ def serialize(data: dict):
 
     return f"""
 ---------------------------------------------------------------------
+[FISH]
+
 {data["name"]}
 
 {data["text"]}
