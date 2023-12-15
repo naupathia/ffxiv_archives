@@ -39,6 +39,8 @@ def serialize(data: dict):
 
     return f"""
 ---------------------------------------------------------------------
+[STATUS EFFECT]
+
 {data["name"]}
 
 {data["text"]}

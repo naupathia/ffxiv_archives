@@ -39,6 +39,8 @@ def serialize(data: dict):
 
     return f"""
 ---------------------------------------------------------------------
+[TRIPLE TRIAD CARD]
+
 {data["name"]}
 
 {data["text"]}

@@ -32,6 +32,7 @@ def serialize(record):
    
    return f"""
 ---------------------------------------------------------------------
+[CUTSCENE]
 
 {record["text"]}
 
