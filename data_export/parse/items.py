@@ -3,6 +3,7 @@ from data_export.settings import OUTPUT_PATH
 from . import _shared, _scrub
 
 OUTPUT_FILE = "items.txt"
+DATATYPE ="ITEM"
 
 class ItemReader(_shared.GameTypeRowAdapter):
 
@@ -19,7 +20,7 @@ class ItemReader(_shared.GameTypeRowAdapter):
             "text": _scrub.sanitize_text(row[cls.DESCRIPTION]),
             "icon": row[cls.ICON],
             "key": row[cls.KEY],
-            "datatype": "ITEM",
+            "datatype": DATATYPE,
             "subtype": row[cls.CATEGORY]
         }
 
@@ -33,9 +34,8 @@ class ItemIterator(_shared.FileIterator):
 def dump_text_file():
     
     with open(f"{OUTPUT_PATH}\\{OUTPUT_FILE}", "w+", encoding="UTF-8") as fh:
-        with _shared.open_csv_for_iteration(ItemIterator.GAME_FILE) as ifh:    
-            for item in ItemIterator(ifh):
-                fh.write(serialize(item))
+        for item in ItemIterator():
+            fh.write(serialize(item))
 
 def serialize(data: dict):
 

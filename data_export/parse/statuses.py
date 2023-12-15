@@ -2,6 +2,7 @@ from data_export.settings import OUTPUT_PATH
 from . import _scrub, _shared
 
 OUTPUT_FILE = "statuses.txt"
+DATATYPE ="STATUS"
 
 class StatusReader(_shared.GameTypeRowAdapter):
 
@@ -17,7 +18,7 @@ class StatusReader(_shared.GameTypeRowAdapter):
             "text": _scrub.sanitize_text(row[cls.DESCRIPTION]),
             "icon": row[cls.ICON],
             "key": row[cls.KEY],
-            "datatype": "STATUS"
+            "datatype": DATATYPE
         }
 
 
@@ -28,10 +29,9 @@ class StatusIterator(_shared.FileIterator):
 
 def dump_text_file():
     
-    with open(f"{OUTPUT_PATH}\\{OUTPUT_FILE}", "w+", encoding="UTF-8") as fh:
-        with _shared.open_csv_for_iteration(StatusIterator.GAME_FILE) as ifh:    
-            for item in StatusIterator(ifh):
-                fh.write(serialize(item))
+    with open(f"{OUTPUT_PATH}\\{OUTPUT_FILE}", "w+", encoding="UTF-8") as fh:    
+        for item in StatusIterator():
+            fh.write(serialize(item))
 
 
 

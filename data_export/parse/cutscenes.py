@@ -2,9 +2,12 @@ from data_export.settings import OUTPUT_PATH
 from . import _scrub, _shared
 
 OUTPUT_FILE = "cutscenes.txt"
-
+DATATYPE = "CUTSCENE"
 
 class CutsceneIterator(_shared.DirIterator):
+
+    def __init__(self) -> None:
+        super().__init__("cut_scene")
 
     def _process_file(self, filepath):
         file_name = filepath.stem
@@ -13,7 +16,7 @@ class CutsceneIterator(_shared.DirIterator):
         result = {
             "filename": file_name,
             "text": contents,
-            "datatype": "CUTSCENE"
+            "datatype": DATATYPE
         }
 
         return result
@@ -21,7 +24,7 @@ class CutsceneIterator(_shared.DirIterator):
 def dump_text_file():
     
     with open(f"{OUTPUT_PATH}\\{OUTPUT_FILE}", "w+", encoding="UTF-8") as fh:    
-        for quest in CutsceneIterator("cut_scene"):
+        for quest in CutsceneIterator():
             fh.write(serialize(quest))
             
 

@@ -18,6 +18,7 @@ METADATA_COL_ALIASES = {
 }
 
 OUTPUT_FILE = "mounts.txt"
+DATATYPE ="MOUNT"
 
 class MountReader(_shared.GameTypeRowAdapter):
 
@@ -30,7 +31,7 @@ class MountReader(_shared.GameTypeRowAdapter):
             "key": row[cls.KEY],
             "name": str(row[cls.NAME]).title(),
             "text": None,
-            "datatype": "MOUNT"
+            "datatype": DATATYPE
         }
 
 
@@ -39,8 +40,8 @@ class MountIterator(_shared.FileIterator):
     GAME_FILE = "Mount.csv"
     ADAPTER = MountReader
 
-    def __init__(self, fh) -> None:
-        super().__init__(fh)
+    def __init__(self) -> None:
+        super().__init__()
 
         df = pd.read_csv(
             f"{DATA_PATH}\\MountTransient.csv",
@@ -64,7 +65,8 @@ class MountIterator(_shared.FileIterator):
         if not dr.empty:
             text = _scrub.get_col_value(dr, "text")
             tooltip = _scrub.get_col_value(dr, "tooltip")
-
+            tooltip = tooltip.replace('\r\n','\n') if tooltip else None
+            
             result["text"] = f"{text}\n\n*Tooltip*:\n {tooltip}" if tooltip else text
 
         return result
@@ -73,10 +75,10 @@ class MountIterator(_shared.FileIterator):
 
 def dump_text_file():
     
-    with open(f"{OUTPUT_PATH}\\{OUTPUT_FILE}", "w+", encoding="UTF-8") as fh:
-        with _shared.open_csv_for_iteration(MountIterator.GAME_FILE) as ifh:    
-            for item in MountIterator(ifh):
-                fh.write(serialize(item))
+    with open(f"{OUTPUT_PATH}\\{OUTPUT_FILE}", "w+", encoding="UTF-8") as fh:   
+        for item in MountIterator():
+            print(item)
+            fh.write(serialize(item))
 
 
 

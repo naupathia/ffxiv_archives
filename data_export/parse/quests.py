@@ -6,6 +6,7 @@ from collections import defaultdict
 pd.options.display.max_rows = 10
 
 OUTPUT_FILE = "quests.txt"
+DATATYPE = "QUEST"
 
 QUEST_METADATA_COLS = [
     "#",
@@ -33,8 +34,8 @@ QUEST_METADATA_COL_ALIASES = {
 
 class QuestIterator(_shared.DirIterator):
 
-    def __init__(self, dirname: str) -> None:
-        super().__init__(dirname)
+    def __init__(self) -> None:
+        super().__init__("quest")
         
         df = pd.read_csv(
             f"{DATA_PATH}\\Quest.csv",
@@ -61,7 +62,7 @@ class QuestIterator(_shared.DirIterator):
 
         result = row.to_dict('records')[0]
         result["filename"] = filename
-        result["datatype"] = "QUEST"
+        result["datatype"] =DATATYPE
         result["text"] = contents
 
         return result
@@ -69,7 +70,7 @@ class QuestIterator(_shared.DirIterator):
 def dump_text_file():
     
     with open(f"{OUTPUT_PATH}\\{OUTPUT_FILE}", "w+", encoding="UTF-8") as fh:    
-        for quest in QuestIterator("quest"):
+        for quest in QuestIterator():
             fh.write(serialize(quest))
 
 

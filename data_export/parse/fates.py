@@ -2,6 +2,7 @@ from data_export.settings import OUTPUT_PATH
 from . import _scrub, _shared
 
 OUTPUT_FILE = "fates.txt"
+DATATYPE = "FATE"
 
 class FateReader(_shared.GameTypeRowAdapter):
 
@@ -17,7 +18,7 @@ class FateReader(_shared.GameTypeRowAdapter):
             "text": _scrub.sanitize_text(row[cls.DESCRIPTION]),
             "key": row[cls.KEY],
             "location": row[cls.LOCATION],
-            "datatype": "FATE",
+            "datatype": DATATYPE,
         }
 
 class FatesIterator(_shared.FileIterator):
@@ -28,10 +29,8 @@ class FatesIterator(_shared.FileIterator):
 def dump_text_file():
     
     with open(f"{OUTPUT_PATH}\\{OUTPUT_FILE}", "w+", encoding="UTF-8") as fh:
-        with _shared.open_csv_for_iteration(FatesIterator.GAME_FILE) as ifh:    
-            for item in FatesIterator(ifh):
-                print(item)
-                fh.write(serialize(item))
+        for item in FatesIterator():
+            fh.write(serialize(item))
 
 
 

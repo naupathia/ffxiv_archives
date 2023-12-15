@@ -2,6 +2,7 @@ from data_export.settings import OUTPUT_PATH
 from . import _scrub, _shared
 
 OUTPUT_FILE = "tripletriadcards.txt"
+DATATYPE ="TRIPLETRIADCARD"
 
 class TripleTriadCardReader(_shared.GameTypeRowAdapter):
 
@@ -16,7 +17,7 @@ class TripleTriadCardReader(_shared.GameTypeRowAdapter):
             "name": row[cls.NAME],
             "text": _scrub.sanitize_text(row[cls.DESCRIPTION]),
             "key": row[cls.KEY],
-            "datatype": "TRIPLETRIADCARD"
+            "datatype": DATATYPE
         }
 
 
@@ -28,10 +29,9 @@ class TripleTriadCardIterator(_shared.FileIterator):
 
 def dump_text_file():
     
-    with open(f"{OUTPUT_PATH}\\{OUTPUT_FILE}", "w+", encoding="UTF-8") as fh:
-        with _shared.open_csv_for_iteration(TripleTriadCardIterator.GAME_FILE) as ifh:    
-            for item in TripleTriadCardIterator(ifh):
-                fh.write(serialize(item))
+    with open(f"{OUTPUT_PATH}\\{OUTPUT_FILE}", "w+", encoding="UTF-8") as fh:            
+        for item in TripleTriadCardIterator():
+            fh.write(serialize(item))
 
 
 

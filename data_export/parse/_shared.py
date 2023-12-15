@@ -13,7 +13,7 @@ def iter_dir_files(dir_path):
 
 
 def open_csv_for_iteration(filepath):
-    fh = open(f"{DATA_PATH}\\{filepath}", 'rt', encoding="UTF-8")
+    fh = open(filepath, 'rt', encoding="UTF-8")
     fh.readline()
 
     return fh
@@ -41,9 +41,9 @@ class FileIterator:
     ADAPTER: GameTypeRowAdapter = None
     GAME_FILE: str = None 
 
-    def __init__(self, fh) -> None:
+    def __init__(self) -> None:
         self._iterator = None 
-        self._fh = fh
+        self._fh = self._open_file()
         
         self.current = None
         self._iterator = csv.DictReader(self._fh)
@@ -56,13 +56,18 @@ class FileIterator:
     
     def __next__(self):
         
-        self.current = None 
+        try:
+            self.current = None 
 
-        while self.current is None:
-            row = next(self._iterator)
-            self.current = self._process_row(row)
+            while self.current is None:
+                row = next(self._iterator)
+                self.current = self._process_row(row)
 
-        return self.current
+            return self.current
+        
+        except StopIteration:
+            self._fh.close()
+            raise
 
     def _process_row(self, row: dict):
         result = self.ADAPTER.read_record(row)
@@ -76,6 +81,10 @@ class FileIterator:
             raise 
 
         return result
+    
+    @classmethod
+    def _open_file(cls):
+        return open_csv_for_iteration(f"{DATA_PATH}\\{cls.GAME_FILE}")
 
 
 class DirIterator:
