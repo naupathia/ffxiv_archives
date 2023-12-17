@@ -10,11 +10,11 @@ export default function Search({ placeholder }: { placeholder: string }) {
   const pathname = usePathname();
   const { replace } = useRouter();
 
-  function onChange(e) {
+  function onChange(e: any) {
     setText(e.target.value)
   }
 
-  function handleSearch(e) {
+  function handleSearch(e: any) {
     e.preventDefault();
     console.log(text);
     const params = new URLSearchParams(searchParams);
