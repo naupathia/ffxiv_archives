@@ -40,7 +40,7 @@ export async function fetchSearchResults(
     const coll = client.db("tea").collection("lore");
     const results = await coll.aggregate(agg).toArray();
 
-    return results;
+    return JSON.parse(JSON.stringify(results));
   } catch (error) {
     console.error("Database Error:", error);
   } finally {

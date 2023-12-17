@@ -24,8 +24,10 @@ export default function LoreItem({ lore, searchText }) {
     return result
   }
 
+  console.log(lore._id)
+
   return (
-    <div key="{lore._id}" className="mb-8 p-4 border-2 border-white border-l-slate-200">
+    <div className="mb-8 p-4 border-2 border-white border-l-slate-200">
       <div className="flex items-baseline">
         <h1 className="flex-1 text-xl font-bold">{lore.name}</h1>
         <span className="text-sm font-normal">{translateType(lore.datatype)}</span>
