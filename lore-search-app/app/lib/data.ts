@@ -1,4 +1,8 @@
-import clientPromise from "./mongodb";
+import { MongoClient, ServerApiVersion } from 'mongodb'
+
+if (!process.env.MONGODB_URI) {
+  throw new Error('Invalid/Missing environment variable: "MONGODB_URI"')
+}
 
 const ITEMS_PER_PAGE = 1000;
 
@@ -10,16 +14,13 @@ export async function fetchSearchResults(
     return [];
   }
 
-  console.log(querystring)
-
   const agg = [
     {
       $search: {
         index: "lore_text_search",
         text: {
           query: querystring,
-          path: { wildcard: "*" },
-          synonyms: "synonyms"
+          path: { wildcard: "*" }
         },
       },
     },
@@ -31,7 +32,16 @@ export async function fetchSearchResults(
     }
   ];
 
-  const client = await clientPromise;
+  
+  // Create a MongoClient with a MongoClientOptions object to set the Stable API version
+  const client = new MongoClient(process.env.MONGODB_URI, {
+    serverApi: {
+      version: ServerApiVersion.v1,
+      deprecationErrors: true,
+    }
+  });
+
+  client.connect()
 
   try {
     // Connect the client to the server	(optional starting in v4.7)
