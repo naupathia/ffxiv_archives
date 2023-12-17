@@ -54,7 +54,7 @@ mark {
     }
     
     .cross::before {
-      content: "\d7";
+      content: "-";
       height:30px;
       width:30px;
       font-size:30px;

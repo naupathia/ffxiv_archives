@@ -14,7 +14,7 @@ export default async function SearchResults({
 
   return (
     <div className={clsx("mt-6 grid", roboto_mono.className)}>
-          {results?.map((item) => <LoreItem lore={item} searchText={query}></LoreItem>)}
+          {results?.map((item) => <LoreItem key={item._id} lore={item} searchText={query}></LoreItem>)}
     </div>
   );
 }
