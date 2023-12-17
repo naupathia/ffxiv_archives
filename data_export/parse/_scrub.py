@@ -5,6 +5,10 @@ from ._shared import iter_csv_rows
 
 SKIP_LINES = 3
 SPEAKER_SKIPS = ("SEQ", "TODO",)
+SPEAKER_MAPS = {
+    "MYSTERYVOICE" : "CRYSTALEXARCH",
+    "MYSTERIOUSPERSON" : "ZERO"
+}
 
 def get_col_value(row, col_name):
 
@@ -31,7 +35,8 @@ def parse_speaker_transcript_file(file_path, speaker_pos=3):
 
             if speaker_lines and speaker_lines:
                 dialogue = ' '.join(speaker_lines)
-                parsed.append(f"**{previous_speaker}:** {dialogue}")
+                speaker_name = SPEAKER_MAPS.get(previous_speaker, previous_speaker)
+                parsed.append(f"{speaker_name}: {dialogue}")
                 parsed.append('')
                 speaker_lines = []
 
