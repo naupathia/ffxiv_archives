@@ -2,11 +2,11 @@
 import React from "react";
 import clsx from "clsx";
 
-export default function LoreItem({ lore, searchText }) {
+export default function LoreItem({ lore, searchText } : {lore: any, searchText: string}) {
   const [isHidden, setHidden] = React.useState(false);
   const words = new RegExp(searchText?.split(' ').join('|'), 'gmi');
 
-  function hideMe(e) {
+  function hideMe(e: any) {
     setHidden(!isHidden);
   }
 
