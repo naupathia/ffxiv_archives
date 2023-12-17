@@ -54,6 +54,7 @@ class ClientManager:
 
 def get_all_docs():
     
+    print("gathering records...")
     docs = []
     docs = docs + [doc for doc in quests.QuestIterator()]
     docs = docs + [doc for doc in cutscenes.CutsceneIterator()]
@@ -70,8 +71,11 @@ def upload_docs(docs):
 
     db = ClientManager.connect().tea
     collection = db.lore
-    # collection.remove({})
+    
+    print("truncating collection...")
+    collection.delete_many({})
 
+    print("inserting records...")
     collection.insert_many(docs)
 
 def dump_docs(docs):
@@ -91,6 +95,7 @@ def run():
     docs = get_all_docs()
 
     dump_docs(docs)
+    upload_docs(docs)
 
 
     # db = ClientManager.connect().tea

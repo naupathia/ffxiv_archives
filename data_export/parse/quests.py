@@ -49,7 +49,7 @@ class QuestIterator(_shared.DirIterator):
         self._metadata = df.rename(columns=QUEST_METADATA_COL_ALIASES)
 
 
-    def _process_file(self, filepath):
+    def _process_file(self, filepath, dirname):
         
         filename = filepath.stem
 

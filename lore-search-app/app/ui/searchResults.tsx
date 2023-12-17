@@ -1,0 +1,20 @@
+import clsx from "clsx";
+import { fetchSearchResults } from "../lib/data";
+import LoreItem from "./loreItem";
+import { roboto_mono } from "./fonts";
+
+export default async function SearchResults({
+  query,
+  currentPage,
+}: {
+  query: string;
+  currentPage: number;
+}) {
+  const results = await fetchSearchResults(query, currentPage);
+
+  return (
+    <div className={clsx("mt-6 grid", roboto_mono.className)}>
+          {results?.map((item) => <LoreItem lore={item} searchText={query}></LoreItem>)}
+    </div>
+  );
+}

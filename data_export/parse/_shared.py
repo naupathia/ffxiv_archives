@@ -92,7 +92,7 @@ class DirIterator:
     def __init__(self, dirname: str) -> None:
         
         self._iterator = (
-            filename
+            (filename, innerdirname.name)
             for innerdirname in pathlib.Path(f"{DATA_PATH}\\{dirname}").iterdir()
             for filename in pathlib.Path(innerdirname).iterdir()
         )
@@ -107,11 +107,11 @@ class DirIterator:
         self.current = None 
 
         while self.current is None:
-            filepath = next(self._iterator)
-            self.current = self._process_file(filepath)
+            filepath, dirname = next(self._iterator)
+            self.current = self._process_file(filepath, dirname)
 
         return self.current
         
 
-    def _process_file(self, filepath):
+    def _process_file(self, filepath, dirname):
         pass

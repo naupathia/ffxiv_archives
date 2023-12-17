@@ -4,7 +4,7 @@
 
 :root {
   --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
+  --background-start-rgb: 0, 24, 61;
   --background-end-rgb: 255, 255, 255;
 }
 
@@ -17,6 +17,57 @@
 }
 
 body {
+  background: white;
+}
+
+mark {
+  background: #00DFFF;
+}
+
+.paper {
+  background-color: #FCF5E5;
+}
+
+.plus {
+  width: 30px;
+  height: 30px;
+  background-color: gray;
+  }
+  
+  .plus::before {
+    content: "+";
+    height:30px;
+    width:30px;
+    font-size:24px;
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    justify-content:center;
+    font-family:'Courier New', Courier, monospace;
+    color:white;
+  }
+
+.cross {
+    width: 30px;
+    height: 30px;
+    background-color: gray;
+    }
+    
+    .cross::before {
+      content: "\d7";
+      height:30px;
+      width:30px;
+      font-size:30px;
+      display:flex;
+      flex-direction:row;
+      align-items:center;
+      justify-content:center;
+      font-family:'Courier New', Courier, monospace;
+      color:white;
+    }
+
+/* 
+body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
       to bottom,
@@ -24,4 +75,4 @@ body {
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
-}
+} */
