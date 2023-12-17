@@ -4,6 +4,7 @@ if (!process.env.MONGODB_URI) {
   throw new Error('Invalid/Missing environment variable: "MONGODB_URI"')
 }
 
+const uri: string = process.env.MONGODB_URI ?? "";
 const ITEMS_PER_PAGE = 1000;
 
 export async function fetchSearchResults(
@@ -34,7 +35,7 @@ export async function fetchSearchResults(
 
   
   // Create a MongoClient with a MongoClientOptions object to set the Stable API version
-  const client = new MongoClient(process.env.MONGODB_URI, {
+  const client = new MongoClient(uri, {
     serverApi: {
       version: ServerApiVersion.v1,
       deprecationErrors: true,
