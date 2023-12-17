@@ -24,8 +24,6 @@ export default function LoreItem({ lore, searchText }) {
     return result
   }
 
-  console.log(lore._id)
-
   return (
     <div className="mb-8 p-4 border-2 border-white border-l-slate-200">
       <div className="flex items-baseline">
