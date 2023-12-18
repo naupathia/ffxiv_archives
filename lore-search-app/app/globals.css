@@ -10,14 +10,13 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --fg-rgb: 255, 255, 255;
-    --bg-start-rgb: 13, 10, 29;
-    --bg-end-rgb: 53, 40, 104;
+    --fg-rgb: white;
+    --bg-start-rgb: #040611;
+    --bg-end-rgb: #040611
   }
 }
 
-
-body {
+/* body {
   color: var(--fg-rgb);
   background: linear-gradient(
       to left,
@@ -25,12 +24,12 @@ body {
       var(--bg-end-rgb)
     )
     var(--bg-start-rgb);
-}
-
-/* 
-body {
-  background: white;
 } */
+
+body {
+  color: white;
+  background: #040611;
+} 
 
 mark {
   background: #233495;
