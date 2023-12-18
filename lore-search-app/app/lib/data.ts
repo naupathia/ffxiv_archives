@@ -9,20 +9,20 @@ const uri: string = process.env.MONGODB_URI ?? "";
 const ITEMS_PER_PAGE = 1000;
 
 export async function fetchSearchResults(
-  querystring: string = '',
+  querystring: string = "",
   currentPage: number = 1
 ) {
   if (!querystring) {
     return [];
   }
 
-  const agg = [
+  let agg: any = [
     {
       $search: {
         index: "lore_text_search",
         text: {
           query: querystring,
-          path: { wildcard: "*" },
+          path: { wildcard: "*" }
         },
       },
     },
@@ -33,6 +33,27 @@ export async function fetchSearchResults(
       $sort: { datatype: -1 },
     },
   ];
+
+  if (querystring.split(" ").length <= 1) {
+    agg = [
+      {
+        $search: {
+          index: "lore_text_search",
+          text: {
+            query: querystring,
+            path: { wildcard: "*" },
+            synonyms: "synonyms"
+          },
+        },
+      },
+      {
+        $limit: ITEMS_PER_PAGE,
+      },
+      {
+        $sort: { datatype: -1 },
+      },
+    ];
+  }
 
   try {
     const client = axios.create({
@@ -48,7 +69,6 @@ export async function fetchSearchResults(
     });
 
     return response.data.documents;
-
   } catch (error) {
     console.error("Data Error:", error);
   }

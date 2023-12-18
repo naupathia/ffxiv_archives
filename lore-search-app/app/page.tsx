@@ -19,13 +19,13 @@ export default function Page({
 
   return (
     <main className="flex flex-row min-h-screen">
-      <div className="basis-1/4 pr-8 border-r-2 border-orange-300">
+      {/* <div className="basis-1/4 pr-8 border-r-2 border-orange-300">
         <div className="flex flex-col p-4">
           <h1 className="font-center">BOOKMARKS</h1>
         </div>
-      </div>
+      </div> */}
 
-      <div className="basis-3/4 p-8">
+      <div className="p-8 min-w-full ">
         <div className="flex items-center justify-between gap-2">
           <Search placeholder="Search..." />
         </div>
