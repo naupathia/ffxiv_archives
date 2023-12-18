@@ -32,7 +32,7 @@ class MountReader(_shared.GameTypeRowAdapter):
             "name": str(row[cls.NAME]).title(),
             "text": None,
             "datatype": DATATYPE,
-            "id": _shared.get_id(),
+            # "id": _shared.get_id(),
         }
 
 

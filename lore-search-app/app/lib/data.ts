@@ -22,7 +22,7 @@ export async function fetchSearchResults(
         index: "lore_text_search",
         text: {
           query: querystring,
-          path: { wildcard: "*" }
+          path: { wildcard: "*" },
         },
       },
     },
@@ -30,7 +30,7 @@ export async function fetchSearchResults(
       $limit: ITEMS_PER_PAGE,
     },
     {
-      $sort: { datatype: -1 },
+      $sort: { datatype: -1, sortorder: 1, name: 1 },
     },
   ];
 
@@ -42,7 +42,7 @@ export async function fetchSearchResults(
           text: {
             query: querystring,
             path: { wildcard: "*" },
-            synonyms: "synonyms"
+            synonyms: "synonyms",
           },
         },
       },
@@ -50,7 +50,7 @@ export async function fetchSearchResults(
         $limit: ITEMS_PER_PAGE,
       },
       {
-        $sort: { datatype: -1 },
+        $sort: { datatype: -1, sortorder: 1, name: 1 },
       },
     ];
   }

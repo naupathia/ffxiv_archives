@@ -47,6 +47,7 @@ class QuestIterator(_shared.DirIterator):
         )
 
         self._metadata = df.rename(columns=QUEST_METADATA_COL_ALIASES)
+        self.item_sort_order = 1
 
 
     def _process_file(self, filepath, dirname):
@@ -64,7 +65,10 @@ class QuestIterator(_shared.DirIterator):
         result["filename"] = filename
         result["datatype"] =DATATYPE
         result["text"] = contents
-        result["id"] = _shared.get_id()
+        result["sortorder"] = self.item_sort_order
+        # result["id"] = _shared.get_id()
+
+        self.item_sort_order += 1
 
         return result
 

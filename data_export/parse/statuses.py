@@ -19,7 +19,7 @@ class StatusReader(_shared.GameTypeRowAdapter):
             "icon": row[cls.ICON],
             "key": row[cls.KEY],
             "datatype": DATATYPE,
-            "id": _shared.get_id(),
+            # "id": _shared.get_id(),
         }
 
 

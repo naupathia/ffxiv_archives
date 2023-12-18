@@ -19,7 +19,7 @@ class FateReader(_shared.GameTypeRowAdapter):
             "key": row[cls.KEY],
             "location": row[cls.LOCATION],
             "datatype": DATATYPE,
-            "id": _shared.get_id(),
+            # "id": _shared.get_id(),
         }
 
 class FatesIterator(_shared.FileIterator):

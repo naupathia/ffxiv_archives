@@ -21,7 +21,7 @@ class CutsceneIterator(_shared.DirIterator):
             "name": f"Cutscenes {patch_num}.{filenum}",
             "text": contents,
             "datatype": DATATYPE,
-            "id": _shared.get_id(),
+            # "id": _shared.get_id(),
         }
 
         return result

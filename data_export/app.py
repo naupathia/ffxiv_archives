@@ -67,7 +67,7 @@ def get_all_docs():
     docs = docs + list(cutscenes.CutsceneIterator())
     docs = docs + list(items.ItemIterator())
     docs = docs + list(tripletriadcards.TripleTriadCardIterator())
-    docs = docs + list(statuses.StatusIterator())
+    # docs = docs + list(statuses.StatusIterator())
     docs = docs + list(fishes.FishIterator())
     docs = docs + list(mounts.MountIterator())
     docs = docs + list(fates.FatesIterator())

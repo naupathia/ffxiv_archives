@@ -22,7 +22,7 @@ class ItemReader(_shared.GameTypeRowAdapter):
             "key": row[cls.KEY],
             "datatype": DATATYPE,
             "subtype": row[cls.CATEGORY],
-            "id": _shared.get_id(),
+            # "id": _shared.get_id(),
         }
 
 

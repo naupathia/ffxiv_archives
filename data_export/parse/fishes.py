@@ -17,7 +17,7 @@ class FishReader(_shared.GameTypeRowAdapter):
             "text": row[cls.DESCRIPTION],
             "key": row[cls.KEY],
             "datatype": DATATYPE,
-            "id": _shared.get_id(),
+            # "id": _shared.get_id(),
         }
 
 
