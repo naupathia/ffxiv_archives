@@ -13,7 +13,7 @@ export default async function SearchResults({
   const results = await fetchSearchResults(query, currentPage);
 
   return (
-    <div className={clsx("mt-6 grid", roboto_mono.className)}>
+    <div className={clsx("mt-6 grid divide-y-2", roboto_mono.className)}>
           {results?.map((item: any) => <LoreItem key={item._id} lore={item} searchText={query}></LoreItem>)}
     </div>
   );

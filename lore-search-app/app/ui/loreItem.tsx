@@ -25,10 +25,8 @@ export default function LoreItem({ lore, searchText } : {lore: any, searchText: 
   }
 
   return (
-    <div className="mb-8 p-4 border-2 border-white border-l-slate-200">
+    <div className="mb-8 pt-4">
       <div className="flex items-baseline">
-        <h1 className="flex-1 text-xl font-bold">{lore.name}</h1>
-        <span className="text-sm font-normal">{translateType(lore.datatype)}</span>
         <button className="ml-2" onClick={hideMe}>
           {isHidden ? (
             <div className="plus"></div>
@@ -36,9 +34,11 @@ export default function LoreItem({ lore, searchText } : {lore: any, searchText: 
             <div className="cross"></div>
           )}
         </button>
+        <h1 className="flex-1 text-xl font-bold ml-2">{lore.name}</h1>
+        <span className="text-sm font-normal">{translateType(lore.datatype)}</span>
       </div>
 
-      <div className={clsx("mt-4", isHidden && "hidden")}>
+      <div className={clsx("mt-4 ml-12 mr-12", isHidden && "hidden")}>
         <div className="flex">
           {lore.issuer ? (
             <div className="bg-gray-200/20 p-2 mt-2">

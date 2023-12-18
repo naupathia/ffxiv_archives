@@ -31,7 +31,7 @@ mark {
 .plus {
   width: 30px;
   height: 30px;
-  background-color: gray;
+  background-color: white;
   }
   
   .plus::before {
@@ -44,26 +44,26 @@ mark {
     align-items:center;
     justify-content:center;
     font-family:'Courier New', Courier, monospace;
-    color:white;
+    color:gray;
   }
 
 .cross {
     width: 30px;
     height: 30px;
-    background-color: gray;
+    background-color: white;
     }
     
     .cross::before {
       content: "-";
       height:30px;
       width:30px;
-      font-size:30px;
+      font-size:24px;
       display:flex;
       flex-direction:row;
       align-items:center;
       justify-content:center;
       font-family:'Courier New', Courier, monospace;
-      color:white;
+      color:gray;
     }
 
 /* 
