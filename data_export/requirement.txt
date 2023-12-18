@@ -2,3 +2,4 @@ pandas
 pymongo
 pydantic
 python-dotenv
+meilisearch

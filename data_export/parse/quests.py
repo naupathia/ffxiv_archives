@@ -64,6 +64,7 @@ class QuestIterator(_shared.DirIterator):
         result["filename"] = filename
         result["datatype"] =DATATYPE
         result["text"] = contents
+        result["id"] = _shared.get_id()
 
         return result
 

@@ -17,7 +17,8 @@ class TripleTriadCardReader(_shared.GameTypeRowAdapter):
             "name": row[cls.NAME],
             "text": _scrub.sanitize_text(row[cls.DESCRIPTION]),
             "key": row[cls.KEY],
-            "datatype": DATATYPE
+            "datatype": DATATYPE,
+            "id": _shared.get_id(),
         }
 
 

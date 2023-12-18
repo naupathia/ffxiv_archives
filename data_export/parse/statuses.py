@@ -18,7 +18,8 @@ class StatusReader(_shared.GameTypeRowAdapter):
             "text": _scrub.sanitize_text(row[cls.DESCRIPTION]),
             "icon": row[cls.ICON],
             "key": row[cls.KEY],
-            "datatype": DATATYPE
+            "datatype": DATATYPE,
+            "id": _shared.get_id(),
         }
 
 

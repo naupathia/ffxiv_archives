@@ -1,5 +1,6 @@
 import pathlib
 import csv 
+import uuid
 from data_export.settings import DATA_PATH
 
 def iter_dir_files(dir_path):
@@ -18,6 +19,8 @@ def open_csv_for_iteration(filepath):
 
     return fh
 
+def get_id():
+    return str(uuid.uuid4())
 
 def iter_csv_rows(file_path, skip_row_count=3):
     

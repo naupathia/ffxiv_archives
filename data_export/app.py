@@ -1,4 +1,4 @@
-import pprint
+
 from .parse import (
     quests,
     cutscenes,
@@ -12,6 +12,8 @@ from .parse import (
 
 from .settings import OUTPUT_PATH
 
+import time
+import meilisearch
 from dotenv import load_dotenv
 import os
 from pymongo.mongo_client import MongoClient
@@ -52,18 +54,23 @@ class ClientManager:
 
         return cls._client
 
+    @classmethod
+    def search_client(cls):
+        return meilisearch.Client('https://ms-fe1609dcce38-6766.nyc.meilisearch.io', os.getenv('API_KEY'))
+        
+
 def get_all_docs():
     
     print("gathering records...")
     docs = []
-    docs = docs + [doc for doc in quests.QuestIterator()]
-    docs = docs + [doc for doc in cutscenes.CutsceneIterator()]
-    docs = docs + [doc for doc in items.ItemIterator()]
-    docs = docs + [doc for doc in tripletriadcards.TripleTriadCardIterator()]
-    docs = docs + [doc for doc in statuses.StatusIterator()]
-    docs = docs + [doc for doc in fishes.FishIterator()]
-    docs = docs + [doc for doc in mounts.MountIterator()]
-    docs = docs + [doc for doc in fates.FatesIterator()]
+    docs = docs + list(quests.QuestIterator())
+    docs = docs + list(cutscenes.CutsceneIterator())
+    docs = docs + list(items.ItemIterator())
+    docs = docs + list(tripletriadcards.TripleTriadCardIterator())
+    docs = docs + list(statuses.StatusIterator())
+    docs = docs + list(fishes.FishIterator())
+    docs = docs + list(mounts.MountIterator())
+    docs = docs + list(fates.FatesIterator())
 
     return docs
 
@@ -77,6 +84,18 @@ def upload_docs(docs):
 
     print("inserting records...")
     collection.insert_many(docs)
+
+    # client = ClientManager.search_client()
+
+    # print('truncating collection...')
+    # task = client.index('lore').delete_all_documents()
+
+    # while task.status in ('enqueued', 'processing'):
+    #     time.sleep(0.5)
+    #     task = client.get_task(task.task_uid)    
+
+    # print('uploading documents...')
+    # client.index('lore').add_documents_in_batches(docs, primary_key="id")
 
 def dump_docs(docs):
 

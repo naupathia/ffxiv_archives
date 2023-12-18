@@ -21,7 +21,8 @@ class ItemReader(_shared.GameTypeRowAdapter):
             "icon": row[cls.ICON],
             "key": row[cls.KEY],
             "datatype": DATATYPE,
-            "subtype": row[cls.CATEGORY]
+            "subtype": row[cls.CATEGORY],
+            "id": _shared.get_id(),
         }
 
 
