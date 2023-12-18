@@ -19,9 +19,9 @@ export default function RootLayout({
         <div className="flex bg-blue-500/10 border-b-2 border-orange-300">
           <Image
             src="/appname.png"
-            height={800}
-            width={800}
-            className="object-scale-down mr-10"
+            height={600}
+            width={600}
+            className="object-scale-down"
             alt="TEA Logo"
             priority={true}
           ></Image>
