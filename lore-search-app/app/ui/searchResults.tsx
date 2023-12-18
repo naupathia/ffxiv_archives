@@ -1,7 +1,5 @@
-import clsx from "clsx";
 import { fetchSearchResults } from "../lib/data";
 import LoreItem from "./loreItem";
-import { roboto_mono } from "./fonts";
 
 export default async function SearchResults({
   query,
@@ -13,7 +11,7 @@ export default async function SearchResults({
   const results = await fetchSearchResults(query, currentPage);
 
   return (
-    <div className={clsx("mt-6 grid divide-y-2", roboto_mono.className)}>
+    <div className="flex flex-col mt-6">
           {results?.map((item: any) => <LoreItem key={item._id} lore={item} searchText={query}></LoreItem>)}
     </div>
   );

@@ -1,15 +1,15 @@
 // import { MongoClient, ServerApiVersion } from "mongodb";
 import axios from "axios";
 
-if (!process.env.MONGODB_URI) {
-  throw new Error('Invalid/Missing environment variable: "MONGODB_URI"');
-}
+// if (!process.env.MONGODB_URI) {
+//   throw new Error('Invalid/Missing environment variable: "MONGODB_URI"');
+// }
 
 const uri: string = process.env.MONGODB_URI ?? "";
 const ITEMS_PER_PAGE = 1000;
 
 export async function fetchSearchResults(
-  querystring: string,
+  querystring: string = '',
   currentPage: number = 1
 ) {
   if (!querystring) {

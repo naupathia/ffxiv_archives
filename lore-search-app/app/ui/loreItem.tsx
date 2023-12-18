@@ -1,8 +1,9 @@
 "use client";
 import React from "react";
 import clsx from "clsx";
+import { roboto_mono } from "./fonts";
 
-export default function LoreItem({ lore, searchText } : {lore: any, searchText: string}) {
+export default function LoreItem({ lore, searchText } : {lore: any, searchText?: string}) {
   const [isHidden, setHidden] = React.useState(false);
   const words = new RegExp('\\b(' + searchText?.split(' ').join('|') + ')\\b', 'gmi');
 
@@ -25,9 +26,10 @@ export default function LoreItem({ lore, searchText } : {lore: any, searchText: 
   }
 
   return (
-    <div className="mb-8 pt-4">
+    <div className="lore-item border-2 border-orange-300">
+      
       <div className="flex items-baseline">
-        <button className="ml-2" onClick={hideMe}>
+        <button onClick={hideMe}>
           {isHidden ? (
             <div className="plus"></div>
           ) : (
@@ -54,7 +56,7 @@ export default function LoreItem({ lore, searchText } : {lore: any, searchText: 
           )}
         </div>
 
-        <div className="whitespace-pre-wrap mt-4" dangerouslySetInnerHTML={{__html: highlightSearchText(lore.text)}}></div>
+        <div className={clsx("whitespace-pre-wrap mt-4", roboto_mono.className)} dangerouslySetInnerHTML={{__html: highlightSearchText(lore.text)}}></div>
       </div>
     </div>
   );
