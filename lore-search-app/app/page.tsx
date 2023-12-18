@@ -12,7 +12,7 @@ export default function Page({
   };
 }) {
   // const [bookmarks, setBookmarks] = useState([]);
-  const bookmarks = [];
+  // const bookmarks = [];
 
   const query = searchParams?.query || "";
   const currentPage = Number(searchParams?.page) || 1;
@@ -22,9 +22,6 @@ export default function Page({
       <div className="basis-1/4 pr-8 border-r-2 border-orange-300">
         <div className="flex flex-col p-4">
           <h1 className="font-center">BOOKMARKS</h1>
-          {bookmarks?.map((bm: any) => (
-            <p>{bm.name}</p>
-          ))}
         </div>
       </div>
 
