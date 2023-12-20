@@ -4,7 +4,7 @@ import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { useState } from "react";
 // import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
-export default function Search({ placeholder }: { placeholder: string }) {
+export default function SearchBox({ placeholder }: { placeholder: string }) {
   const [text, setText] = useState("");
   const searchParams = useSearchParams();
   const pathname = usePathname();

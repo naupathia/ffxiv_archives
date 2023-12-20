@@ -1,3 +1,5 @@
+import "server-only";
+
 // import { MongoClient, ServerApiVersion } from "mongodb";
 import axios from "axios";
 
@@ -6,7 +8,14 @@ import axios from "axios";
 // }
 
 const uri: string = process.env.MONGODB_URI ?? "";
-const ITEMS_PER_PAGE = 1000;
+const ITEMS_PER_PAGE = 100;
+
+function createClient() {
+  return axios.create({
+    baseURL: "https://data.mongodb-api.com/app/data-lzrzo/endpoint/data/v1",
+    headers: { apiKey: process.env.API_KEY, Accept: "application/json" },
+  });
+}
 
 export async function fetchSearchResults(
   querystring: string = "",
@@ -56,10 +65,7 @@ export async function fetchSearchResults(
   }
 
   try {
-    const client = axios.create({
-      baseURL: "https://data.mongodb-api.com/app/data-lzrzo/endpoint/data/v1",
-      headers: { apiKey: process.env.API_KEY, Accept: "application/json" },
-    });
+    const client = createClient();
 
     const response = await client.post("/action/aggregate", {
       dataSource: "Cluster0",
@@ -95,6 +101,44 @@ export async function fetchSearchResults(
   // } finally {
   //   await client.close();
   // }
+
+  return [];
+}
+
+export async function fetchLoreEntry(id: string) {
+  try {
+    const client = createClient();
+
+    const response = await client.post("/action/findOne", {
+      dataSource: "Cluster0",
+      database: "tea",
+      collection: "lore",
+      filter: { _id: { $oid: id } },
+    });
+
+    return response.data.document;
+  } catch (error) {
+    console.error("Data Error:", error);
+  }
+
+  return null;
+}
+
+export async function fetchManyLoreEntries(ids: any) {
+  try {
+    const idParams = ids.map((i: any) => ({ $oid: i }));
+    const client = createClient();
+    const response = await client.post("/action/find", {
+      dataSource: "Cluster0",
+      database: "tea",
+      collection: "lore",
+      filter: { _id: { $in: idParams } },
+    });
+
+    return response.data.documents;
+  } catch (error) {
+    console.error("Data Error:", error);
+  }
 
   return [];
 }

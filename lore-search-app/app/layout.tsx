@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { roboto } from "./ui/fonts";
+import { roboto } from "../types/fonts";
 import Image from "next/image";
+import ScrollToTopButton from "./ui/scrollToTopButton";
 
 export const metadata: Metadata = {
   title: "TEA Tools",
@@ -15,19 +16,23 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={roboto.className}>
-        <div className="flex bg-blue-500/10 border-b-2 border-orange-300">
-          <Image
-            src="/appname.png"
-            height={600}
-            width={600}
-            className="object-scale-down"
-            alt="TEA Logo"
-            priority={true}
-          ></Image>
-        </div>
+      <body>
+        <div>
+          <div className="flex bg-blue-500/10 border-b-2 border-orange-300">
+            <Image
+              src="/appname.png"
+              height={600}
+              width={600}
+              className="object-scale-down"
+              alt="TEA Logo"
+              priority={true}
+            ></Image>
+          </div>
 
-        {children}
+          <div>{children}</div>
+
+          <ScrollToTopButton />
+        </div>
       </body>
     </html>
   );
