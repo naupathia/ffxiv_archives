@@ -92,7 +92,7 @@ export default function LoreItemCard({
 
         <div
           className={clsx("whitespace-pre-wrap mt-4")}
-          dangerouslySetInnerHTML={{ __html: highlightSearchText(lore.text) }}
+          dangerouslySetInnerHTML={{ __html: highlightSearchText(lore.text) || '' }}
         ></div>
       </div>
     </div>
