@@ -1,3 +1,4 @@
+
 import { fetchSearchResults } from "../lib/data";
 import LoreItemCard from "./loreItemCard";
 var _ = require('lodash');
@@ -20,7 +21,7 @@ export default async function SearchResults({
     <div className="flex flex-col mt-6">
       {results && results.length > 0 ? (
         results.map((item: any) => (
-          <LoreItemCard key={item._id} lore={item} searchText={query}></LoreItemCard>
+          <LoreItemCard key={item._id} lore={item} searchText={query} isDetailView={false}></LoreItemCard>
         ))
       ) : query ? (
         <p className="text-white">No lore found. {_.sampleSize(options, 1)[0]}</p>

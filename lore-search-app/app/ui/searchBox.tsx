@@ -19,9 +19,9 @@ export default function SearchBox({ placeholder }: { placeholder: string }) {
     console.log(text);
     const params = new URLSearchParams(searchParams);
     if (text) {
-      params.set("query", text);
+      params.set("q", text);
     } else {
-      params.delete("query");
+      params.delete("q");
     }
     replace(`${pathname}?${params.toString()}`);
   }
@@ -38,7 +38,7 @@ export default function SearchBox({ placeholder }: { placeholder: string }) {
           className="peer block w-full text-black py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
           placeholder={placeholder}
           onChange={onChange}
-          defaultValue={searchParams.get('query')?.toString()}
+          defaultValue={searchParams.get('q')?.toString()}
         />
         <input type="submit" className='sr-only' name="submit"/>
         {/* <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" /> */}

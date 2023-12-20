@@ -4,7 +4,7 @@ import { ArrowUpIcon } from "@heroicons/react/24/solid";
 
 export default function ScrollToTopButton() {
   return (
-    <button className="fixed bottom-0 left-0 p-10" onClick={scrollToTop} title="to top">
+    <button className="fixed bottom-0 right-0 pb-4 pr-4" onClick={scrollToTop} title="to top">
       <ArrowUpIcon className="h-8 w-8" />
     </button>
   );
@@ -14,5 +14,5 @@ const isBrowser = () => typeof window !== "undefined"; //The approach recommende
 
 function scrollToTop() {
   if (!isBrowser()) return;
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  window.scrollTo({ top: 0, behavior: "auto" });
 }

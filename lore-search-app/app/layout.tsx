@@ -29,7 +29,7 @@ export default function RootLayout({
             ></Image>
           </div>
 
-          <div>{children}</div>
+          <div className="md:pr-8 md:pl-8">{children}</div>
 
           <ScrollToTopButton />
         </div>

@@ -66,6 +66,10 @@ export function bookmarksReducer(bookmarks: Bookmark[], action: any) {
     case "set": {
       return action.value;
     }
+    case "clear": {
+      localStorage.removeItem("bookmarks");
+      return [];
+    }
     default: {
       throw Error("Unknown action: " + action.type);
     }

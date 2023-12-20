@@ -1,29 +1,25 @@
+// import Link from "next/link";
 
-import SearchBox from "./ui/searchBox";
-import { Suspense  } from "react";
-import SearchResults from "./ui/searchResults";
+// export default function Page({
+//   searchParams,
+// }: {
+//   searchParams?: {
+//     query?: string;
+//     page?: string;
+//   };
+// }) {
+//   const query = searchParams?.query || "";
+//   const currentPage = Number(searchParams?.page) || 1;
 
-export default function Page({
-  searchParams,
-}: {
-  searchParams?: {
-    query?: string;
-    page?: string;
-  };
-}) {
-  // const [bookmarks, setBookmarks] = useState([]);
-  // const bookmarks = [];
+//   return (
+//     <main className="flex flex-row justify-center">
+//       <Link className="p-4" href='/search'>Search For Lore</Link>
+//     </main>
+//   );
+// }
 
-  const query = searchParams?.query || "";
-  const currentPage = Number(searchParams?.page) || 1;
+import { redirect } from "next/navigation";
 
-  return (
-    <main className="flex flex-row min-h-screen">
-      Search ----
-    </main>
-  );
-}
-
-function Loading() {
-  return <p className="mt-6">searching...</p>;
+export default function Page() {
+  return redirect("/search");
 }

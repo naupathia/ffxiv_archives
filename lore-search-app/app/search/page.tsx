@@ -6,12 +6,12 @@ export default function Page({
   searchParams,
 }: {
   searchParams?: {
-    query?: string;
+    q?: string;
     page?: string;
   };
 }) {
 
-  const query = searchParams?.query || "";
+  const query = searchParams?.q || "";
   const currentPage = Number(searchParams?.page) || 1;
 
   return (

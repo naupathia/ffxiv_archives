@@ -8,7 +8,7 @@ import { BookmarkIcon, PlusIcon, MinusIcon } from "@heroicons/react/24/solid";
 export default function LoreItemCard({
   lore,
   searchText,
-  isDetailView=false
+  isDetailView=true
 }: {
   lore: LoreEntry;
   searchText?: string;
