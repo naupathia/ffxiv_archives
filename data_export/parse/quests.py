@@ -21,37 +21,35 @@ QUEST_METADATA_COLS = [
 ]
 
 QUEST_METADATA_COL_ALIASES = {
-    "#": "key",            
-    "Name": "name",            
-    "Id": "id",            
-    "Expansion": "expansion",            
-    "PreviousQuest[0]": "previous_quest",            
-    "Issuer{Start}": "issuer",            
-    "PlaceName": "place_name",            
-    "JournalGenre": "journal_genre",            
+    "#": "key",
+    "Name": "name",
+    "Id": "id",
+    "Expansion": "expansion",
+    "PreviousQuest[0]": "previous_quest",
+    "Issuer{Start}": "issuer",
+    "PlaceName": "place_name",
+    "JournalGenre": "journal_genre",
     "Icon": "icon",
 }
 
-class QuestIterator(_shared.DirIterator):
 
+class QuestIterator(_shared.DirIterator):
     def __init__(self) -> None:
         super().__init__("quest")
-        
+
         df = pd.read_csv(
             f"{DATA_PATH}\\Quest.csv",
             skiprows=[0, 2],
             usecols=QUEST_METADATA_COLS,
             dtype=str,
             converters=defaultdict(lambda i: str),
-            na_filter=False
+            na_filter=False,
         )
 
         self._metadata = df.rename(columns=QUEST_METADATA_COL_ALIASES)
         self.item_sort_order = 1
 
-
     def _process_file(self, filepath, dirname):
-        
         filename = filepath.stem
 
         row = self._metadata.loc[self._metadata["id"] == filename]
@@ -59,11 +57,21 @@ class QuestIterator(_shared.DirIterator):
         if row.empty:
             return None
 
-        contents = _scrub.parse_speaker_transcript_file(filepath)
+        def get_speaker(description):
+            description_tokens = description.split("_")
 
-        result = row.to_dict('records')[0]
+            try:
+                return description_tokens[3]
+            except IndexError:
+                return ""
+
+        contents = _scrub.parse_speaker_transcript_file(
+            filepath, get_speaker=get_speaker
+        )
+
+        result = row.to_dict("records")[0]
         result["filename"] = filename
-        result["datatype"] =DATATYPE
+        result["datatype"] = DATATYPE
         result["text"] = contents
         result["sortorder"] = self.item_sort_order
         # result["id"] = _shared.get_id()
@@ -72,15 +80,14 @@ class QuestIterator(_shared.DirIterator):
 
         return result
 
+
 def dump_text_file():
-    
-    with open(f"{OUTPUT_PATH}\\{OUTPUT_FILE}", "w+", encoding="UTF-8") as fh:    
+    with open(f"{OUTPUT_PATH}\\{OUTPUT_FILE}", "w+", encoding="UTF-8") as fh:
         for quest in QuestIterator():
             fh.write(serialize(quest))
 
 
 def serialize(record):
-
     return f"""
 ---------------------------------------------------------------------
 [QUEST]
@@ -92,5 +99,3 @@ Journal: {record["journal_genre"]} [{record["expansion"]}]
 {record["text"]}
 
 """
-
-
