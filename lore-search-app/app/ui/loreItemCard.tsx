@@ -8,11 +8,11 @@ import { BookmarkIcon, PlusIcon, MinusIcon } from "@heroicons/react/24/solid";
 export default function LoreItemCard({
   lore,
   searchText,
-  isDetailView=true
+  isDetailView = true,
 }: {
   lore: LoreEntry;
   searchText?: string;
-  isDetailView?: boolean
+  isDetailView?: boolean;
 }) {
   const [isHidden, setHidden] = useState(false);
   const dispatch = useBookmarksDispatch();
@@ -40,19 +40,19 @@ export default function LoreItemCard({
     }
   }
 
-  function highlightSearchText(text?: string) {
-    if (searchText) {
-      const words = new RegExp(
-        "\\b(" + searchText?.split(" ").join("|") + ")\\b",
-        "gmi"
-      );
-      return text?.replace(words, "<mark>$&</mark>") ?? "";
-    }
-    return text;
-  }
+  // function highlightSearchText(text?: string) {
+  //   if (searchText) {
+  //     const words = new RegExp(
+  //       "\\b(" + searchText?.split(" ").join("|") + ")\\b",
+  //       "gmi"
+  //     );
+  //     return text?.replace(words, "<mark>$&</mark>") ?? "";
+  //   }
+  //   return text;
+  // }
 
   return (
-    <div className="lore-item border-2 border-orange-300">
+    <div className="lore-item p-6 border-2 border-orange-300">
       <div className="flex items-baseline">
         <button onClick={toggleVisibility} title={isHidden ? "show" : "hide"}>
           {isHidden ? (
@@ -74,8 +74,8 @@ export default function LoreItemCard({
         </button>
       </div>
 
-      <div className={clsx("mt-4 ml-12 mr-12", isHidden && "hidden")}>
-        <div className="flex">
+      <div className={clsx("mt-4",isHidden && "hidden")}>
+        <div className="flex mb-4">
           {lore.issuer ? (
             <div className="bg-gray-200/20 p-2 mt-2">
               <p>
@@ -91,9 +91,11 @@ export default function LoreItemCard({
         </div>
 
         <div
-          className={clsx("whitespace-pre-wrap mt-4")}
-          dangerouslySetInnerHTML={{ __html: highlightSearchText(lore.text) || '' }}
-        ></div>
+          className="whitespace-pre-wrap"
+          // dangerouslySetInnerHTML={{ __html: highlightSearchText(lore.text) || '' }}
+        >
+          {lore.text}
+        </div>
       </div>
     </div>
   );

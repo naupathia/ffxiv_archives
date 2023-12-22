@@ -1,33 +1,26 @@
-
 import { fetchSearchResults } from "../lib/data";
-import LoreItemCard from "./loreItemCard";
-var _ = require('lodash');
+import ScrollToTopButton from "./scrollToTopButton";
+import SearchResultsList from "./searchResultsList";
 
 export default async function SearchResults({
   query,
   currentPage,
+  sort = "",
 }: {
   query: string;
   currentPage: number;
+  sort?: string;
 }) {
-  const results = await fetchSearchResults(query, currentPage);
-  const options = [
-    "Try harder next time.",
-    "Maybe something less obscure?",
-    "Check for typos!"
-  ]
+  const results: LoreEntry[] = await fetchSearchResults(
+    query,
+    currentPage,
+    sort
+  );
 
   return (
-    <div className="flex flex-col mt-6">
-      {results && results.length > 0 ? (
-        results.map((item: any) => (
-          <LoreItemCard key={item._id} lore={item} searchText={query} isDetailView={false}></LoreItemCard>
-        ))
-      ) : query ? (
-        <p className="text-white">No lore found. {_.sampleSize(options, 1)[0]}</p>
-      ) : (
-        <p></p>
-      )}
+    <div className="flex flex-row flex-1">
+      <SearchResultsList items={results} query={query} />
+      {results && results.length > 0 ? <ScrollToTopButton /> : <></>}
     </div>
   );
 }

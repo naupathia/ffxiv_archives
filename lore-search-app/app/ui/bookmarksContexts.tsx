@@ -41,7 +41,7 @@ export function useBookmarksDispatch() {
 }
 
 export function bookmarksReducer(bookmarks: Bookmark[], action: any) {
-  console.log(action);
+  // console.log(action);
   switch (action.type) {
     case "add": {
       if (!containsLoreEntry(bookmarks, action.id)) {
@@ -64,6 +64,7 @@ export function bookmarksReducer(bookmarks: Bookmark[], action: any) {
       return results;
     }
     case "set": {
+      localStorage.setItem("bookmarks", JSON.stringify(action.value));
       return action.value;
     }
     case "clear": {
