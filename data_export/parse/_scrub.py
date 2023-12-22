@@ -16,44 +16,41 @@ def get_col_value(row, col_name):
 
     return str(value)
 
-def parse_speaker_transcript_file(file_path, speaker_pos=3):
+def parse_speaker_transcript_file(file_path, get_speaker):
 
     speaker_lines = []
     parsed = []
-    previous_speaker = ''
+    speaker = ''
         
     for line in iter_csv_rows(file_path):
 
         text = line[2]
         description = line[1]
-        speaker = get_speaker(description, speaker_pos)
+        next_speaker = get_speaker(description)
             
-        if speaker in SPEAKER_SKIPS:
-            continue
+        if speaker and speaker != next_speaker:
 
-        if previous_speaker and previous_speaker != speaker:
-
-            if speaker_lines and speaker_lines:
+            if speaker_lines and speaker not in SPEAKER_SKIPS:
                 dialogue = ' '.join(speaker_lines)
-                speaker_name = SPEAKER_MAPS.get(previous_speaker, previous_speaker)
+                speaker_name = SPEAKER_MAPS.get(speaker, speaker)
                 parsed.append(f"{speaker_name}: {dialogue}")
                 parsed.append('')
-                speaker_lines = []
+
+            speaker_lines = []
 
         if text:
             speaker_lines.append(sanitize_text(text))
         
-        previous_speaker = speaker
+        speaker = next_speaker
+
+    if speaker_lines and speaker not in SPEAKER_SKIPS:
+        dialogue = ' '.join(speaker_lines)
+        speaker_name = SPEAKER_MAPS.get(speaker, speaker)
+        parsed.append(f"{speaker_name}: {dialogue}")
+        parsed.append('')
 
     return '\n'.join(parsed)
 
-def get_speaker(description, speaker_pos=3): 
-    description_tokens = description.split('_')
-    
-    try:
-        return description_tokens[speaker_pos]
-    except IndexError:
-        return ''
 
 RE_HIGHLIGHT = re.compile(r'<Highlight>(.*?)<\/Highlight>')
 RE_SPLIT = re.compile(r'<Split\((.*?), ,\d\)\/>')
