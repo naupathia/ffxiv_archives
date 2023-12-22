@@ -8,6 +8,7 @@ from .parse import (
     fates,
     fishes,
     mounts,
+    custom
 )
 
 from .settings import OUTPUT_PATH
@@ -28,7 +29,9 @@ SERIALIZERS = {
     statuses.DATATYPE: statuses.serialize,
     fates.DATATYPE: fates.serialize,
     fishes.DATATYPE: fishes.serialize,
-    mounts.DATATYPE: mounts.serialize
+    mounts.DATATYPE: mounts.serialize,
+    custom.DATATYPE: custom.serialize
+    
 }
 
 class ClientManager:
@@ -66,7 +69,7 @@ def get_all_docs():
     docs = docs + list(cutscenes.CutsceneIterator())
     docs = docs + list(items.ItemIterator())
     docs = docs + list(tripletriadcards.TripleTriadCardIterator())
-    # docs = docs + list(statuses.StatusIterator())
+    docs = docs + list(custom.CustomDirIterator())
     docs = docs + list(fishes.FishIterator())
     docs = docs + list(mounts.MountIterator())
     docs = docs + list(fates.FatesIterator())
