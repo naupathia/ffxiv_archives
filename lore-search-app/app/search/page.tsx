@@ -23,13 +23,13 @@ export default function Page({
     <div>
       <BookmarksProvider>
         <SearchNavigationProvider>
-          <div className="flex">
-            <div className="hidden md:block flex-none w-1/4 border-r-2 border-orange-300 p-6 min-h-screen">
+          <div className="flex flex-row">
+            {/* <div className="hidden md:block flex-none w-1/4 border-r-2 border-orange-300 p-6 min-h-screen">
               <SearchNavigationList />
-            </div>
+            </div> */}
 
-            <div className="p-8">
-              <div className="flex flex-1 items-center justify-between gap-2 min-w-full">
+            <div className="p-8 flex-1 ">
+              <div className="flex items-center justify-between gap-2 min-w-full">
                 <SearchBox placeholder="Search..." />
               </div>
 

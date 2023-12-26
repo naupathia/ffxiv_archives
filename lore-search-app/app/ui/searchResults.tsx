@@ -1,6 +1,6 @@
 import { fetchSearchResults } from "../lib/data";
 import ScrollToTopButton from "./scrollToTopButton";
-import SearchResultsList from "./searchResultsList";
+import LoreEntryList from "./loreEntryList";
 
 export default async function SearchResults({
   query,
@@ -16,10 +16,15 @@ export default async function SearchResults({
     currentPage,
     sort
   );
+  const options = [
+    "Try harder next time.",
+    "Maybe something less obscure?",
+    "Check for typos!",
+  ];
 
   return (
     <div className="flex flex-row flex-1">
-      <SearchResultsList items={results} query={query} />
+      <LoreEntryList items={results} showBookmark={true} />
       {results && results.length > 0 ? <ScrollToTopButton /> : <></>}
     </div>
   );

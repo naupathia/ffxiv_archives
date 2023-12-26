@@ -8,11 +8,11 @@ import { BookmarkIcon, PlusIcon, MinusIcon } from "@heroicons/react/24/solid";
 export default function LoreItemCard({
   lore,
   searchText,
-  isDetailView = true,
+  showBookmark = false,
 }: {
   lore: LoreEntry;
   searchText?: string;
-  isDetailView?: boolean;
+  showBookmark?: boolean;
 }) {
   const [isHidden, setHidden] = useState(false);
   const dispatch = useBookmarksDispatch();
@@ -66,7 +66,7 @@ export default function LoreItemCard({
           {translateType(lore.datatype)}
         </span>
         <button
-          className={clsx("pl-4", isDetailView && "hidden")}
+          className={clsx("pl-4", !showBookmark && "hidden")}
           onClick={updateBookmarkStatus}
           title="bookmark"
         >

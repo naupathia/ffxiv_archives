@@ -7,6 +7,7 @@ import {
   useEffect,
   useReducer,
 } from "react";
+import { fetchManyLoreEntries } from "../lib/data";
 
 const BookmarksContext = createContext<Bookmark[]>([]);
 const BookmarksDispatchContext = createContext<Dispatch<any>>(
@@ -17,9 +18,10 @@ export default function BookmarksProvider({ children }: { children: any }) {
   const [bookmarks, dispatch] = useReducer(bookmarksReducer, []);
 
   useEffect(() => {
+    const savedBookmarks = JSON.parse(localStorage.bookmarks ?? "[]");
     dispatch({
       type: "set",
-      value: JSON.parse(localStorage.bookmarks ?? "[]"),
+      value: savedBookmarks,
     });
   }, []);
 

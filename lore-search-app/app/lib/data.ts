@@ -10,11 +10,13 @@ import { SORT_TYPES } from "@/types/enums";
 
 const uri: string = process.env.MONGODB_URI ?? "";
 const ITEMS_PER_PAGE = 100;
+const API_KEY = process.env.API_KEY;
 
 function createClient() {
+  console.log('api key ' + API_KEY)
   return axios.create({
     baseURL: "https://data.mongodb-api.com/app/data-lzrzo/endpoint/data/v1",
-    headers: { apiKey: process.env.API_KEY, Accept: "application/json" },
+    headers: { apiKey: API_KEY, Accept: "application/json" },
   });
 }
 
@@ -119,7 +121,7 @@ export async function fetchLoreEntry(id: string) {
 
 export async function fetchManyLoreEntries(ids: any) {
   try {
-    const idParams = ids.map((i: any) => ({ $oid: i }));
+    const idParams = ids.map((i: string) => ({ $oid: i }));
     const client = createClient();
     const response = await client.post("/action/find", {
       dataSource: "Cluster0",

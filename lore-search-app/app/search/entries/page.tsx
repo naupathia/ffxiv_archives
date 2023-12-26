@@ -2,6 +2,7 @@ import LoreItemCard from "@/app/ui/loreItemCard";
 import { fetchManyLoreEntries } from "@/app/lib/data";
 import Link from "next/link";
 import { ArrowLeftIcon } from "@heroicons/react/24/solid";
+import LoreEntryList from "@/app/ui/loreEntryList";
 
 export default async function Page({
   searchParams,
@@ -22,9 +23,9 @@ export default async function Page({
         back to search
       </Link>
 
-      {items.map((item: LoreEntry) => (
-        <LoreItemCard lore={item} key={item._id} />
-      ))}
+      <div className="flex flex-col space-y-8 mt-6">
+        <LoreEntryList items={items} />
+      </div>
     </div>
   );
 }

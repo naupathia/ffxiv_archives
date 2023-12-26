@@ -8,17 +8,20 @@ export default function SearchBox({ placeholder }: { placeholder: string }) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
-
+  const sortValue = searchParams.get("sort");
 
   function handleSearch(e: any) {
     e.preventDefault();
 
-    
     const formData = new FormData(e.target);
     const asString = new URLSearchParams(formData as any).toString();
 
-    console.log(asString);
     replace(`${pathname}?${asString}`);
+  }
+
+  function submitForm(e: any) {
+    const form = e.target.form as HTMLFormElement;
+    form.requestSubmit();
   }
 
   return (
@@ -44,7 +47,8 @@ export default function SearchBox({ placeholder }: { placeholder: string }) {
               id="sortRelevance"
               name="sort"
               value={SORT_TYPES.RELEVANCE}
-              defaultChecked
+              defaultChecked={sortValue == SORT_TYPES.RELEVANCE || !sortValue}
+              onChange={submitForm}
             />
             <label htmlFor="sortRelevance">relevance</label>
 
@@ -53,6 +57,8 @@ export default function SearchBox({ placeholder }: { placeholder: string }) {
               id="sortCategory"
               name="sort"
               value={SORT_TYPES.CATEGORY}
+              defaultChecked={sortValue == SORT_TYPES.CATEGORY}
+              onChange={submitForm}
             />
             <label htmlFor="sortCategory">category</label>
           </div>
