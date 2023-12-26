@@ -29,11 +29,11 @@
 body {
   color: white;
   background: #040611;
-  font-family: Helvetica, Arial, sans-serif;
+  /* font-family: Helvetica, Arial, sans-serif; */
 } 
 
 mark {
-  background: #233495;
+  background: #213fec;
   color: white;
 }
 
@@ -43,42 +43,5 @@ mark {
 
 .lore-item {
   background-color: #191A36;
+  font-family: 'monaco', 'Consolas', 'Menlo', Courier, monospace;
 }
-
-.plus {
-  width: 30px;
-  height: 30px;
-  background-color: transparent;
-  }
-  
-  .plus::before {
-    content: "+";
-    height:30px;
-    width:30px;
-    font-size:24px;
-    display:flex;
-    flex-direction:row;
-    align-items:center;
-    justify-content:center;
-    font-family:'Courier New', Courier, monospace;
-    color:gray;
-  }
-
-.cross {
-    width: 30px;
-    height: 30px;
-    background-color: transparent;
-    }
-    
-    .cross::before {
-      content: "-";
-      height:30px;
-      width:30px;
-      font-size:24px;
-      display:flex;
-      flex-direction:row;
-      align-items:center;
-      justify-content:center;
-      font-family:'Courier New', Courier, monospace;
-      color:gray;
-    }
