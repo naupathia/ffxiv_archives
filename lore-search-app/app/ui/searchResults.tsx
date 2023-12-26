@@ -1,6 +1,7 @@
-import { fetchSearchResults } from "../lib/data";
+import { fetchSearchResults, fetchSynonyms } from "../lib/data";
 import ScrollToTopButton from "./scrollToTopButton";
 import LoreEntryList from "./loreEntryList";
+import SynonymsProvider from "./synonymsContext";
 
 export default async function SearchResults({
   query,
@@ -11,11 +12,15 @@ export default async function SearchResults({
   currentPage: number;
   sort?: string;
 }) {
-  const results: LoreEntry[] = await fetchSearchResults(
-    query,
-    currentPage,
-    sort
-  );
+  const searchPromise = fetchSearchResults(query, currentPage, sort);
+  const synonymPromise = fetchSynonyms();
+  let results: LoreEntry[] = [];
+  let synonyms: any = [];
+  await Promise.all([searchPromise, synonymPromise]).then((values: any) => {
+    results = values[0];
+    synonyms = values[1];
+  });
+
   const options = [
     "Try harder next time.",
     "Maybe something less obscure?",
@@ -24,7 +29,13 @@ export default async function SearchResults({
 
   return (
     <div className="flex flex-row flex-1">
-      <LoreEntryList items={results} showBookmark={true} />
+      <SynonymsProvider>
+        <LoreEntryList
+          items={results}
+          showBookmark={true}
+          synonyms={synonyms}
+        />
+      </SynonymsProvider>
       {results && results.length > 0 ? <ScrollToTopButton /> : <></>}
     </div>
   );

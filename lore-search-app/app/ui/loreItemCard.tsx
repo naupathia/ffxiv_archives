@@ -1,21 +1,23 @@
 "use client";
 import { useState } from "react";
 import clsx from "clsx";
-import { roboto_mono } from "../../types/fonts";
 import { useBookmarksDispatch } from "./bookmarksContexts";
 import { BookmarkIcon, PlusIcon, MinusIcon } from "@heroicons/react/24/solid";
+import { useSynonyms } from "./synonymsContext";
+import { useSearchParams } from "next/navigation";
 
 export default function LoreItemCard({
   lore,
-  searchText,
   showBookmark = false,
 }: {
   lore: LoreEntry;
-  searchText?: string;
   showBookmark?: boolean;
 }) {
   const [isHidden, setHidden] = useState(false);
   const dispatch = useBookmarksDispatch();
+  const { synonyms } = useSynonyms();
+  const searchParams = useSearchParams();
+  const searchText = searchParams.get("q");
 
   function toggleVisibility(e: any) {
     setHidden(!isHidden);
@@ -40,16 +42,21 @@ export default function LoreItemCard({
     }
   }
 
-  // function highlightSearchText(text?: string) {
-  //   if (searchText) {
-  //     const words = new RegExp(
-  //       "\\b(" + searchText?.split(" ").join("|") + ")\\b",
-  //       "gmi"
-  //     );
-  //     return text?.replace(words, "<mark>$&</mark>") ?? "";
-  //   }
-  //   return text;
-  // }
+  function highlightSearchText(text?: string) {
+    if (searchText) {
+      let words = searchText?.split(" ");
+      if (synonyms) {
+        words.forEach((w: string) => {
+          if (synonyms[w.toLowerCase()]) {
+            words = [...words, ...synonyms[w.toLowerCase()]];
+          }
+        });
+      }
+      const rwords = new RegExp("\\b(" + words.join("|") + ")\\b", "gmi");
+      return text?.replace(rwords, "<mark>$&</mark>") ?? "";
+    }
+    return text;
+  }
 
   return (
     <div className="lore-item p-6 border-2 border-orange-300">
@@ -74,7 +81,7 @@ export default function LoreItemCard({
         </button> */}
       </div>
 
-      <div className={clsx("mt-4",isHidden && "hidden")}>
+      <div className={clsx("mt-4", isHidden && "hidden")}>
         <div className="flex mb-4">
           {lore.issuer ? (
             <div className="bg-gray-200/20 p-2 mt-2">
@@ -92,9 +99,11 @@ export default function LoreItemCard({
 
         <div
           className="whitespace-pre-wrap"
-          // dangerouslySetInnerHTML={{ __html: highlightSearchText(lore.text) || '' }}
+          dangerouslySetInnerHTML={{
+            __html: highlightSearchText(lore.text) || "",
+          }}
         >
-          {lore.text}
+          {/* {lore.text} */}
         </div>
       </div>
     </div>

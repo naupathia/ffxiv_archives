@@ -3,6 +3,7 @@
 // import { MongoClient, ServerApiVersion } from "mongodb";
 import axios from "axios";
 import { SORT_TYPES } from "@/types/enums";
+import { mapSynonymsToDict } from "./functions";
 
 // if (!process.env.MONGODB_URI) {
 //   throw new Error('Invalid/Missing environment variable: "MONGODB_URI"');
@@ -13,7 +14,6 @@ const ITEMS_PER_PAGE = 100;
 const API_KEY = process.env.API_KEY;
 
 function createClient() {
-  console.log('api key ' + API_KEY)
   return axios.create({
     baseURL: "https://data.mongodb-api.com/app/data-lzrzo/endpoint/data/v1",
     headers: { apiKey: API_KEY, Accept: "application/json" },
@@ -139,6 +139,27 @@ export async function fetchManyLoreEntries(ids: any) {
     });
 
     return sortedItems;
+  } catch (error) {
+    console.error("Data Error:", error);
+  }
+
+  return [];
+}
+
+export async function fetchSynonyms() {
+  try {
+    
+    const client = createClient();
+    const response = await client.post("/action/find", {
+      dataSource: "Cluster0",
+      database: "tea",
+      collection: "synonyms",
+      filter: { },
+    });
+
+    const items = response.data.documents;
+    const dictItems = mapSynonymsToDict(items);
+    return dictItems;
   } catch (error) {
     console.error("Data Error:", error);
   }
