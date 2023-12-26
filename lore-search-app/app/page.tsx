@@ -1,43 +1,25 @@
+// import Link from "next/link";
 
-import Search from "./ui/search";
-import { Suspense  } from "react";
-import SearchResults from "./ui/searchResults";
+// export default function Page({
+//   searchParams,
+// }: {
+//   searchParams?: {
+//     query?: string;
+//     page?: string;
+//   };
+// }) {
+//   const query = searchParams?.query || "";
+//   const currentPage = Number(searchParams?.page) || 1;
 
-export default function Page({
-  searchParams,
-}: {
-  searchParams?: {
-    query?: string;
-    page?: string;
-  };
-}) {
-  // const [bookmarks, setBookmarks] = useState([]);
-  // const bookmarks = [];
+//   return (
+//     <main className="flex flex-row justify-center">
+//       <Link className="p-4" href='/search'>Search For Lore</Link>
+//     </main>
+//   );
+// }
 
-  const query = searchParams?.query || "";
-  const currentPage = Number(searchParams?.page) || 1;
+import { redirect } from "next/navigation";
 
-  return (
-    <main className="flex flex-row min-h-screen">
-      {/* <div className="basis-1/4 pr-8 border-r-2 border-orange-300">
-        <div className="flex flex-col p-4">
-          <h1 className="font-center">BOOKMARKS</h1>
-        </div>
-      </div> */}
-
-      <div className="p-8 min-w-full ">
-        <div className="flex items-center justify-between gap-2">
-          <Search placeholder="Search..." />
-        </div>
-
-        <Suspense fallback={<Loading />}>
-          <SearchResults query={query} currentPage={currentPage} />
-        </Suspense>
-      </div>
-    </main>
-  );
-}
-
-function Loading() {
-  return <p className="mt-6">searching...</p>;
+export default function Page() {
+  return redirect("/search");
 }

@@ -1,65 +1,66 @@
+// import "server-only";
+
 // import { MongoClient, ServerApiVersion } from "mongodb";
 import axios from "axios";
+import { SORT_TYPES } from "@/types/enums";
 
 // if (!process.env.MONGODB_URI) {
 //   throw new Error('Invalid/Missing environment variable: "MONGODB_URI"');
 // }
 
 const uri: string = process.env.MONGODB_URI ?? "";
-const ITEMS_PER_PAGE = 1000;
+const ITEMS_PER_PAGE = 100;
+const API_KEY = process.env.API_KEY;
+
+function createClient() {
+  console.log('api key ' + API_KEY)
+  return axios.create({
+    baseURL: "https://data.mongodb-api.com/app/data-lzrzo/endpoint/data/v1",
+    headers: { apiKey: API_KEY, Accept: "application/json" },
+  });
+}
 
 export async function fetchSearchResults(
   querystring: string = "",
-  currentPage: number = 1
+  currentPage: number = 1,
+  sort: string = ""
 ) {
   if (!querystring) {
     return [];
   }
 
-  let agg: any = [
+  // console.log(querystring);
+
+  const wordQueries = querystring.split(" ").map((word) => ({
+    text: {
+      query: word,
+      path: ['text', 'name'],
+      synonyms: "synonyms",
+    },
+  }));
+
+  const agg: any[] = [
     {
       $search: {
         index: "lore_text_search",
-        text: {
-          query: querystring,
-          path: { wildcard: "*" },
-        },
+        compound: {
+          must: wordQueries,
+        }
       },
     },
     {
       $limit: ITEMS_PER_PAGE,
     },
-    {
-      $sort: { datatype: -1, sortorder: 1, name: 1 },
-    },
   ];
 
-  if (querystring.split(" ").length <= 1) {
-    agg = [
-      {
-        $search: {
-          index: "lore_text_search",
-          text: {
-            query: querystring,
-            path: { wildcard: "*" },
-            synonyms: "synonyms",
-          },
-        },
-      },
-      {
-        $limit: ITEMS_PER_PAGE,
-      },
-      {
-        $sort: { datatype: -1, sortorder: 1, name: 1 },
-      },
-    ];
+  if (sort && sort == SORT_TYPES.CATEGORY) {
+    agg.push({
+      $sort: { datatype: -1, sortorder: 1, name: 1 },
+    });
   }
 
   try {
-    const client = axios.create({
-      baseURL: "https://data.mongodb-api.com/app/data-lzrzo/endpoint/data/v1",
-      headers: { apiKey: process.env.API_KEY, Accept: "application/json" },
-    });
+    const client = createClient();
 
     const response = await client.post("/action/aggregate", {
       dataSource: "Cluster0",
@@ -95,6 +96,52 @@ export async function fetchSearchResults(
   // } finally {
   //   await client.close();
   // }
+
+  return [];
+}
+
+export async function fetchLoreEntry(id: string) {
+  try {
+    const client = createClient();
+
+    const response = await client.post("/action/findOne", {
+      dataSource: "Cluster0",
+      database: "tea",
+      collection: "lore",
+      filter: { _id: { $oid: id } },
+    });
+
+    return response.data.document;
+  } catch (error) {
+    console.error("Data Error:", error);
+  }
+
+  return null;
+}
+
+export async function fetchManyLoreEntries(ids: any) {
+  try {
+    const idParams = ids.map((i: string) => ({ $oid: i }));
+    const client = createClient();
+    const response = await client.post("/action/find", {
+      dataSource: "Cluster0",
+      database: "tea",
+      collection: "lore",
+      filter: { _id: { $in: idParams } },
+    });
+
+    const items = response.data.documents;
+    const sortedItems: LoreEntry[] = [];
+
+    ids.forEach((id: string) => {
+      const foundItem = items.find((x: any) => x._id == id);
+      sortedItems.push(foundItem);
+    });
+
+    return sortedItems;
+  } catch (error) {
+    console.error("Data Error:", error);
+  }
 
   return [];
 }

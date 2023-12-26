@@ -13,7 +13,6 @@ from .parse import (
 
 from .settings import OUTPUT_PATH
 
-import time
 import meilisearch
 from dotenv import load_dotenv
 import os

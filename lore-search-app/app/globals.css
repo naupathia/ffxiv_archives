@@ -29,6 +29,7 @@
 body {
   color: white;
   background: #040611;
+  font-family: Helvetica, Arial, sans-serif;
 } 
 
 mark {
@@ -42,8 +43,6 @@ mark {
 
 .lore-item {
   background-color: #191A36;
-  padding: 2em;
-  margin-top: 2em;
 }
 
 .plus {
