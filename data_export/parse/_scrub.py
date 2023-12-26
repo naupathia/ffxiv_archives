@@ -31,9 +31,7 @@ def parse_speaker_transcript_file(file_path, get_speaker):
         if speaker and speaker != next_speaker:
 
             if speaker_lines and speaker not in SPEAKER_SKIPS:
-                dialogue = ' '.join(speaker_lines)
-                speaker_name = SPEAKER_MAPS.get(speaker, speaker)
-                parsed.append(f"{speaker_name}: {dialogue}")
+                parsed.append(format_speaker_text(speaker, speaker_lines))
                 parsed.append('')
 
             speaker_lines = []
@@ -44,12 +42,14 @@ def parse_speaker_transcript_file(file_path, get_speaker):
         speaker = next_speaker
 
     if speaker_lines and speaker not in SPEAKER_SKIPS:
-        dialogue = ' '.join(speaker_lines)
-        speaker_name = SPEAKER_MAPS.get(speaker, speaker)
-        parsed.append(f"{speaker_name}: {dialogue}")
+        parsed.append(format_speaker_text(speaker, speaker_lines))
         parsed.append('')
 
     return '\n'.join(parsed)
+
+def format_speaker_text(speaker, lines):
+    dialogue = '\n'.join(lines)
+    return f"{speaker}:\n{dialogue}"
 
 
 RE_HIGHLIGHT = re.compile(r'<Highlight>(.*?)<\/Highlight>')

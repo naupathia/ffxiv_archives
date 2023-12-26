@@ -29,7 +29,7 @@ def parse_speaker_transcript_file(file_path):
     speaker_lines = []
     parsed = []
     previous_speaker = ""
-    was_answer = False
+    previous_line_num = 0
 
     for line in _scrub.iter_csv_rows(file_path):
         # print(line)
@@ -64,20 +64,22 @@ def parse_speaker_transcript_file(file_path):
             current_speaker = ("_").join(tokens[3:-2])
 
             if current_speaker == "A1":
-                was_answer = True
                 line_num = line_num + 1
-                current_speaker = f"{current_speaker}_Q{line_num}00"
+                current_speaker = f"{current_speaker}-{line_num}"
 
-        if was_answer and group_num > 0:
+        if group_num > 0:
             current_speaker = ("_").join(tokens[3:-2])
-            current_speaker = f"{current_speaker}_A{group_num}"
+            current_speaker = f"{current_speaker}-{group_num}"
+
+        if previous_speaker == current_speaker and line_num != (previous_line_num +1):
+            # insert extra new line to separate the speaking blocks
+            if text:
+                text = f'\n[{current_speaker}]\n' + text
             
 
         if previous_speaker and previous_speaker != current_speaker:
             if speaker_lines and previous_speaker not in SPEAKER_SKIPS:
-                dialogue = " ".join(speaker_lines)
-                speaker_name = SPEAKER_MAPS.get(previous_speaker, previous_speaker)
-                parsed.append(f"{speaker_name}: {dialogue}")
+                parsed.append(_scrub.format_speaker_text(previous_speaker, speaker_lines))
                 parsed.append("")
 
             speaker_lines = []
@@ -86,11 +88,10 @@ def parse_speaker_transcript_file(file_path):
             speaker_lines.append(_scrub.sanitize_text(text))
 
         previous_speaker = current_speaker
+        previous_line_num = line_num
         
     if speaker_lines and previous_speaker not in SPEAKER_SKIPS:
-        dialogue = " ".join(speaker_lines)
-        speaker_name = SPEAKER_MAPS.get(previous_speaker, previous_speaker)
-        parsed.append(f"{speaker_name}: {dialogue}")
+        parsed.append(_scrub.format_speaker_text(previous_speaker, speaker_lines))
         parsed.append("")
 
     return "\n".join(parsed)
