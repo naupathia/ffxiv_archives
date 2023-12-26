@@ -46,9 +46,9 @@ export default function Page({
               <ScrollToTopButton />
             </div>
 
-            <div className="hidden md:block flex-none w-1/4 border-l-2 border-orange-300 p-6 min-h-screen">
+            {/* <div className="hidden md:block flex-none w-1/4 border-l-2 border-orange-300 p-6 min-h-screen">
               <BookmarksList />
-            </div>
+            </div> */}
           </div>
         </SearchNavigationProvider>
       </BookmarksProvider>

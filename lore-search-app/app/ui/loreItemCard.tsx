@@ -65,13 +65,13 @@ export default function LoreItemCard({
         <span className="text-sm font-normal">
           {translateType(lore.datatype)}
         </span>
-        <button
+        {/* <button
           className={clsx("pl-4", !showBookmark && "hidden")}
           onClick={updateBookmarkStatus}
           title="bookmark"
         >
           <BookmarkIcon className="text-white h-6 w-6" />
-        </button>
+        </button> */}
       </div>
 
       <div className={clsx("mt-4",isHidden && "hidden")}>
