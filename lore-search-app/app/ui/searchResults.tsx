@@ -29,14 +29,11 @@ export default async function SearchResults({
 
   return (
     <div className="flex flex-row flex-1">
-      <SynonymsProvider>
         <LoreEntryList
           items={results}
           showBookmark={true}
           synonyms={synonyms}
         />
-      </SynonymsProvider>
-      {results && results.length > 0 ? <ScrollToTopButton /> : <></>}
     </div>
   );
 }

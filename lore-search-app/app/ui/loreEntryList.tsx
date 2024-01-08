@@ -1,7 +1,7 @@
 "use client";
 
 // import { useEffect } from "react";
-import LoreItemCard from "./loreItemCard";
+import LoreEntryCard from "./loreEntryCard";
 import { useSynonyms } from "./synonymsContext";
 // import { useSearchNavigation } from "./searchNavigationContexts";
 
@@ -30,15 +30,15 @@ export default function LoreEntryList({
 
   return (
     <div className="flex-1">
-      <div className="flex flex-col space-y-12">
+      <div className="flex flex-col space-y-4">
           {hasResults &&
             items.map((item: LoreEntry) => (
               <div key={item._id}>
                 <a id={item._id} />
-                <LoreItemCard
+                <LoreEntryCard
                   lore={item}
                   showBookmark={showBookmark}
-                ></LoreItemCard>
+                ></LoreEntryCard>
               </div>
             ))}
       </div>

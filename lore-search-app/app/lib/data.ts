@@ -28,28 +28,26 @@ export async function fetchSearchResults(
   if (!querystring) {
     return [];
   }
+  if (currentPage <= 1) {
+    currentPage = 1;
+  }
+
+  const skip = (currentPage - 1) * ITEMS_PER_PAGE;
 
   // console.log(querystring);
+  let query: any = createWordSearchQuery(querystring);
 
-  const wordQueries = querystring.split(" ").map((word) => ({
-    text: {
-      query: word,
-      path: ['text', 'name'],
-      synonyms: "synonyms",
-    },
-  }));
+  if (querystring.startsWith('"') && querystring.endsWith('"')) {
+    query = createPhraseSearchQuery(querystring);
+  }
 
   const agg: any[] = [
-    {
-      $search: {
-        index: "lore_text_search",
-        compound: {
-          must: wordQueries,
-        }
-      },
-    },
+    query,
     {
       $limit: ITEMS_PER_PAGE,
+    },
+    {
+      $skip: skip,
     },
   ];
 
@@ -74,30 +72,38 @@ export async function fetchSearchResults(
     console.error("Data Error:", error);
   }
 
-  // Create a MongoClient with a MongoClientOptions object to set the Stable API version
-  // const client = new MongoClient(uri, {
-  //   serverApi: {
-  //     version: ServerApiVersion.v1,
-  //     deprecationErrors: true,
-  //   }
-  // });
-
-  // client.connect()
-
-  // try {
-  //   // Connect the client to the server	(optional starting in v4.7)
-
-  //   const coll = client.db("tea").collection("lore");
-  //   const results = await coll.aggregate(agg).toArray();
-
-  //   return JSON.parse(JSON.stringify(results));
-  // } catch (error) {
-  //   console.error("Database Error:", error);
-  // } finally {
-  //   await client.close();
-  // }
-
   return [];
+}
+
+function createPhraseSearchQuery(querystring: string) {
+  return {
+    $search: {
+      index: "lore_text_search",
+      phrase: {
+        query: querystring,
+        path: ["name", "text"],
+      },
+    },
+  };
+}
+
+function createWordSearchQuery(querystring: string) {
+  const wordQueries = querystring.split(" ").map((word) => ({
+    text: {
+      query: word,
+      path: ["text", "name"],
+      synonyms: "synonyms",
+    },
+  }));
+
+  return {
+    $search: {
+      index: "lore_text_search",
+      compound: {
+        must: wordQueries,
+      },
+    },
+  };
 }
 
 export async function fetchLoreEntry(id: string) {
@@ -148,13 +154,12 @@ export async function fetchManyLoreEntries(ids: any) {
 
 export async function fetchSynonyms() {
   try {
-    
     const client = createClient();
     const response = await client.post("/action/find", {
       dataSource: "Cluster0",
       database: "tea",
       collection: "synonyms",
-      filter: { },
+      filter: {},
     });
 
     const items = response.data.documents;

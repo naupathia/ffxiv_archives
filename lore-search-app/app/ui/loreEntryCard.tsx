@@ -6,7 +6,7 @@ import { BookmarkIcon, PlusIcon, MinusIcon } from "@heroicons/react/24/solid";
 import { useSynonyms } from "./synonymsContext";
 import { useSearchParams } from "next/navigation";
 
-export default function LoreItemCard({
+export default function LoreEntryCard({
   lore,
   showBookmark = false,
 }: {
@@ -44,22 +44,30 @@ export default function LoreItemCard({
 
   function highlightSearchText(text?: string) {
     if (searchText) {
-      let words = searchText?.split(" ");
-      if (synonyms) {
-        words.forEach((w: string) => {
-          if (synonyms[w.toLowerCase()]) {
-            words = [...words, ...synonyms[w.toLowerCase()]];
-          }
-        });
+      if (searchText.startsWith('"') && searchText.endsWith('"')) {
+        const rwords = new RegExp(
+          "\\b(" + searchText.slice(1, -1) + ")\\b",
+          "gmi"
+        );
+        return text?.replace(rwords, "<mark>$&</mark>") ?? "";
+      } else {
+        let words = searchText?.split(" ");
+        if (synonyms) {
+          words.forEach((w: string) => {
+            if (synonyms[w.toLowerCase()]) {
+              words = [...words, ...synonyms[w.toLowerCase()]];
+            }
+          });
+        }
+        const rwords = new RegExp("\\b(" + words.join("|") + ")\\b", "gmi");
+        return text?.replace(rwords, "<mark>$&</mark>") ?? "";
       }
-      const rwords = new RegExp("\\b(" + words.join("|") + ")\\b", "gmi");
-      return text?.replace(rwords, "<mark>$&</mark>") ?? "";
     }
     return text;
   }
 
   return (
-    <div className="lore-item p-6 border-2 border-orange-300">
+    <div className="lore-item p-6">
       <div className="flex items-baseline">
         <button onClick={toggleVisibility} title={isHidden ? "show" : "hide"}>
           {isHidden ? (
@@ -68,7 +76,7 @@ export default function LoreItemCard({
             <MinusIcon className="h-4 w-4" />
           )}
         </button>
-        <h1 className="flex-1 text-xl font-bold ml-2">{lore.name}</h1>
+        <h2 className="flex-1 text-xl font-bold ml-2">{lore.name}</h2>
         <span className="text-sm font-normal">
           {translateType(lore.datatype)}
         </span>
@@ -82,9 +90,9 @@ export default function LoreItemCard({
       </div>
 
       <div className={clsx("mt-4", isHidden && "hidden")}>
-        <div className="flex mb-4">
-          {lore.issuer ? (
-            <div className="bg-gray-200/20 p-2 mt-2">
+        {lore.issuer ? (
+          <div className="flex mb-4">
+            <div className="bg-gray-200/20 p-2">
               <p>
                 {lore.issuer} ({lore.place_name})
               </p>
@@ -92,19 +100,19 @@ export default function LoreItemCard({
                 {lore.journal_genre} ({lore.expansion})
               </p>
             </div>
-          ) : (
-            <></>
-          )}
-        </div>
+          </div>
+        ) : (
+          <></>
+        )}
 
-        <div
+        <p
           className="whitespace-pre-wrap"
           dangerouslySetInnerHTML={{
             __html: highlightSearchText(lore.text) || "",
           }}
         >
           {/* {lore.text} */}
-        </div>
+        </p>
       </div>
     </div>
   );

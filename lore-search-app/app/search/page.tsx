@@ -1,10 +1,6 @@
 import { Suspense } from "react";
 import SearchBox from "../ui/searchBox";
 import SearchResults from "../ui/searchResults";
-import BookmarksList from "../ui/bookmarksList";
-import BookmarksProvider from "../ui/bookmarksContexts";
-import SearchNavigationProvider from "../ui/searchNavigationContexts";
-import SearchNavigationList from "../ui/searchNavigationList";
 import ScrollToTopButton from "../ui/scrollToTopButton";
 
 export default function Page({
@@ -20,38 +16,28 @@ export default function Page({
   const currentPage = Number(searchParams?.page) || 1;
 
   return (
-    <div>
-      <BookmarksProvider>
-        <SearchNavigationProvider>
-          <div className="flex flex-row">
-            {/* <div className="hidden md:block flex-none w-1/4 border-r-2 border-orange-300 p-6 min-h-screen">
-              <SearchNavigationList />
-            </div> */}
+    <div className="flex flex-row">
+      <div className="p-8 flex-1 ">
+        <div className="flex items-center justify-between gap-2 min-w-full">
+          <SearchBox placeholder="Search..." />
+        </div>
 
-            <div className="p-8 flex-1 ">
-              <div className="flex items-center justify-between gap-2 min-w-full">
-                <SearchBox placeholder="Search..." />
-              </div>
+        <div className="mt-6">
+          <Suspense fallback={<Loading />}>
+            <SearchResults
+              query={query}
+              currentPage={currentPage}
+              sort={searchParams?.sort}
+            />
+          </Suspense>
+        </div>
 
-              <div className="mt-6">
-                <Suspense fallback={<Loading />}>
-                  <SearchResults
-                    query={query}
-                    currentPage={currentPage}
-                    sort={searchParams?.sort}
-                  />
-                </Suspense>
-              </div>
+        <ScrollToTopButton />
+      </div>
 
-              <ScrollToTopButton />
-            </div>
-
-            {/* <div className="hidden md:block flex-none w-1/4 border-l-2 border-orange-300 p-6 min-h-screen">
+      {/* <div className="hidden md:block flex-none w-1/4 border-l-2 border-orange-300 p-6 min-h-screen">
               <BookmarksList />
             </div> */}
-          </div>
-        </SearchNavigationProvider>
-      </BookmarksProvider>
     </div>
   );
 }

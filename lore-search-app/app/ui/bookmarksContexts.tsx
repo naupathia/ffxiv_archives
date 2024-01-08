@@ -7,7 +7,6 @@ import {
   useEffect,
   useReducer,
 } from "react";
-import { fetchManyLoreEntries } from "../lib/data";
 
 const BookmarksContext = createContext<Bookmark[]>([]);
 const BookmarksDispatchContext = createContext<Dispatch<any>>(
