@@ -1,43 +1,69 @@
-import { Suspense } from "react";
-import SearchBox from "../ui/searchBox";
-import SearchResults from "../ui/searchResults";
-import ScrollToTopButton from "../ui/scrollToTopButton";
+"use client";
 
-export default function Page({
-  searchParams,
-}: {
-  searchParams?: {
-    q?: string;
-    page?: string;
-    sort?: string;
-  };
-}) {
-  const query = searchParams?.q || "";
-  const currentPage = Number(searchParams?.page) || 1;
+import { useState } from "react";
+import SearchBox from "../ui/searchBox";
+import ScrollToTopButton from "../ui/scrollToTopButton";
+import { fetcher } from "../lib/functions";
+import LoreEntryList from "../ui/loreEntryList";
+import useSWRInfinite from "swr/infinite";
+
+export default function Page() {
+  const [searchParams, setSearchParams] = useState({
+    q: null,
+    sort: null,
+    page: 1,
+  });
+  const PAGE_SIZE = 100;
+
+  const shouldFetch = searchParams.q != null;
+
+  const { data, mutate, size, setSize, isValidating, isLoading } =
+    useSWRInfinite(
+      (page) =>
+        shouldFetch &&
+        `/api/search?q=${searchParams.q}&sort=${searchParams.sort}&page=${
+          page + 1
+        }`,
+      fetcher
+    );
+
+  const results = data ? [].concat(...data) : [];
+  const isLoadingMore =
+    isLoading || (size > 0 && data && typeof data[size - 1] === "undefined");
+  const isEmpty = data?.[0]?.length === 0;
+  const isReachingEnd =
+    isEmpty || (data && data[data.length - 1]?.length < PAGE_SIZE);
+  const isRefreshing = isValidating && data && data.length === size;
 
   return (
-    <div className="flex flex-row">
+    <div className="flex flex-col">
       <div className="p-8 flex-1 ">
         <div className="flex items-center justify-between gap-2 min-w-full">
-          <SearchBox placeholder="Search..." />
+          <SearchBox
+            placeholder="search..."
+            setSearchParams={setSearchParams}
+          />
         </div>
 
         <div className="mt-6">
-          <Suspense fallback={<Loading />}>
-            <SearchResults
-              query={query}
-              currentPage={currentPage}
-              sort={searchParams?.sort}
-            />
-          </Suspense>
+          {isLoading ? Loading() : <LoreEntryList items={results} />}
         </div>
-
-        <ScrollToTopButton />
       </div>
 
-      {/* <div className="hidden md:block flex-none w-1/4 border-l-2 border-orange-300 p-6 min-h-screen">
-              <BookmarksList />
-            </div> */}
+      <div className="flex flex-col items-center justify-between pb-20">
+        <button
+          disabled={isLoadingMore || isReachingEnd}
+          onClick={() => setSize(size + 1)}
+        >
+          {isLoadingMore
+            ? "loading..."
+            : isReachingEnd
+            ? "end of results"
+            : "load more"}
+        </button>
+      </div>
+
+      <ScrollToTopButton />
     </div>
   );
 }

@@ -67,7 +67,7 @@ export default function LoreEntryCard({
   }
 
   return (
-    <div className="lore-item p-6">
+    <div className="lore-item">
       <div className="flex items-baseline">
         <button onClick={toggleVisibility} title={isHidden ? "show" : "hide"}>
           {isHidden ? (

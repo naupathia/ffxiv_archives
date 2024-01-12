@@ -33,8 +33,8 @@ export async function fetchSearchResults(
   }
 
   const skip = (currentPage - 1) * ITEMS_PER_PAGE;
+  console.log("skip num " + skip);
 
-  // console.log(querystring);
   let query: any = createWordSearchQuery(querystring);
 
   if (querystring.startsWith('"') && querystring.endsWith('"')) {
@@ -44,10 +44,10 @@ export async function fetchSearchResults(
   const agg: any[] = [
     query,
     {
-      $limit: ITEMS_PER_PAGE,
+      $skip: skip,
     },
     {
-      $skip: skip,
+      $limit: ITEMS_PER_PAGE,
     },
   ];
 

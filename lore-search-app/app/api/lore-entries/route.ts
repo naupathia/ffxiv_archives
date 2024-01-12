@@ -5,7 +5,6 @@ import { NextRequest } from "next/server";
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
   const ids = searchParams.getAll("id");
-  console.log(ids);
 
   const data: any[] = await fetchManyLoreEntries(ids);
 

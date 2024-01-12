@@ -4,7 +4,7 @@ import { SORT_TYPES } from "@/types/enums";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
-export default function SearchBox({ placeholder }: { placeholder: string }) {
+export default function SearchBox({ placeholder, setSearchParams }: { placeholder: string, setSearchParams:any }) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
@@ -14,9 +14,16 @@ export default function SearchBox({ placeholder }: { placeholder: string }) {
     e.preventDefault();
 
     const formData = new FormData(e.target);
-    const asString = new URLSearchParams(formData as any).toString();
+    //const asString = new URLSearchParams(formData as any).toString();
 
-    replace(`${pathname}?${asString}`);
+    const params = {
+      q: formData.get("q"),
+      sort: formData.get("sort")
+    }
+
+    // replace(`${pathname}?${asString}`);
+    console.log(params);
+    setSearchParams(params);
   }
 
   function submitForm(e: any) {

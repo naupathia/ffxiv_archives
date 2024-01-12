@@ -42,7 +42,6 @@ export function useBookmarksDispatch() {
 }
 
 export function bookmarksReducer(bookmarks: Bookmark[], action: any) {
-  // console.log(action);
   switch (action.type) {
     case "add": {
       if (!containsLoreEntry(bookmarks, action.id)) {
