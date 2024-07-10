@@ -13,7 +13,7 @@ from .parse import (
 
 from .settings import OUTPUT_PATH
 
-import meilisearch
+# import meilisearch
 from dotenv import load_dotenv
 import os
 from pymongo.mongo_client import MongoClient
@@ -56,9 +56,9 @@ class ClientManager:
 
         return cls._client
 
-    @classmethod
-    def search_client(cls):
-        return meilisearch.Client('https://ms-fe1609dcce38-6766.nyc.meilisearch.io', os.getenv('API_KEY'))
+    # @classmethod
+    # def search_client(cls):
+    #     return meilisearch.Client('https://ms-fe1609dcce38-6766.nyc.meilisearch.io', os.getenv('API_KEY'))
         
 
 def get_all_docs():
@@ -101,6 +101,7 @@ def upload_docs(docs):
 
 def dump_docs(docs):
 
+    print('outputting text files...')
     with open(f"{OUTPUT_PATH}\\dump.txt", "w+", encoding="UTF-8") as fh:    
         for doc in docs:
             fh.write(_serialize(doc))

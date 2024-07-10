@@ -53,13 +53,11 @@ export default function BookmarksList() {
   }
 
   function handleDragEnd(event: any) {
-    console.log("sorting!");
     const { active, over } = event;
 
     if (active.id !== over.id) {
       const oldIndex = bookmarks.findIndex((i) => i.id == active.id);
       const newIndex = bookmarks.findIndex((i) => i.id == over.id);
-      console.log(`move ${oldIndex} to ${newIndex}`);
 
       const newlist = arrayMove(bookmarks, oldIndex, newIndex);
       dispatch({

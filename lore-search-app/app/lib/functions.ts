@@ -14,3 +14,6 @@ export function mapSynonymsToDict(synonyms: any) {
 
   return synonymMapper;
 }
+
+// @ts-ignore
+export const fetcher = (...args) => fetch(...args).then(res => res.json());

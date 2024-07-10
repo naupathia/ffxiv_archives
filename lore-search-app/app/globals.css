@@ -3,6 +3,11 @@
 @tailwind utilities;
 
 :root {
+  --border-gold: #ffc954;
+  --fg-gold: #fab92e;
+}
+
+/* :root {
   --fg-rgb: white;
   --bg-start-rgb: #040611;
   --bg-end-rgb: #040611;
@@ -14,7 +19,7 @@
     --bg-start-rgb: #040611;
     --bg-end-rgb: #040611
   }
-}
+} */
 
 /* body {
   color: var(--fg-rgb);
@@ -26,16 +31,11 @@
     var(--bg-start-rgb);
 } */
 
-body {
+/* body {
   color: white;
   background: #040611;
-  /* font-family: Helvetica, Arial, sans-serif; */
+  font-family: Helvetica, Arial, sans-serif;
 } 
-
-mark {
-  background: #213fec;
-  color: white;
-}
 
 .paper {
   background-color: #FCF5E5;
@@ -44,4 +44,110 @@ mark {
 .lore-item {
   background-color: #191A36;
   font-family: 'monaco', 'Consolas', 'Menlo', Courier, monospace;
+} 
+*/
+
+body {
+  background-color: #1a1a2e; 
+  color: #ffffff; 
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+mark {
+  background: #213fec;
+  color: white;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.header {
+  padding: 20px;
+  text-align: center;
+}
+
+.lore-item {
+  background-color: #0d0d1a;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border-gold);
+  border-radius: 2px;
+  /* font-family: "monaco", "Consolas", "Menlo", Courier, monospace; */
+}
+
+.lore-item h2 {
+  color: var(--fg-gold); /* Gold heading color */
+}
+
+.lore-item-body {
+  padding-top: 2em;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.lore-item-body p {
+  line-height: 1.6;
+}
+
+.footer {
+  background-color: #0d0d1a; /* Darker footer background */
+  padding: 10px;
+  text-align: center;
+}
+
+a {
+  color: var(--fg-gold); /* Gold link color */
+}
+
+a:hover {
+  color: #fddf9f; /* Lighter gold on hover */
+}
+
+.scrollToTopBtn {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  background-color: #eaf0ff;
+  color: #000;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.1s;
+}
+
+.scrollToTopBtn:hover {
+  background-color: var(--fg-gold);
+}
+
+.tab-header {
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 1rem;
+  border-bottom: 2px solid var(--border-gold);
+  border-top: 2px solid var(--border-gold);
+  box-shadow: 0 -4px 4px rgba(0, 0, 0, 0.5), 0 4px 4px rgba(0, 0, 0, 0.5);
+}
+
+.tab {
+  padding: 2px;
+  text-align: center;
+  flex-grow: 1;
+}
+
+.tab:hover {
+  background-color: var(--fg-gold);
+  color: black;
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.5), 2px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.gold-border {
+  border-color: var(--border-gold);
 }
