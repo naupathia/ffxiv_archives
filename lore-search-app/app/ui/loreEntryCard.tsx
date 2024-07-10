@@ -76,7 +76,7 @@ export default function LoreEntryCard({
             <MinusIcon className="h-4 w-4" />
           )}
         </button>
-        <h2 className="flex-1 text-xl font-bold ml-2">{lore.name}</h2>
+        <h2 className="flex-1 text-xl ml-2">{lore.name}</h2>
         <span className="text-sm font-normal">
           {translateType(lore.datatype)}
         </span>
@@ -89,7 +89,7 @@ export default function LoreEntryCard({
         </button> */}
       </div>
 
-      <div className={clsx("mt-4", isHidden && "hidden")}>
+      <div className={clsx("lore-item-body", isHidden && "hidden")}>
         {lore.issuer ? (
           <div className="flex mb-4">
             <div className="bg-gray-200/20 p-2">

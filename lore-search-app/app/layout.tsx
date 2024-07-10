@@ -44,18 +44,7 @@ export default function RootLayout({
               </a>
             </div>
           </div>
-
-          <div className="tab-header bg-blue-500/10">
-            <Link className="tab basis-1" href={`/search`}>
-              SEARCH
-            </Link>
-            <Link className="tab basis-1" href={`/bookmarks`}>
-              BOOKMARKS
-            </Link>
-          </div>
-          <BookmarksProvider>
-            <SynonymsProvider>{children}</SynonymsProvider>
-          </BookmarksProvider>
+        {children}
         </div>
       </body>
     </html>

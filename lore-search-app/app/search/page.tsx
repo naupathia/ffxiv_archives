@@ -1,19 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SearchBox from "../ui/searchBox";
 import ScrollToTopButton from "../ui/scrollToTopButton";
 import { fetcher } from "../lib/functions";
 import LoreEntryList from "../ui/loreEntryList";
 import useSWRInfinite from "swr/infinite";
+import clsx from "clsx";
+import { useSearchParams } from "next/navigation";
 
 export default function Page() {
+  const urlParams = useSearchParams();
   const [searchParams, setSearchParams] = useState({
     q: null,
     sort: null,
     page: 1,
-  });
+  } as any);
   const PAGE_SIZE = 100;
+
+  useEffect(() => {
+    if (urlParams && urlParams.get("q")) {
+      setSearchParams({
+        q: urlParams.get("q")?.toString(),
+        sort: null,
+        page: 1,
+      });
+    }
+  }, []);
 
   const shouldFetch = searchParams.q != null;
 
@@ -52,6 +65,7 @@ export default function Page() {
 
       <div className="flex flex-col items-center justify-between pb-20">
         <button
+          className={clsx(data && data.length > 0 ? "" : "hidden")}
           disabled={isLoadingMore || isReachingEnd}
           onClick={() => setSize(size + 1)}
         >

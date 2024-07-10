@@ -1,27 +1,30 @@
 "use client";
 
 import { SORT_TYPES } from "@/types/enums";
-import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { useSearchParams } from "next/navigation";
 
-export default function SearchBox({ placeholder, setSearchParams }: { placeholder: string, setSearchParams:any }) {
+export default function SearchBox({
+  placeholder,
+  setSearchParams,
+}: {
+  placeholder: string;
+  setSearchParams: any;
+}) {
   const searchParams = useSearchParams();
-  const pathname = usePathname();
-  const { replace } = useRouter();
-  const sortValue = searchParams.get("sort");
+  const queryString = searchParams.get("q")?.toString();
+  const sortValue = searchParams.get("sort")?.toString();
 
   function handleSearch(e: any) {
     e.preventDefault();
 
     const formData = new FormData(e.target);
-    //const asString = new URLSearchParams(formData as any).toString();
 
     const params = {
       q: formData.get("q"),
-      sort: formData.get("sort")
-    }
+      sort: formData.get("sort"),
+    };
 
-    // replace(`${pathname}?${asString}`);
     console.log(params);
     setSearchParams(params);
   }
@@ -43,7 +46,7 @@ export default function SearchBox({ placeholder, setSearchParams }: { placeholde
           name="q"
           className="peer block w-full text-black py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
           placeholder={placeholder}
-          defaultValue={searchParams.get("q")?.toString()}
+          defaultValue={queryString}
         />
 
         <fieldset>
@@ -54,7 +57,7 @@ export default function SearchBox({ placeholder, setSearchParams }: { placeholde
               id="sortRelevance"
               name="sort"
               value={SORT_TYPES.RELEVANCE}
-              defaultChecked={sortValue == SORT_TYPES.RELEVANCE || !sortValue}
+              defaultChecked={!sortValue || sortValue == SORT_TYPES.RELEVANCE}
               onChange={submitForm}
             />
             <label htmlFor="sortRelevance">relevance</label>
