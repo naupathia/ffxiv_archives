@@ -72,7 +72,7 @@ mark {
   background-color: #0d0d1a;
   padding: 20px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-  border: 1px solid black;
+  border: 1px solid var(--border-gold);
   border-radius: 2px;
   /* font-family: "monaco", "Consolas", "Menlo", Courier, monospace; */
 }
@@ -82,7 +82,7 @@ mark {
 }
 
 .lore-item-body {
-  padding-top: 8px;
+  padding-top: 2em;
   padding-left: 20px;
   padding-right: 20px;
 }

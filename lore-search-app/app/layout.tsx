@@ -20,7 +20,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <div>
-          <div className="flex">
+          <div className="flex bg-blue-500/10 border-b-2 border-orange-300">
             <div className="flex-1">
               <Image
                 src="/appname.png"
