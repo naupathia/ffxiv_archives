@@ -21,7 +21,7 @@ export default function SynonymsProvider({
 
       fetchSynonyms().catch((error) => console.log(error));
     }
-  }, []);
+  }, [synonyms]);
 
   return (
     <SynonymsContext.Provider value={{ synonyms, setSynonyms }}>

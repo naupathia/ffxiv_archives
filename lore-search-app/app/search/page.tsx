@@ -26,7 +26,7 @@ export default function Page() {
         page: 1,
       });
     }
-  }, []);
+  }, [urlParams]);
 
   const shouldFetch = searchParams.q != null;
 
