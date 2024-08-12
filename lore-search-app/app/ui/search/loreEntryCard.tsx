@@ -1,36 +1,34 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import clsx from "clsx";
-import { useBookmarksDispatch } from "./bookmarksContexts";
-import { BookmarkIcon, PlusIcon, MinusIcon } from "@heroicons/react/24/solid";
-import { useSynonyms } from "./synonymsContext";
+import { PlusIcon, MinusIcon } from "@heroicons/react/24/solid";
 import { useSearchParams } from "next/navigation";
 
 export default function LoreEntryCard({
-  lore,
-  showBookmark = false,
+  lore
 }: {
   lore: LoreEntry;
   showBookmark?: boolean;
 }) {
   const [isHidden, setHidden] = useState(false);
-  const dispatch = useBookmarksDispatch();
-  const { synonyms } = useSynonyms();
+  const [synonyms, setSynonyms] = useState([])
   const searchParams = useSearchParams();
   const searchText = searchParams.get("q");
 
+  useEffect(() => {
+    if (!synonyms) {
+      const fetchSynonyms = async () => {
+        const response = await fetch("/api/synonyms");
+        const result = await response.json();
+        setSynonyms(result);
+      };
+
+      fetchSynonyms().catch((error) => console.log(error));
+    }
+  }, []);
+
   function toggleVisibility(e: any) {
     setHidden(!isHidden);
-  }
-
-  function updateBookmarkStatus(e: any) {
-    console.log("button pushed");
-    dispatch({
-      type: "add",
-      id: lore._id,
-      name: lore.name,
-      datatype: lore.datatype,
-    });
   }
 
   function translateType(type: string) {

@@ -1,13 +1,6 @@
 "use client";
-import SynonymsProvider from "./ui/synonymsContext";
-import SearchTab from "./ui/searchTab";
+import { redirect } from "next/navigation";
 
 export default function Page() {
-  return (
-    <div>
-      <SynonymsProvider>
-        <SearchTab />
-      </SynonymsProvider>
-    </div>
-  );
+  redirect("/search");
 }

@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import SearchBox from "../ui/searchBox";
-import ScrollToTopButton from "../ui/scrollToTopButton";
-import { fetcher } from "../lib/functions";
-import LoreEntryList from "../ui/loreEntryList";
+import SearchBox from "./searchBox";
+import ScrollToTopButton from "../scrollToTopButton";
+import { fetcher } from "../../lib/functions";
+import LoreEntryList from "./loreEntryList";
 import useSWRInfinite from "swr/infinite";
 import clsx from "clsx";
 import { useSearchParams } from "next/navigation";

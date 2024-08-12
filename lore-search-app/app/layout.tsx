@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Image from "next/image";
-import Link from "next/link";
-import BookmarksProvider from "./ui/bookmarksContexts";
-import SynonymsProvider from "./ui/synonymsContext";
 import { HeartIcon } from "@heroicons/react/24/solid";
 
 export const metadata: Metadata = {

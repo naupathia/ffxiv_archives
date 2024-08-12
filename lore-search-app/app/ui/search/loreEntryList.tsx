@@ -3,8 +3,7 @@
 import LoreEntryCard from "./loreEntryCard";
 
 export default function LoreEntryList({
-  items,
-  showBookmark = false
+  items
 }: {
   items: LoreEntry[];
   showBookmark?: boolean;
@@ -20,7 +19,6 @@ export default function LoreEntryList({
               <a id={item._id} />
               <LoreEntryCard
                 lore={item}
-                showBookmark={showBookmark}
               ></LoreEntryCard>
             </div>
           ))}
