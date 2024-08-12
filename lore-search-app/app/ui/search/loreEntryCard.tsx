@@ -11,7 +11,7 @@ export default function LoreEntryCard({
   showBookmark?: boolean;
 }) {
   const [isHidden, setHidden] = useState(false);
-  const [synonyms, setSynonyms] = useState([])
+  const [synonyms, setSynonyms] = useState(null)
   const searchParams = useSearchParams();
   const searchText = searchParams.get("q");
 
