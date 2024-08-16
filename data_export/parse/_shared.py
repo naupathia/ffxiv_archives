@@ -2,6 +2,7 @@ import pathlib
 import csv 
 import uuid
 from data_export.settings import DATA_PATH
+import dataclasses
 
 def iter_dir_files(dir_path):
     
@@ -33,6 +34,14 @@ def iter_csv_rows(file_path, skip_row_count=3):
                 continue
 
             yield line
+
+@dataclasses.dataclass
+class SearchRecord: 
+    key: int
+    name: str 
+    text: str
+    datatype: str
+    meta: dict = None
 
 class GameTypeRowAdapter:
 

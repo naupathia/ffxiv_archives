@@ -9,9 +9,15 @@ import { mapSynonymsToDict } from "./functions";
 //   throw new Error('Invalid/Missing environment variable: "MONGODB_URI"');
 // }
 
-const uri: string = process.env.MONGODB_URI ?? "";
+// const uri: string = process.env.MONGODB_URI ?? "";
+
 const ITEMS_PER_PAGE = 100;
 const API_KEY = process.env.API_KEY;
+const DATASOURCE = "Cluster0"
+const DATABASE = 'tea'
+const COLLECTION = 'lore2'
+const INDEX_NAME = 'default'
+const SYNONYMS = 'synonym_mapping'
 
 function createClient() {
   return axios.create({
@@ -23,7 +29,9 @@ function createClient() {
 export async function fetchSearchResults(
   querystring: string = "",
   currentPage: number = 1,
-  sort: string = ""
+  sort: string = "",
+  expansion: string = '',
+  category: string = ''
 ) {
   if (!querystring) {
     return [];
@@ -41,29 +49,43 @@ export async function fetchSearchResults(
     query = createPhraseSearchQuery(querystring);
   }
 
-  const agg: any[] = [
-    query,
-    {
-      $skip: skip,
-    },
-    {
-      $limit: ITEMS_PER_PAGE,
-    },
-  ];
+  const agg: any[] = [];
+
+  agg.push(query);
+
+  if (expansion) {
+    agg.push({
+      $match: { expansion: expansion },
+    });
+  }
+
+  if (category) {
+    agg.push({
+      $match: { datatype: category },
+    });
+  }
 
   if (sort && sort == SORT_TYPES.CATEGORY) {
     agg.push({
-      $sort: { datatype: -1, sortorder: 1, name: 1 },
+      $sort: { datatype: -1, rank: 1, name: 1 },
     });
   }
+
+  agg.push({
+    $skip: skip,
+  });
+
+  agg.push({
+    $limit: ITEMS_PER_PAGE,
+  });
 
   try {
     const client = createClient();
 
     const response = await client.post("/action/aggregate", {
-      dataSource: "Cluster0",
-      database: "tea",
-      collection: "lore",
+      dataSource: DATASOURCE,
+      database: DATABASE,
+      collection: COLLECTION,
       pipeline: agg,
     });
 
@@ -78,7 +100,7 @@ export async function fetchSearchResults(
 function createPhraseSearchQuery(querystring: string) {
   return {
     $search: {
-      index: "lore_text_search",
+      index: INDEX_NAME,
       phrase: {
         query: querystring,
         path: ["name", "text"],
@@ -92,13 +114,13 @@ function createWordSearchQuery(querystring: string) {
     text: {
       query: word,
       path: ["text", "name"],
-      synonyms: "synonyms",
+      synonyms: SYNONYMS,
     },
   }));
 
   return {
     $search: {
-      index: "lore_text_search",
+      index: INDEX_NAME,
       compound: {
         must: wordQueries,
       },
@@ -111,9 +133,9 @@ export async function fetchLoreEntry(id: string) {
     const client = createClient();
 
     const response = await client.post("/action/findOne", {
-      dataSource: "Cluster0",
-      database: "tea",
-      collection: "lore",
+      dataSource: DATASOURCE,
+      database: DATABASE,
+      collection: COLLECTION,
       filter: { _id: { $oid: id } },
     });
 
@@ -130,9 +152,9 @@ export async function fetchManyLoreEntries(ids: any) {
     const idParams = ids.map((i: string) => ({ $oid: i }));
     const client = createClient();
     const response = await client.post("/action/find", {
-      dataSource: "Cluster0",
-      database: "tea",
-      collection: "lore",
+      dataSource: DATASOURCE,
+      database: DATABASE,
+      collection: COLLECTION,
       filter: { _id: { $in: idParams } },
     });
 
@@ -156,8 +178,8 @@ export async function fetchSynonyms() {
   try {
     const client = createClient();
     const response = await client.post("/action/find", {
-      dataSource: "Cluster0",
-      database: "tea",
+      dataSource: DATASOURCE,
+      database: DATABASE,
       collection: "synonyms",
       filter: {},
     });

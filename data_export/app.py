@@ -1,4 +1,3 @@
-
 from .parse import (
     quests,
     cutscenes,
@@ -8,7 +7,7 @@ from .parse import (
     fates,
     fishes,
     mounts,
-    custom
+    custom,
 )
 
 from .settings import OUTPUT_PATH
@@ -18,6 +17,7 @@ from dotenv import load_dotenv
 import os
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
+from pymongo.operations import SearchIndexModel
 
 load_dotenv()
 
@@ -30,9 +30,9 @@ SERIALIZERS = {
     fates.DATATYPE: fates.serialize,
     fishes.DATATYPE: fishes.serialize,
     mounts.DATATYPE: mounts.serialize,
-    custom.DATATYPE: custom.serialize
-    
+    custom.DATATYPE: custom.serialize,
 }
+
 
 class ClientManager:
     _client: MongoClient = None
@@ -59,10 +59,10 @@ class ClientManager:
     # @classmethod
     # def search_client(cls):
     #     return meilisearch.Client('https://ms-fe1609dcce38-6766.nyc.meilisearch.io', os.getenv('API_KEY'))
-        
+
 
 def get_all_docs():
-    
+
     print("gathering records...")
     docs = []
     docs = docs + list(quests.QuestIterator())
@@ -76,13 +76,35 @@ def get_all_docs():
 
     return docs
 
+
 def upload_docs(docs):
 
     db = ClientManager.connect().tea
-    collection = db.lore
-    
+    collection = db.lore2
+
     print("truncating collection...")
     collection.delete_many({})
+
+    # definition={
+    #     "mappings": {
+    #         "dynamic": True,
+    #         "fields": {
+    #             "datatype": {"type": "token", "normalizer": "lowercase | none"},
+    #             "key": {"type": "number"},
+    #             "name": {"type": "string"},
+    #             "text": {"type": "string"},
+    #             "expansion": {"type": "token", "normalizer": "lowercase | none"},
+    #             "rank": {"type": "number"},
+    #         },
+    #     }
+    # }
+    
+    # search_index_model = SearchIndexModel(
+    #     definition=definition,
+    #     name="lore_search"
+    # )
+    
+    # collection.create_search_index(model=search_index_model)
 
     print("inserting records...")
     collection.insert_many(docs)
@@ -94,17 +116,19 @@ def upload_docs(docs):
 
     # while task.status in ('enqueued', 'processing'):
     #     time.sleep(0.5)
-    #     task = client.get_task(task.task_uid)    
+    #     task = client.get_task(task.task_uid)
 
     # print('uploading documents...')
     # client.index('lore').add_documents_in_batches(docs, primary_key="id")
 
+
 def dump_docs(docs):
 
-    print('outputting text files...')
-    with open(f"{OUTPUT_PATH}\\dump.txt", "w+", encoding="UTF-8") as fh:    
+    print("outputting text files...")
+    with open(f"{OUTPUT_PATH}\\dump.txt", "w+", encoding="UTF-8") as fh:
         for doc in docs:
             fh.write(_serialize(doc))
+
 
 def _serialize(doc):
 
@@ -116,9 +140,8 @@ def run():
 
     docs = get_all_docs()
 
-    dump_docs(docs)
+    # dump_docs(docs)
     upload_docs(docs)
-
 
     # db = ClientManager.connect().tea
     # collection = db.lore

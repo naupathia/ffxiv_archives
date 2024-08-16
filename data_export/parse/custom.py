@@ -3,7 +3,7 @@ from . import _scrub, _shared
 from ._scrub import SPEAKER_MAPS, SPEAKER_SKIPS
 
 OUTPUT_FILE = "customtext.txt"
-DATATYPE = "CUSTOM"
+DATATYPE = "custom"
 
 
 class CustomDirIterator(_shared.DirIterator):
@@ -15,10 +15,10 @@ class CustomDirIterator(_shared.DirIterator):
         contents = parse_speaker_transcript_file(filepath)
 
         result = {
-            "filename": file_name,
             "name": file_name,
             "text": contents,
             "datatype": DATATYPE,
+            "meta": {"filename": file_name},
             # "id": _shared.get_id(),
         }
 
@@ -71,15 +71,16 @@ def parse_speaker_transcript_file(file_path):
             current_speaker = ("_").join(tokens[3:-2])
             current_speaker = f"{current_speaker}-{group_num}"
 
-        if previous_speaker == current_speaker and line_num != (previous_line_num +1):
+        if previous_speaker == current_speaker and line_num != (previous_line_num + 1):
             # insert extra new line to separate the speaking blocks
             if text:
-                text = f'\n[{current_speaker}]\n' + text
-            
+                text = f"\n[{current_speaker}]\n" + text
 
         if previous_speaker and previous_speaker != current_speaker:
             if speaker_lines and previous_speaker not in SPEAKER_SKIPS:
-                parsed.append(_scrub.format_speaker_text(previous_speaker, speaker_lines))
+                parsed.append(
+                    _scrub.format_speaker_text(previous_speaker, speaker_lines)
+                )
                 parsed.append("")
 
             speaker_lines = []
@@ -89,7 +90,7 @@ def parse_speaker_transcript_file(file_path):
 
         previous_speaker = current_speaker
         previous_line_num = line_num
-        
+
     if speaker_lines and previous_speaker not in SPEAKER_SKIPS:
         parsed.append(_scrub.format_speaker_text(previous_speaker, speaker_lines))
         parsed.append("")
