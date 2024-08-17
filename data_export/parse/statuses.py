@@ -2,7 +2,7 @@ from data_export.settings import OUTPUT_PATH
 from . import _scrub, _shared
 
 OUTPUT_FILE = "statuses.txt"
-DATATYPE ="STATUS"
+DATATYPE ="status"
 
 class StatusReader(_shared.GameTypeRowAdapter):
 
@@ -14,10 +14,9 @@ class StatusReader(_shared.GameTypeRowAdapter):
     @classmethod
     def read_record(cls, row: dict):
         return {
+            "key": row[cls.KEY],
             "name": row[cls.NAME],
             "text": _scrub.sanitize_text(row[cls.DESCRIPTION]),
-            "icon": row[cls.ICON],
-            "key": row[cls.KEY],
             "datatype": DATATYPE,
             # "id": _shared.get_id(),
         }

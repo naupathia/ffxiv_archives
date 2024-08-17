@@ -6,7 +6,7 @@ from collections import defaultdict
 pd.options.display.max_rows = 10
 
 OUTPUT_FILE = "quests.txt"
-DATATYPE = "QUEST"
+DATATYPE = "quest"
 
 QUEST_METADATA_COLS = [
     "#",
@@ -69,12 +69,23 @@ class QuestIterator(_shared.DirIterator):
             filepath, get_speaker=get_speaker
         )
 
-        result = row.to_dict("records")[0]
-        result["filename"] = filename
-        result["datatype"] = DATATYPE
-        result["text"] = contents
-        result["sortorder"] = self.item_sort_order
-        # result["id"] = _shared.get_id()
+        row_values = row.to_dict("records")[0]
+
+        result = {
+            "key": row_values["key"],
+            "name": row_values["name"],
+            "datatype": DATATYPE,
+            "text": contents,
+            "expansion": row_values["expansion"].lower(),
+            "rank": self.item_sort_order,
+            "meta": {
+                "previous_quest": row_values["previous_quest"],
+                "issuer": row_values["issuer"],
+                "place_name": row_values["place_name"],
+                "journal_genre": row_values["journal_genre"],
+                "filename": filename
+            }
+        }
 
         self.item_sort_order += 1
 
@@ -92,9 +103,9 @@ def serialize(record):
 ---------------------------------------------------------------------
 [QUEST]
 
-{record["name"]} ({record["filename"]})
-Issuer: {record["issuer"]} [{record["place_name"]}]
-Journal: {record["journal_genre"]} [{record["expansion"]}]
+{record["name"]} ({record["meta"]["filename"]})
+Issuer: {record["meta"]["issuer"]} [{record["meta"]["place_name"]}]
+Journal: {record["meta"]["journal_genre"]} [{record["expansion"]}]
 
 {record["text"]}
 

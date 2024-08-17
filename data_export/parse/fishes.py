@@ -2,7 +2,7 @@ from data_export.settings import OUTPUT_PATH
 from . import _shared
 
 OUTPUT_FILE = "fishes.txt"
-DATATYPE ="FISH"
+DATATYPE ="fish"
 
 class FishReader(_shared.GameTypeRowAdapter):
    

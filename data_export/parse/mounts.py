@@ -18,7 +18,7 @@ METADATA_COL_ALIASES = {
 }
 
 OUTPUT_FILE = "mounts.txt"
-DATATYPE ="MOUNT"
+DATATYPE ="mount"
 
 class MountReader(_shared.GameTypeRowAdapter):
 

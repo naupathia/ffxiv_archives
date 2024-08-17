@@ -2,7 +2,7 @@ from data_export.settings import OUTPUT_PATH
 from . import _scrub, _shared
 
 OUTPUT_FILE = "cutscenes.txt"
-DATATYPE = "CUTSCENE"
+DATATYPE = "cutscene"
 
 
 class CutsceneIterator(_shared.DirIterator):
@@ -26,16 +26,35 @@ class CutsceneIterator(_shared.DirIterator):
         filenum = file_name[-5:]
 
         patch_num = dirname[1] + "." + dirname[2]
+
         result = {
-            "filename": file_name,
-            "patch": patch_num,
             "name": f"Cutscenes {patch_num}.{filenum}",
             "text": contents,
             "datatype": DATATYPE,
-            # "id": _shared.get_id(),
+            "expansion": self.get_expansion(dirname[1]).lower(),
+            "meta": {
+                "filename": file_name,
+                "patch": patch_num,
+            }
         }
 
         return result
+    
+    def get_expansion(self, number):
+        if(number == "2"):
+            return "A Realm Reborn"
+        if(number == "3"):
+            return "Heavensward"
+        if(number == "4"):
+            return "Stormblood"
+        if(number == "5"):
+            return "Shadowbringers"
+        if(number == "6"):
+            return "Endwalker"
+        if(number == "7"):
+            return "Dawntrail"
+        
+        return ""
 
 
 def dump_text_file():

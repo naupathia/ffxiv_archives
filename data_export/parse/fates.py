@@ -2,7 +2,7 @@ from data_export.settings import OUTPUT_PATH
 from . import _scrub, _shared
 
 OUTPUT_FILE = "fates.txt"
-DATATYPE = "FATE"
+DATATYPE = "fate"
 
 class FateReader(_shared.GameTypeRowAdapter):
 
@@ -17,8 +17,10 @@ class FateReader(_shared.GameTypeRowAdapter):
             "name": row[cls.NAME],
             "text": _scrub.sanitize_text(row[cls.DESCRIPTION]),
             "key": row[cls.KEY],
-            "location": row[cls.LOCATION],
             "datatype": DATATYPE,
+            "meta": {                
+                "location": row[cls.LOCATION],
+            }
             # "id": _shared.get_id(),
         }
 
@@ -41,7 +43,7 @@ def serialize(data: dict):
 ---------------------------------------------------------------------
 [FATE]
 
-{data["name"]} ({data["location"]})
+{data["name"]} ({data["meta"]["location"]})
 
 {data["text"]}
 
