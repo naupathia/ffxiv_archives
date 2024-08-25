@@ -7,7 +7,7 @@ export default function LoreEntryList({
   searchText
 }: {
   items: LoreEntry[];
-  showBookmark?: boolean;
+  searchText?: string;
 }) {
   const hasResults = items && items.length > 0; 
 
