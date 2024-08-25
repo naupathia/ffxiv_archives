@@ -2,18 +2,16 @@
 import { useEffect, useState } from "react";
 import clsx from "clsx";
 import { PlusIcon, MinusIcon } from "@heroicons/react/24/solid";
-import { useSearchParams } from "next/navigation";
 
 export default function LoreEntryCard({
-  lore
+  lore,
+  searchText
 }: {
   lore: LoreEntry;
-  showBookmark?: boolean;
+  searchText?:string
 }) {
   const [isHidden, setHidden] = useState(false);
   const [synonyms, setSynonyms] = useState(null)
-  const searchParams = useSearchParams();
-  const searchText = searchParams.get("q");
 
   useEffect(() => {
     if (!synonyms) {
