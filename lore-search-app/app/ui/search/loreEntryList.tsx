@@ -3,10 +3,11 @@
 import LoreEntryCard from "./loreEntryCard";
 
 export default function LoreEntryList({
-  items
+  items,
+  searchText
 }: {
   items: LoreEntry[];
-  showBookmark?: boolean;
+  searchText?: string;
 }) {
   const hasResults = items && items.length > 0; 
 
@@ -19,6 +20,7 @@ export default function LoreEntryList({
               <a id={item._id} />
               <LoreEntryCard
                 lore={item}
+                searchText={searchText}
               ></LoreEntryCard>
             </div>
           ))}
