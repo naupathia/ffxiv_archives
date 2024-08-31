@@ -7,7 +7,7 @@ export default function RadioGroup({
 }) {
   return (
     <fieldset>
-      <div className="flex flex-row space-x-2 mt-2">
+      <div className="flex flex-col mt-2 space-y-1 lg:flex-row lg:space-x-1 lg:items-center">
         <legend>{group}</legend>
         {items.map((x) => {
           const id = "rdo_" + x.value.replace(" ", "_");
