@@ -58,6 +58,14 @@ mark {
   color: white;
 }
 
+legend {  
+  color: var(--fg-gold); /* Gold link color */
+}
+
+.form-button {
+  color: rgb(119, 119, 165); 
+}
+
 .container {
   max-width: 800px;
   margin: 0 auto;

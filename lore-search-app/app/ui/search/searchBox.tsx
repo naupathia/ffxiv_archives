@@ -3,6 +3,9 @@
 import { SORT_TYPES } from "@/types/enums";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import CheckboxGroup from "../checkboxgroup";
+import RadioGroup from "../radiogroup";
 
 export default function SearchBox({
   placeholder,
@@ -11,32 +14,49 @@ export default function SearchBox({
   placeholder: string;
   setSearchParams: any;
 }) {
-  const searchParams = useSearchParams();
-  const queryString = searchParams.get("q")?.toString();
-  const sortValue = searchParams.get("sort")?.toString();
+  const [sort, setSort] = useState(SORT_TYPES.RELEVANCE);
+  const [expansions, setExpansions] = useState([
+    { value: "a realm reborn", label: "A Realm Reborn", isChecked: true },
+    { value: "heavensward", label: "Heavensward", isChecked: true },
+    { value: "stormblood", label: "Stormblood", isChecked: true },
+    { value: "shadowbringers", label: "Shadowbringers", isChecked: true },
+    { value: "endwalker", label: "Endwalker", isChecked: true },
+    { value: "dawntrail", label: "Dawntrail", isChecked: true },
+  ]);
+  const [categories, setCategories] = useState([
+    { value: "quest", label: "quest", isChecked: true },
+    { value: "cutscene", label: "cutscene", isChecked: true },
+    { value: "custom", label: "dialogue", isChecked: true },
+    { value: "fate", label: "fate", isChecked: true },
+    { value: "item", label: "item", isChecked: true },
+    { value: "fish", label: "fish", isChecked: true },
+    { value: "card", label: "triple triad card", isChecked: true },
+    { value: "mount", label: "mount", isChecked: true },
+  ]);
+  const sortValues = [
+    { value: SORT_TYPES.RELEVANCE, label: "relevance", isChecked: true },
+    { value: SORT_TYPES.CATEGORY, label: "category", isChecked: false },
+  ];
 
   function handleSearch(e: any) {
     e.preventDefault();
 
     const formData = new FormData(e.target);
-
+    // console.log(formData)
     const params = {
       q: formData.get("q"),
       sort: formData.get("sort"),
+      category: formData.getAll("category"),
+      expansion: formData.getAll("expansion"),
     };
 
-    console.log(params);
     setSearchParams(params);
-  }
-
-  function submitForm(e: any) {
-    const form = e.target.form as HTMLFormElement;
-    form.requestSubmit();
   }
 
   return (
     <div className="relative flex flex-1 flex-shrink-0">
       <form onSubmit={handleSearch} className="peer block w-full">
+        <input type="submit" className="sr-only" name="submit" />
         <label htmlFor="search" className="sr-only">
           Search
         </label>
@@ -46,35 +66,17 @@ export default function SearchBox({
           name="q"
           className="peer block w-full text-black py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
           placeholder={placeholder}
-          defaultValue={queryString}
         />
 
-        <fieldset>
-          <div className="flex flex-row space-x-2 mt-2">
-            <legend>sort by</legend>
-            <input
-              type="radio"
-              id="sortRelevance"
-              name="sort"
-              value={SORT_TYPES.RELEVANCE}
-              defaultChecked={!sortValue || sortValue == SORT_TYPES.RELEVANCE}
-              onChange={submitForm}
-            />
-            <label htmlFor="sortRelevance">relevance</label>
+        <RadioGroup
+          group="sort"
+          items={sortValues}
+          setSelectedHandler={setSort}
+        />
 
-            <input
-              type="radio"
-              id="sortCategory"
-              name="sort"
-              value={SORT_TYPES.CATEGORY}
-              defaultChecked={sortValue == SORT_TYPES.CATEGORY}
-              onChange={submitForm}
-            />
-            <label htmlFor="sortCategory">category</label>
-          </div>
-        </fieldset>
+        <CheckboxGroup items={categories} group="category" />
 
-        <input type="submit" className="sr-only" name="submit" />
+        <CheckboxGroup items={expansions} group="expansion" />
       </form>
     </div>
   );

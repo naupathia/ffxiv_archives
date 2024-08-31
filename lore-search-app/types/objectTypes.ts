@@ -1,23 +1,37 @@
 type LoreEntry = {
-    _id: string;
-    datatype: string;
-    name?: string;
-    text?: string;
-    sortorder?: number;
-    place_name?: string;
-    patch?: string;
-    issuer?: string;
-    journal_genre?: string;
-    expansion?: string
+  _id: string;
+  datatype: string;
+  name?: string;
+  text?: string;
+  sortorder?: number;
+  place_name?: string;
+  patch?: string;
+  issuer?: string;
+  journal_genre?: string;
+  expansion?: string;
 };
 
 type Bookmark = {
-    id: string;
-    name: string;
-    datatype: string
-}
+  id: string;
+  name: string;
+  datatype: string;
+};
 
 type Project = {
-    id: string; 
-    name: string
-}
+  id: string;
+  name: string;
+};
+
+type CheckBoxItem = {
+  value: string;
+  label: string;
+  isChecked: boolean;
+};
+
+type SearchParams = {
+  q?: string;
+  sort?: string;
+  category: string[];
+  expansion: string[];
+  page: number;
+};
