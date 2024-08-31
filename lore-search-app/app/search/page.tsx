@@ -12,31 +12,40 @@ import { fetcher } from "../lib/functions";
 export default function Page() {
   const urlParams = useSearchParams();
   const [searchParams, setSearchParams] = useState({
-    q: null,
-    sort: null,
+    category: [],
+    expansion: [],
     page: 1,
-  } as any);
+  } as SearchParams);
   const PAGE_SIZE = 100;
 
   useEffect(() => {
     if (urlParams && urlParams.get("q")) {
       setSearchParams({
         q: urlParams.get("q")?.toString(),
-        sort: null,
+        category: [],
+        expansion: [],
         page: 1,
       });
     }
   }, [urlParams]);
 
-  const shouldFetch = searchParams.q != null;
+  const shouldFetch = searchParams.q != null && searchParams.q != "";
+  const categoryList =
+    searchParams.category.length > 0
+      ? "&category=" + searchParams.category.join("&category=")
+      : "";
+  const expansionList =
+    searchParams.expansion.length > 0
+      ? "&expansion=" + searchParams.expansion.join("&expansion=")
+      : "";
+  const searchUri = encodeURI(
+    `/api/search?q=${searchParams.q}&sort=${searchParams.sort}${categoryList}${expansionList}`
+  );
+  // console.log(shouldFetch);
 
   const { data, mutate, size, setSize, isValidating, isLoading } =
     useSWRInfinite(
-      (page) =>
-        shouldFetch &&
-        `/api/search?q=${searchParams.q}&sort=${searchParams.sort}&page=${
-          page + 1
-        }`,
+      (page) => shouldFetch && searchUri + `&page=${page + 1}`,
       fetcher
     );
 
@@ -59,7 +68,11 @@ export default function Page() {
         </div>
 
         <div className="mt-6">
-          {isLoading ? Loading() : <LoreEntryList items={results} searchText={searchParams.q} />}
+          {isLoading ? (
+            Loading()
+          ) : (
+            <LoreEntryList items={results} searchText={searchParams.q} />
+          )}
         </div>
       </div>
 

@@ -13,11 +13,11 @@ import { mapSynonymsToDict } from "./functions";
 
 const ITEMS_PER_PAGE = 100;
 const API_KEY = process.env.API_KEY;
-const DATASOURCE = "Cluster0"
-const DATABASE = 'tea'
-const COLLECTION = 'lore2'
-const INDEX_NAME = 'default'
-const SYNONYMS = 'synonym_mapping'
+const DATASOURCE = "Cluster0";
+const DATABASE = "tea";
+const COLLECTION = "lore2";
+const INDEX_NAME = "default";
+const SYNONYMS = "synonym_mapping";
 
 function createClient() {
   return axios.create({
@@ -30,8 +30,8 @@ export async function fetchSearchResults(
   querystring: string = "",
   currentPage: number = 1,
   sort: string = "",
-  expansion: string = '',
-  category: string = ''
+  expansion: string[] = [],
+  category: string[] = []
 ) {
   if (!querystring) {
     return [];
@@ -41,7 +41,6 @@ export async function fetchSearchResults(
   }
 
   const skip = (currentPage - 1) * ITEMS_PER_PAGE;
-  console.log("skip num " + skip);
 
   let query: any = createWordSearchQuery(querystring);
 
@@ -54,14 +53,18 @@ export async function fetchSearchResults(
   agg.push(query);
 
   if (expansion) {
+    let e: any = [...expansion];
+    if (expansion.length > 0 && expansion[0] != "") {
+      e = [...expansion, null];
+    }
     agg.push({
-      $match: { expansion: expansion },
+      $match: { expansion: { $in: e } },
     });
   }
 
   if (category) {
     agg.push({
-      $match: { datatype: category },
+      $match: { datatype: { $in: category } },
     });
   }
 
