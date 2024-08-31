@@ -2,8 +2,6 @@
 
 import { SORT_TYPES } from "@/types/enums";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
 import CheckboxGroup from "../checkboxgroup";
 import RadioGroup from "../radiogroup";
 
@@ -14,16 +12,15 @@ export default function SearchBox({
   placeholder: string;
   setSearchParams: any;
 }) {
-  const [sort, setSort] = useState(SORT_TYPES.RELEVANCE);
-  const [expansions, setExpansions] = useState([
+  const expansions: CheckBoxItem[] = [
     { value: "a realm reborn", label: "A Realm Reborn", isChecked: true },
     { value: "heavensward", label: "Heavensward", isChecked: true },
     { value: "stormblood", label: "Stormblood", isChecked: true },
     { value: "shadowbringers", label: "Shadowbringers", isChecked: true },
     { value: "endwalker", label: "Endwalker", isChecked: true },
     { value: "dawntrail", label: "Dawntrail", isChecked: true },
-  ]);
-  const [categories, setCategories] = useState([
+  ];
+  const categories: CheckBoxItem[] = [
     { value: "quest", label: "quest", isChecked: true },
     { value: "cutscene", label: "cutscene", isChecked: true },
     { value: "custom", label: "dialogue", isChecked: true },
@@ -32,8 +29,8 @@ export default function SearchBox({
     { value: "fish", label: "fish", isChecked: true },
     { value: "card", label: "triple triad card", isChecked: true },
     { value: "mount", label: "mount", isChecked: true },
-  ]);
-  const sortValues = [
+  ];
+  const sortValues: CheckBoxItem[] = [
     { value: SORT_TYPES.RELEVANCE, label: "relevance", isChecked: true },
     { value: SORT_TYPES.CATEGORY, label: "category", isChecked: false },
   ];
@@ -68,11 +65,7 @@ export default function SearchBox({
           placeholder={placeholder}
         />
 
-        <RadioGroup
-          group="sort"
-          items={sortValues}
-          setSelectedHandler={setSort}
-        />
+        <RadioGroup group="sort" items={sortValues} />
 
         <CheckboxGroup items={categories} group="category" />
 
