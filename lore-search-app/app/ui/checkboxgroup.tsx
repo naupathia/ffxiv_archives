@@ -26,12 +26,20 @@ export default function CheckboxGroup({
   };
 
   return (
-    <div className="form-group form-checkbox flex flex-row space-x-2">
+    <div className="form-group form-checkbox flex flex-col space-y-1 lg:flex-row lg:space-x-1 lg:items-center">
       <legend>{group}</legend>
+      <div className="lg:hidden flex flex-row space-x-2">
+        <button onClick={checkAll} className="form-button">
+          (select all)
+        </button>
+        <button onClick={uncheckAll} className="form-button">
+          (unselect all)
+        </button>
+      </div>
       {items.map((x, idx) => {
         const id = "chk_" + x.value.replace(" ", "_");
         return (
-          <div key={id} className="flex flex-row space-x-2">
+          <div key={id} className="flex flex-row space-x-1">
             <input
               type="checkbox"
               ref={(element) => {
@@ -48,12 +56,15 @@ export default function CheckboxGroup({
         );
       })}
 
-      <button onClick={checkAll} className="form-button">
-        (select all)
-      </button>
-      <button onClick={uncheckAll} className="form-button">
-        (unselect all)
-      </button>
+      {/* Buttons only for horiztonal layout */}
+      <div className="hidden lg:flex lg:flex-row lg:space-x-2">
+        <button onClick={checkAll} className="form-button">
+          (select all)
+        </button>
+        <button onClick={uncheckAll} className="form-button">
+          (unselect all)
+        </button>
+      </div>
     </div>
   );
 }
