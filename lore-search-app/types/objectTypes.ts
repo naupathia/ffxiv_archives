@@ -1,14 +1,18 @@
 type LoreEntry = {
   _id: string;
   datatype: string;
-  name?: string;
-  text?: string;
-  sortorder?: number;
+  name: string;
+  text: string;
+  expansion?: string;
+  rank?: number;
+  meta?: LoreEntryMetadata;  
+};
+
+type LoreEntryMetadata = {
   place_name?: string;
   patch?: string;
   issuer?: string;
   journal_genre?: string;
-  expansion?: string;
 };
 
 type Bookmark = {

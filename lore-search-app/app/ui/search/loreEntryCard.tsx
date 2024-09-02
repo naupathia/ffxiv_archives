@@ -1,17 +1,19 @@
 "use client";
 import { useEffect, useState } from "react";
-import clsx from "clsx";
 import { PlusIcon, MinusIcon } from "@heroicons/react/24/solid";
+import { highlightSearchText, translateType } from "@/app/lib/functions";
+import LoreItemBody from "../item/loreItemBody";
+import Link from "next/link";
 
 export default function LoreEntryCard({
   lore,
-  searchText
+  searchText,
 }: {
   lore: LoreEntry;
-  searchText?:string
+  searchText?: string;
 }) {
   const [isHidden, setHidden] = useState(false);
-  const [synonyms, setSynonyms] = useState(null)
+  const [synonyms, setSynonyms] = useState(null);
 
   useEffect(() => {
     if (!synonyms) {
@@ -29,38 +31,7 @@ export default function LoreEntryCard({
     setHidden(!isHidden);
   }
 
-  function translateType(type: string) {
-    switch (type) {
-      case "TRIPLETRIADCARD":
-        return "TRIPLE TRIAD CARD";
-      default:
-        return type;
-    }
-  }
-
-  function highlightSearchText(text?: string) {
-    if (searchText) {
-      if (searchText.startsWith('"') && searchText.endsWith('"')) {
-        const rwords = new RegExp(
-          "\\b(" + searchText.slice(1, -1) + ")\\b",
-          "gmi"
-        );
-        return text?.replace(rwords, "<mark>$&</mark>") ?? "";
-      } else {
-        let words = searchText?.split(" ");
-        if (synonyms) {
-          words.forEach((w: string) => {
-            if (synonyms[w.toLowerCase()]) {
-              words = [...words, ...synonyms[w.toLowerCase()]];
-            }
-          });
-        }
-        const rwords = new RegExp("\\b(" + words.join("|") + ")\\b", "gmi");
-        return text?.replace(rwords, "<mark>$&</mark>") ?? "";
-      }
-    }
-    return text;
-  }
+  const innerText = highlightSearchText(lore.text, searchText, synonyms) || "";
 
   return (
     <div className="lore-item">
@@ -72,35 +43,16 @@ export default function LoreEntryCard({
             <MinusIcon className="h-4 w-4" />
           )}
         </button>
-        <h2 className="flex-1 text-xl ml-2">{lore.name}</h2>
+        <h2 className="flex-1 text-xl ml-2">
+          <Link href={`/item/${lore._id}`} target="_blank">{lore.name}</Link>
+        </h2>
         <span className="text-sm font-normal">
           {translateType(lore.datatype)}
         </span>
       </div>
 
-      <div className={clsx("lore-item-body", isHidden && "hidden")}>
-        {lore.issuer ? (
-          <div className="flex mb-4">
-            <div className="bg-gray-200/20 p-2">
-              <p>
-                {lore.issuer} ({lore.place_name})
-              </p>
-              <p>
-                {lore.journal_genre} ({lore.expansion})
-              </p>
-            </div>
-          </div>
-        ) : (
-          <></>
-        )}
-
-        <p
-          className="whitespace-pre-wrap"
-          dangerouslySetInnerHTML={{
-            __html: highlightSearchText(lore.text) || "",
-          }}
-        >
-        </p>
+      <div className={isHidden ? "hidden" : ""}>
+        <LoreItemBody text={innerText} lore={lore} />
       </div>
     </div>
   );
