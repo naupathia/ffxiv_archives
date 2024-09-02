@@ -5,6 +5,6 @@ export default async function Page({ params }: { params: { id: string } }) {
   let data = await fetchLoreEntry(params.id);
 
   return (
-    <div className="p-2">{data ? <ItemPage lore={data} /> : "Not Found"}</div>
+    <div>{data ? <ItemPage lore={data} /> : "Not Found"}</div>
   );
 }
