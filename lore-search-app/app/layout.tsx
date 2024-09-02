@@ -17,7 +17,9 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <div>
+          {/* TEA Tools header */}
           <div className="flex bg-blue-500/10 border-b-2 border-orange-300">
+            {/* Image as title */}
             <div className="flex-1">
               <Image
                 src="/appname.png"
@@ -29,6 +31,7 @@ export default function RootLayout({
               ></Image>
             </div>
 
+            {/* Patreon support link */}
             <div className="flex items-end m-4">
               <a
                 className="flex flex-row text-nowrap"
@@ -41,7 +44,13 @@ export default function RootLayout({
               </a>
             </div>
           </div>
-        {children}
+
+          {/* Children */}
+          <div>
+            <main className="min-h-screen min-w-full p-8">{children}</main>
+          </div>
+
+          {/* end */}
         </div>
       </body>
     </html>
