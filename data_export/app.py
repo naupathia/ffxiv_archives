@@ -140,8 +140,8 @@ def run():
 
     docs = get_all_docs()
 
-    # dump_docs(docs)
-    upload_docs(docs)
+    dump_docs(docs)
+    # upload_docs(docs)
 
     # db = ClientManager.connect().tea
     # collection = db.lore

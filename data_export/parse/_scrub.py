@@ -153,7 +153,7 @@ def sanitize_text(input: str):
     input = RE_INT_PARAM.sub(r'_INT\g<1>_', input)
 
     # masculine/feminine replacement
-    input = RE_HESHE.sub(r'\g<1>', input)
+    input = RE_HESHE.sub(r'\g<2>', input)
 
     # race based replacement (hyur default)
     input = RE_RACE.sub(r'\g<1>', input)
@@ -175,7 +175,7 @@ def sanitize_text(input: str):
 
     input = input.replace("<SheetEn(Item,1,IntegerParameter(1),1,1)/>", "[MAINHAND]")
     input = input.replace("<SheetEn(Item,1,IntegerParameter(2),1,1)/>", "[OFFHAND]")
-    input = input.replace("<SheetEn(Item,\d,Integerarameter(\d),\d,\d)/>", "[ITEM]")
+    input = input.replace("<SheetEn(Item,\\d,IntegerParameter(\\d),\\d,\\d)/>", "[ITEM]")
 
     for f_start, f_end, f_mid, f_key in PATTERNS:
         input = parse_syntax_tree(input, f_start, f_end, f_mid, f_key)
