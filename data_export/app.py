@@ -85,41 +85,8 @@ def upload_docs(docs):
     print("truncating collection...")
     collection.delete_many({})
 
-    # definition={
-    #     "mappings": {
-    #         "dynamic": True,
-    #         "fields": {
-    #             "datatype": {"type": "token", "normalizer": "lowercase | none"},
-    #             "key": {"type": "number"},
-    #             "name": {"type": "string"},
-    #             "text": {"type": "string"},
-    #             "expansion": {"type": "token", "normalizer": "lowercase | none"},
-    #             "rank": {"type": "number"},
-    #         },
-    #     }
-    # }
-    
-    # search_index_model = SearchIndexModel(
-    #     definition=definition,
-    #     name="lore_search"
-    # )
-    
-    # collection.create_search_index(model=search_index_model)
-
     print("inserting records...")
     collection.insert_many(docs)
-
-    # client = ClientManager.search_client()
-
-    # print('truncating collection...')
-    # task = client.index('lore').delete_all_documents()
-
-    # while task.status in ('enqueued', 'processing'):
-    #     time.sleep(0.5)
-    #     task = client.get_task(task.task_uid)
-
-    # print('uploading documents...')
-    # client.index('lore').add_documents_in_batches(docs, primary_key="id")
 
 
 def dump_docs(docs):
@@ -140,8 +107,8 @@ def run():
 
     docs = get_all_docs()
 
-    dump_docs(docs)
-    # upload_docs(docs)
+    # dump_docs(docs)
+    upload_docs(docs)
 
     # db = ClientManager.connect().tea
     # collection = db.lore
