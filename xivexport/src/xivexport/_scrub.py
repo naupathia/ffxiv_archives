@@ -34,8 +34,8 @@ def parse_speaker_lines(row_iterator, speaker_pos=3):
         
     for line in row_iterator:
 
-        text = line[2]
-        description = line[1]
+        text = line[2] or ""
+        description = line[1] or ""
         next_speaker = get_speaker(description, speaker_pos)
             
         if speaker and speaker != next_speaker:

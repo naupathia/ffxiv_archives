@@ -50,7 +50,7 @@ def close():
 
 def save_batch(docs: list[model.SearchItem]):
     dump_docs(docs)
-    print("inserting records...")
+    print(f"inserting records...")
     search.ClientManager.upload_docs([d.model_dump() for d in docs])
 
 def clear_data():
@@ -63,14 +63,17 @@ def main():
     connect()
     clear_data()
 
-    adapters = adapter.__all__
+    try:
+        adapters = adapter.__all__
 
-    for adp in adapters:
-        print(f"Loading docs for {adp.__name__}...")
-        for docs in batched(adp.get_all(), 1000):
-            save_batch(docs)
-
-    close()
+        for adp in adapters:
+            print(f"Loading docs for {adp.__name__}...")
+            for docs in batched(adp.get_all(), 1000):
+                save_batch(docs)
+            print(f"Done with {adp.__name__}.")
+    finally:
+        print("Done!")
+        close()
 
 if __name__ == "__main__":
     main()

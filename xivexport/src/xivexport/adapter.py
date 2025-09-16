@@ -14,8 +14,13 @@ class DataAdapter:
     def get_all(cls, row=None) -> Iterator[model.SearchItem]:
 
         for data in cls.get_data(row):
-            result = cls.map_model(data)
-            yield result
+            try:
+                result = cls.map_model(data)
+                if not result.text: # ignore items without text to search
+                    continue
+                yield result
+            except Exception as e:
+                LOGGER.error('failed to map data into search model', exc_info=e)
 
     @classmethod
     def get_data(cls, row=None) -> Iterator[xivclient.XivModel]:
@@ -31,9 +36,6 @@ class QuestAdapter(DataAdapter):
 
     @classmethod
     def map_model(cls, data: xivclient.Quest) -> model.SearchItem:
-
-        if not data.Name:  # Only include quests with names
-            return None
 
         key = data.Id or ""
 
@@ -176,7 +178,6 @@ class CustomTextAdapter(DataAdapter):
 
 __all__ = [
     QuestAdapter,
-    ItemAdapter,
     MountAdapter,
     FishAdapter,
     FateAdapter,
@@ -184,4 +185,5 @@ __all__ = [
     StatusAdapter,
     CutsceneAdapter,
     CustomTextAdapter,
+    ItemAdapter,
 ]
