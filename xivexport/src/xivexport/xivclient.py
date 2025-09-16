@@ -1,11 +1,17 @@
-from pprint import pp
+import requests
 from pydantic import ValidationError, BaseModel
 from . import _scrub
+from ._tools import timeit, Timer
 import urllib
 import httpx
-from . import model
-import asyncio
-from typing import AsyncIterator, Iterator, List, Dict, Any, Optional, Type
+from pydantic.fields import FieldInfo
+from typing import Iterator, List, Any, Optional
+
+import logging
+
+LOGGER = logging.getLogger(__name__)
+LOGGER.addHandler(logging.StreamHandler())
+LOGGER.setLevel(logging.DEBUG)
 
 # Language constants
 ENGLISH_LANG = "en"
@@ -13,6 +19,74 @@ LANGUAGES = [ENGLISH_LANG]
 API_URL = "https://v2.xivapi.com/api"
 
 
+def expansion_name_from_number(number: int):
+    if number == 2:
+        return "A Realm Reborn"
+    if number == 3:
+        return "Heavensward"
+    if number == 4:
+        return "Stormblood"
+    if number == 5:
+        return "Shadowbringers"
+    if number == 6:
+        return "Endwalker"
+    if number == 7:
+        return "Dawntrail"
+    
+    return ""
+
+class QuestKey:
+    def __init__(self, sheet_name: str):        
+        # example sheet name: quest/050/KinGzb011_05040
+        tokens = sheet_name.split('/')
+        self.folder = tokens[1]
+        self.key = tokens[2]
+        self.row_id = int(self.key.split('_')[1])
+
+class CutsceneKey:
+    def __init__(self, sheet_name: str):        
+        # example sheet name: cut_scene/034/VoiceMan_03401
+        tokens = sheet_name.split('/')
+        expansion = tokens[1]
+        expansion_num = int(expansion[:2])
+
+        self.key = tokens[2]
+        self.row_id = int(self.key.split('_')[1])
+        self.patch_num = f'{expansion_num}.{expansion[2]}'
+        self.expansion = expansion_name_from_number(expansion_num)
+
+
+class CustomTextKey:
+    def __init__(self, sheet_name: str):        
+        # example sheet name: custom/009/RegYok6BreathBetween_00906
+        tokens = sheet_name.split('/')
+
+        self.key = tokens[2]
+        self.row_id = int(tokens[1])
+
+def get_field_names(field, field_info: FieldInfo):
+        
+    model_type = None
+    list_type = ''
+    if issubclass(field_info.annotation, BaseModel):
+        model_type = field_info.annotation
+
+    elif hasattr(field_info.annotation, "__args__"):
+        base_type = field_info.annotation.__args__[0]
+        if field_info.annotation.__name__ == "List":
+            list_type="[]"
+
+        if issubclass(base_type, BaseModel):
+            model_type = base_type
+
+    if model_type:
+        for child_field, child_field_info in model_type.model_fields.items():
+            for fname in get_field_names(child_field, child_field_info):
+                yield f"{field}{list_type}.{fname}"
+
+    else:
+        yield field 
+    
 
 # Define xivapy models for FFXIV data types
 class XivModel(BaseModel):
@@ -20,6 +94,7 @@ class XivModel(BaseModel):
 
     row_id: int
     __sheetname__: str = None
+    __transient__: type = None
 
     @classmethod
     def get_sheet_name(cls) -> str:
@@ -30,7 +105,12 @@ class XivModel(BaseModel):
 
     @classmethod
     def get_fields_str(cls):
-        return ",".join(cls.model_fields.keys())
+        
+        fields = []
+        for field, field_info in cls.model_fields.items():
+            fields.extend(get_field_names(field, field_info))
+
+        return ",".join(fields)
 
 
 class ENpcResident(BaseModel):
@@ -82,10 +162,11 @@ class Quest(XivModel):
     Id: str
     Name: str
     Expansion: ExVersion
-    IssuerStart: ENpcResident
-    PlaceName: PlaceName
-    JournalGenre: JournalGenre
+    IssuerStart: Optional[ENpcResident]
+    PlaceName: Optional[PlaceName]
+    JournalGenre: Optional[JournalGenre]
     PreviousQuest: List[PreviousQuest]
+    Text: Optional[str] = None
 
 
 class Item(XivModel):
@@ -96,12 +177,6 @@ class Item(XivModel):
     ItemUICategory: ItemUICategory
 
 
-class Mount(XivModel):
-    """Mount model for xivapy"""
-
-    Singular: str
-
-
 class MountTransient(XivModel):
     """MountTransient model for xivapy"""
 
@@ -109,6 +184,16 @@ class MountTransient(XivModel):
     DescriptionEnhanced: str
     Tooltip: str
 
+
+class Mount(XivModel):
+    """Mount model for xivapy"""
+
+    Singular: str
+    Description: Optional[str] = None
+    DescriptionEnhanced: Optional[str]= None
+    Tooltip: Optional[str]= None
+
+    __transient__ = MountTransient
 
 class FishParameter(XivModel):
     """Fish model for xivapy"""
@@ -141,44 +226,62 @@ class SheetParseData(XivModel):
     key: str
     Name: str
     Text: str
-    expansion: str = None
+    expansion: Optional[str] = None
+
+    @staticmethod
+    def from_sheet_and_text(sheetname, text):
+        pass
+    
+class CustomText(SheetParseData):
+    __sheetname__: str = 'custom'
+
+    @staticmethod
+    def from_sheet_and_text(sheetname, text):
+        keydef = CustomTextKey(sheetname)
+        return CustomText(
+            row_id=keydef.row_id,
+            key=keydef.key,
+            Text=text,
+            Name=keydef.key
+        )
+
+class CutsceneText(SheetParseData):
+    __sheetname__:str = 'cutscene'
+    
+    @staticmethod
+    def from_sheet_and_text(sheetname, text):
+        keydef = CutsceneKey(sheetname)
+        return CutsceneText(
+            row_id=keydef.row_id,
+            key=keydef.key,
+            Text=text,
+            Name=f"{keydef.patch_num} {keydef.expansion} Cutscenes",
+            expansion=keydef.expansion
+        )
 
 class XivApiClient:
-    """Wrapper for xivapy client to provide common FFXIV data access patterns"""
+    """Wrapper for xivapi calls to provide common FFXIV data access patterns"""
 
-    _client: httpx.AsyncClient = None
+    _client: httpx.Client = None
 
-    def __init__(
-        self,
-        base_url: str = "https://v2.xivapi.com",
-        base_api_path: str = "/api",
-        game_version: str = "latest",
-        schema_version: Optional[str] = None,
-        batch_size: int = 100,
-    ):
-        self.client = None
-        self.base_url = base_url
-        self.base_api_path = base_api_path
-        self.game_version = game_version
-        self.schema_version = schema_version
-        self.batch_size = batch_size
-
-    async def close(self) -> None:
-        """Close the interior HTTP client."""
-        await self._client.aclose()
-
-    async def __aenter__(self):
-        transport = httpx.AsyncHTTPTransport(retries=3)
-        self._client = httpx.AsyncClient(
+    def __init__(self):                
+        self.base_url: str = "https://v2.xivapi.com"
+        self.base_api_path: str = "/api"
+        self.game_version: str = "latest"
+        self._client = httpx.Client(
             base_url=self.base_url,
-            timeout=10.0,
-            transport=transport,
-            limits=httpx.Limits(max_keepalive_connections=5, max_connections=10),
+            timeout=30
         )
+
+    def __enter__(self):
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        await self._client.aclose()
+    def __exit__(self):
+        self.close()
+
+    def close(self):        
+        self._client.close()
+        self._client = None
 
     def _flatten_item_data(self, data: Any) -> Any:
         """Extract and flatten row data from API response."""
@@ -203,12 +306,17 @@ class XivApiClient:
             },
         }
 
+        transient_fields = data.get("transient", {})
+        if transient_fields:
+            for field_name in transient_fields:
+                processed_data[field_name] = transient_fields[field_name]
+
         return processed_data
 
-    async def _call_get_api(self, url, params = None) -> dict:
+    def _call_get_api(self, url, params = None) -> dict:
         """makes the async api call"""
 
-        response = await self._client.get(url, params=params)
+        response = self._client.get(f"{self.base_api_path}/{url}", params=params)
         response.raise_for_status()
 
         data = response.json()
@@ -216,32 +324,36 @@ class XivApiClient:
         return data
 
     def _process_sheet_rows[T: XivModel](
-        self, data: dict, model_class: type[T] = None
+        self, data: list, model_class: type[T] = None
     ) -> Iterator[T | dict]:
-
-        for item_data in data.get("rows", []):
+        
+        for item_data in data:
             if not item_data:
                 continue
 
             processed_data = self._flatten_item_data(item_data)
 
-            if model_class:                
-                yield model_class.model_validate(processed_data)
+            if model_class:
+                try:        
+                    yield model_class.model_validate(processed_data)
+                except ValidationError as e:
+                    row_id = item_data.get("row_id")
+                    LOGGER.error(f'Failed to initialize model type {model_class.__name__} from data, row_id = {row_id}. Skipping', exc_info=e)
             else:
                 yield processed_data
 
-    async def sheets(self) -> Iterator[str]:
+    def sheets(self) -> List[str]:
 
-        res = await self._call_get_api(f"{self.base_api_path}/sheet")
+        res = self._call_get_api(f"sheet")
 
         return [
             row["name"]
             for row in res["sheets"]
         ]
 
-    async def sheet[T: XivModel](
+    def sheet[T: XivModel](
         self, model_class: type[T] | str, rows: Optional[List[int]] = None
-    ) -> AsyncIterator[T | dict]:
+    ) -> Iterator[T | dict]:
         rows_param = ",".join(str(id) for id in rows) if rows else None
 
         is_model_query = not isinstance(model_class, str)
@@ -251,23 +363,140 @@ class XivApiClient:
             else urllib.parse.quote(model_class, safe="")
         )
         fields = model_class.get_fields_str() if is_model_query else "*"
+        transient_fields = None
+        if is_model_query:
+            transient_fields = model_class.__transient__.get_fields_str() if model_class.__transient__ else None
 
-        data = await self._call_get_api(
-            f"{self.base_api_path}/sheet/{sheet_name}",
-            params={"rows": rows_param, "fields": fields},
+        data = self._call_get_api(
+            f"sheet/{sheet_name}",
+            params={"rows": rows_param, "fields": fields, "transient": transient_fields},
         )
+        
+        rows = data.get("rows", [])
 
-        for item in self._process_sheet_rows(
-            data, model_class if is_model_query else None
-        ):
+        for item in self._process_sheet_rows(rows, model_class if is_model_query else None):
             yield item
 
-    async def get_sheet_data_as_text(self, sheet_name, speaker_pos=3) -> str:
+    def get_sheet_data_as_text(self, sheet_name, speaker_pos=3) -> str:
 
         sheet_rows = []
 
-        async for item in self.sheet(sheet_name):
+        for item in self.sheet(sheet_name):
             sheet_rows.append(tuple(item.values()))
 
         return _scrub.parse_speaker_lines(sheet_rows, speaker_pos)
+
+    def search[T: XivModel](self, model_class: type[T], query) -> Iterator[T]:
+
+        data = self._call_get_api("search", {
+            "query": query,
+            "sheets": model_class.__name__,
+            "fields": model_class.get_fields_str()
+        })
+
+        rows = data.get("results", [])
+
+        for item in self._process_sheet_rows(rows, model_class):
+            yield item
+
+            
+    def search_one[T: XivModel](self, model_class: type[T], query) -> T | None:
+
+        for item in self.search(model_class, query):
+            return item           
+
+class XivApiClientManager:
+    client: XivApiClient = None 
+
+    @classmethod
+    def connect(cls):
+        cls.client = XivApiClient()
+
+    @classmethod
+    def close(cls):
+        cls.client.close()
+
+class XivDataAccess:
+    _sheets: dict = None 
+
+    @classmethod
+    def client(cls):
+        return XivApiClientManager.client
+
+    @classmethod
+    def get_all(cls, model_class, row=None):
+        if model_class == Quest:
+            return cls._get_quests(row)
+        
+        elif issubclass(model_class, SheetParseData):
+            return cls._get_sheet_text_data(model_class, row)
+
+        return cls.client().sheet(model_class, [row] if row else None)
+    
+    @classmethod
+    def get_sheet_names(cls, name):
+        """
+        Gets the sheet names that start with 'name'
+        """
+        
+        if not cls._sheets:            
+            with Timer("get_sheets"):
+                cls._sheets = {
+                    'quest': [],
+                    'custom': [],
+                    'cutscene': []
+                }
+                for sheet in cls.client().sheets():
+                    if sheet.startswith('quest/'):
+                        cls._sheets['quest'].append(sheet)
+                    if sheet.startswith('custom/'):
+                        cls._sheets['custom'].append(sheet)
+                    if sheet.startswith('cutscene/'):
+                        cls._sheets['cutscene'].append(sheet)
+
+
+        return cls._sheets[name]
+    
+    @classmethod
+    def _get_sheet_text_data(cls, model_class: type[SheetParseData], rows=None):
+        count = 0
+        for sheet_name in cls.get_sheet_names(model_class.__sheetname__):
+
+            # the sheet data will be the quest text
+            text = cls.client().get_sheet_data_as_text(sheet_name)           
+
+            yield model_class.from_sheet_and_text(sheet_name, text)
+
+            count += 1
+            if rows and count >= rows:
+                break
+
+
+    @classmethod
+    def _get_quests(cls, rows=None):
+
+        count = 0
+        for sheet_name in cls.get_sheet_names('quest'):
+
+            quest_key = QuestKey(sheet_name)
+
+            # the metadata will be in the "Quest" sheet
+            # for this we need to search where Id=[key]
+            quest_model = cls.client().search_one(Quest, f'Id="{quest_key.key}"')
+
+            if not quest_model:
+                continue
+            
+            # the sheet data will be the quest text
+            quest_text = cls.client().get_sheet_data_as_text(sheet_name)
+
+            quest_model.Text = quest_text
+
+            yield quest_model
+
+            count += 1
+            if rows and count >= rows:
+                break
+
+
 

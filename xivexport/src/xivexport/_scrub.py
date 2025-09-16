@@ -1,4 +1,4 @@
-
+from ._tools import timeit
 import re
 from types import SimpleNamespace
 
@@ -16,6 +16,9 @@ def get_col_value(row, col_name):
     return str(value)
 
 def get_speaker(value, pos=3):
+    if not value:
+        return ""
+
     value_tokens = value.split("_")
 
     try:

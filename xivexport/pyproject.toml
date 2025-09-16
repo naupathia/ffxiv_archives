@@ -24,7 +24,8 @@ classifiers = [
 dependencies = [
     "pymongo",
     "pydantic",
-    "xivapy",
+    "requests",
+    "python-dotenv",
 ]
 
 [project.optional-dependencies]
