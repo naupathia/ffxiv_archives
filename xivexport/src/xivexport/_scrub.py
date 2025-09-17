@@ -5,8 +5,13 @@ from types import SimpleNamespace
 SKIP_LINES = 3
 SPEAKER_SKIPS = ("SEQ", "TODO",)
 SPEAKER_MAPS = {
-    "MYSTERYVOICE" : "CRYSTALEXARCH",
-    "MYSTERIOUSPERSON" : "ZERO"
+    "CRYSTALEXARCH" : "CRYSTAL EXARCH",
+    "MYSTERYVOICE" : "CRYSTAL EXARCH",
+    "MYSTERIOUSPERSON" : "ZERO",
+    "WUKLAMAT": "WUK LAMAT",
+    "GULOOLJA": "GULOOL JA",
+    "GULOOLJAJA": "GULOOL JA JA",
+    "GRAHATIA": "G'RAHA TIA",
 }
 
 def get_col_value(row, col_name):
@@ -26,7 +31,7 @@ def get_speaker(value, pos=3):
     except IndexError:
         return ""
 
-def parse_speaker_lines(row_iterator, speaker_pos=3):
+def parse_speaker_lines(row_iterator, speaker_func = get_speaker):
     
     speaker_lines = []
     parsed = []
@@ -36,7 +41,7 @@ def parse_speaker_lines(row_iterator, speaker_pos=3):
 
         text = line[2] or ""
         description = line[1] or ""
-        next_speaker = get_speaker(description, speaker_pos)
+        next_speaker = speaker_func(description)
             
         if speaker and speaker != next_speaker:
 
@@ -58,8 +63,9 @@ def parse_speaker_lines(row_iterator, speaker_pos=3):
     return '\n'.join(parsed)
 
 def format_speaker_text(speaker, lines):
+    speaker_name_fixed = SPEAKER_MAPS.get(speaker, speaker) or speaker
     dialogue = '\n'.join(lines)
-    return f"{speaker}:\n{dialogue}"
+    return f"{speaker_name_fixed}:\n{dialogue}"
 
 
 RE_HIGHLIGHT = re.compile(r'<Highlight>(.*?)<\/Highlight>')

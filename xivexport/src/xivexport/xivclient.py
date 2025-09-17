@@ -18,6 +18,8 @@ ENGLISH_LANG = "en"
 LANGUAGES = [ENGLISH_LANG]
 API_URL = "https://v2.xivapi.com/api"
 
+CUTSCENE = "cut_scene"
+CUSTOM = "custom"
 
 def expansion_name_from_number(number: int):
     if number == 2:
@@ -233,13 +235,19 @@ class SheetParseData(XivModel):
     Text: str
     expansion: Optional[str] = None
 
+    __speakerpos__: int = 3
+
     @staticmethod
     def from_sheet_and_text(sheetname, text):
         pass
 
+    @classmethod
+    def get_speaker(cls, text):
+        return _scrub.get_speaker(text, cls.__speakerpos__)
+
 
 class CustomText(SheetParseData):
-    __sheetname__: str = "custom"
+    __sheetname__: str = CUSTOM
 
     @staticmethod
     def from_sheet_and_text(sheetname, text):
@@ -250,7 +258,8 @@ class CustomText(SheetParseData):
 
 
 class CutsceneText(SheetParseData):
-    __sheetname__: str = "cutscene"
+    __sheetname__: str = CUTSCENE
+    __speakerpos__: int = 4
 
     @staticmethod
     def from_sheet_and_text(sheetname, text):
@@ -259,10 +268,13 @@ class CutsceneText(SheetParseData):
             row_id=keydef.row_id,
             key=keydef.key,
             Text=text,
-            Name=f"{keydef.patch_num} {keydef.expansion} Cutscenes",
+            Name=f"{keydef.patch_num} {keydef.expansion} Cutscenes [{keydef.key}]",
             expansion=keydef.expansion,
         )
 
+    @classmethod
+    def get_speaker(cls, text):
+        return _scrub.get_speaker(text, cls.__speakerpos__)
 
 class XivApiClient:
     """Wrapper for xivapi calls to provide common FFXIV data access patterns"""
@@ -409,14 +421,14 @@ class XivApiClient:
             prev_results = rows
 
 
-    def get_sheet_data_as_text(self, sheet_name, speaker_pos=3) -> str:
+    def get_sheet_data_as_text(self, sheet_name, get_speaker_func) -> str:
 
         sheet_rows = []
 
         for item in self.sheet(sheet_name):
             sheet_rows.append(tuple(item.values()))
 
-        return _scrub.parse_speaker_lines(sheet_rows, speaker_pos)
+        return _scrub.parse_speaker_lines(sheet_rows, get_speaker_func)
 
     def search[T: XivModel](self, model_class: type[T], query) -> Iterator[T]:
 
@@ -477,24 +489,25 @@ class XivDataAccess:
 
         if not cls._sheets:
             with Timer("get_sheets"):
-                cls._sheets = {"quest": [], "custom": [], "cutscene": []}
+                cls._sheets = {"quest": [], CUSTOM: [], CUTSCENE: []}
                 for sheet in cls.client().sheets():
                     if sheet.startswith("quest/"):
                         cls._sheets["quest"].append(sheet)
                     if sheet.startswith("custom/"):
-                        cls._sheets["custom"].append(sheet)
-                    if sheet.startswith("cutscene/"):
-                        cls._sheets["cutscene"].append(sheet)
+                        cls._sheets[CUSTOM].append(sheet)
+                    if sheet.startswith("cut_scene/"):
+                        cls._sheets[CUTSCENE].append(sheet)
 
         return cls._sheets[name]
 
     @classmethod
     def _get_sheet_text_data(cls, model_class: type[SheetParseData], rows=None):
         count = 0
+        LOGGER.debug(f'loading data for {model_class.__name__}')
         for sheet_name in cls.get_sheet_names(model_class.__sheetname__):
 
             # the sheet data will be the quest text
-            text = cls.client().get_sheet_data_as_text(sheet_name)
+            text = cls.client().get_sheet_data_as_text(sheet_name, lambda s: model_class.get_speaker(s))
 
             yield model_class.from_sheet_and_text(sheet_name, text)
 
@@ -513,7 +526,7 @@ class XivDataAccess:
             folder_num = quest_model.Id[-5:-2]
             sheet_name = f"quest/{folder_num}/{quest_model.Id}"
             # the sheet data will be the quest text
-            quest_text = cls.client().get_sheet_data_as_text(sheet_name)
+            quest_text = cls.client().get_sheet_data_as_text(sheet_name, _scrub.get_speaker)
 
             quest_model.Text = quest_text
 

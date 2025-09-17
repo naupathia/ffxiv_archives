@@ -54,6 +54,7 @@ def save_batch(docs: list[model.SearchItem]):
     search.ClientManager.upload_docs([d.model_dump() for d in docs])
 
 def clear_data():
+    # pass
     delete_dump_file()
     print("Truncating records...")
     search.ClientManager.truncate()
