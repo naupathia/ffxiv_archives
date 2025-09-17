@@ -57,3 +57,17 @@ export function translateType(type: string) {
       return type;
   }
 }
+
+export function convertToTitleCase(e: string) {
+  if (!e) {
+    return "";
+  }
+
+  return e
+    .toLowerCase()
+    .split(" ")
+    .map(function (word: string) {
+      return word.charAt(0).toUpperCase().concat(word.substring(1));
+    })
+    .join(" ");
+}

@@ -15,7 +15,7 @@ const ITEMS_PER_PAGE = 100;
 const API_KEY = process.env.API_KEY;
 const DATASOURCE = "Cluster0";
 const DATABASE = "tea";
-const COLLECTION = "lore2";
+const COLLECTION = process.env.COLLECTION_NAME;
 const INDEX_NAME = "default";
 const SYNONYMS = "synonym_mapping";
 

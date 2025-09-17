@@ -1,4 +1,0 @@
-pandas
-pymongo
-pydantic
-python-dotenv
