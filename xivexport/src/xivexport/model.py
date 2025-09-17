@@ -18,7 +18,7 @@ class SearchItem(BaseModel):
     name: str 
     text: str 
     datatype: str
-    expansion: str = None
+    expansion: Optional[str] = None
     rank: int = 0
 
     def remote_id(self):

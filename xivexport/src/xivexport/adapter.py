@@ -16,11 +16,11 @@ class DataAdapter:
         for data in cls.get_data(row):
             try:
                 result = cls.map_model(data)
-                if not result.text: # ignore items without text to search
+                if not result.text:  # ignore items without text to search
                     continue
                 yield result
             except Exception as e:
-                LOGGER.error('failed to map data into search model', exc_info=e)
+                LOGGER.error("failed to map data into search model", exc_info=e)
 
     @classmethod
     def get_data(cls, row=None) -> Iterator[xivclient.XivModel]:
@@ -43,16 +43,16 @@ class QuestAdapter(DataAdapter):
 
         return model.Quest(
             row_id=data.row_id,
-            name=data.Name,
+            name=data.Name or "",
             key=key,
-            expansion=data.Expansion.Name,
-            text=data.Text,
+            expansion=data.Expansion.Name.lower() if data.Expansion.Name else None,
+            text=data.Text or "",
             meta=model.QuestMeta(
                 previous_quest=prev_quest and prev_quest.Name,
                 issuer=data.IssuerStart and data.IssuerStart.Singular,
                 place_name=data.PlaceName and data.PlaceName.Name,
                 journal_genre=data.JournalGenre and data.JournalGenre.Name,
-                filename=key
+                filename=key,
             ),
         )
 
@@ -66,10 +66,10 @@ class ItemAdapter(DataAdapter):
         return model.Item(
             row_id=data.row_id,
             key=str(data.row_id),
-            name=data.Name,
-            text=_scrub.sanitize_text(data.Description),
+            name=data.Name or "",
+            text=data.Description or data.Name,
             meta=model.ItemMeta(
-                category=data.ItemUICategory.Name,
+                category=data.ItemUICategory.Name or "",
             ),
         )
 
@@ -161,7 +161,7 @@ class CutsceneAdapter(DataAdapter):
             key=data.key,
             name=data.Name,
             text=data.Text,
-            expansion=data.expansion,
+            expansion=data.expansion.lower() if data.expansion else None,
         )
 
 

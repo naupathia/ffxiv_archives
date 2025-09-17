@@ -70,7 +70,7 @@ def main():
             print(f"Loading docs for {adp.__name__}...")
             for docs in batched(adp.get_all(), 1000):
                 save_batch(docs)
-            print(f"Done with {adp.__name__}.")
+            print(f"*******************************\nDone with {adp.__name__}!\n*******************************")
     finally:
         print("Done!")
         close()

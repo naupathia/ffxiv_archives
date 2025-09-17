@@ -1,3 +1,5 @@
+import { convertToTitleCase } from "@/app/lib/functions";
+
 export default function QuestItemMetadata({
   data,
 }: {
@@ -15,7 +17,7 @@ export default function QuestItemMetadata({
           {data.issuer} ({data.placeName})
         </p>
         <p>
-          {data.journalGenre} ({data.expansion})
+          {data.journalGenre} ({convertToTitleCase(data.expansion)})
         </p>
       </div>
     </div>

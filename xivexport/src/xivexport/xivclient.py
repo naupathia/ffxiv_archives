@@ -11,7 +11,7 @@ import logging
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(logging.StreamHandler())
-LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.INFO)
 
 # Language constants
 ENGLISH_LANG = "en"
@@ -176,7 +176,7 @@ class Item(XivModel):
     """Item model for xivapy"""
 
     Name: str
-    Description: str
+    Description: Optional[str] = ""
     ItemUICategory: ItemUICategory
 
 
@@ -318,7 +318,7 @@ class XivApiClient:
     def _call_get_api(self, url, params=None) -> dict:
         """makes the async api call"""
 
-        # LOGGER.debug(f'calling api {url}, params {params}')
+        LOGGER.debug(f'calling api {url}, params {params}')
 
         response = self._client.get(f"{self.base_api_path}/{url}", params=params)
         response.raise_for_status()
@@ -339,10 +339,11 @@ class XivApiClient:
             if model_class:
                 try:
                     yield model_class.model_validate(processed_data)
+                    LOGGER.info(f"Processed {model_class.__name__} sheet data for {processed_data.get("row_id")}")
                 except ValidationError as e:
                     row_id = item_data.get("row_id")
                     LOGGER.error(f"Error with model for {model_class.__name__} {row_id}. Skipping.")
-                    # LOGGER.error(f'Error detail:', exc_info=e)
+                    LOGGER.debug(f'Error detail:', exc_info=e)
             else:
                 yield processed_data
 
