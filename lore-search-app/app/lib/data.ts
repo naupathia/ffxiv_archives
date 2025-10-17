@@ -1,15 +1,15 @@
 // import "server-only";
 
-// import { MongoClient, ServerApiVersion } from "mongodb";
+import { MongoClient, ServerApiVersion, ObjectId } from "mongodb";
 import axios from "axios";
 import { SORT_TYPES } from "@/types/enums";
 import { mapSynonymsToDict } from "./functions";
 
-// if (!process.env.MONGODB_URI) {
-//   throw new Error('Invalid/Missing environment variable: "MONGODB_URI"');
-// }
+if (!process.env.MONGODB_URI) {
+  throw new Error('Invalid/Missing environment variable: "MONGODB_URI"');
+}
 
-// const uri: string = process.env.MONGODB_URI ?? "";
+const uri: string = process.env.MONGODB_URI ?? "";
 
 const ITEMS_PER_PAGE = 100;
 const API_KEY = process.env.API_KEY;
@@ -19,11 +19,17 @@ const COLLECTION = "lore";
 const INDEX_NAME = "default";
 const SYNONYMS = "synonym_mapping";
 
-function createClient() {
-  return axios.create({
-    baseURL: "https://data.mongodb-api.com/app/data-lzrzo/endpoint/data/v1",
-    headers: { apiKey: API_KEY, Accept: "application/json" },
+async function createClient(col: string = COLLECTION) {
+  const client = new MongoClient(uri, {
+    serverApi: {
+      version: ServerApiVersion.v1,
+      strict: false,
+      deprecationErrors: true,
+    },
   });
+  await client.connect();
+  const database = client.db(DATABASE);
+  return database.collection(col);
 }
 
 export async function fetchSearchResults(
@@ -83,16 +89,11 @@ export async function fetchSearchResults(
   });
 
   try {
-    const client = createClient();
+    const collection = await createClient();
 
-    const response = await client.post("/action/aggregate", {
-      dataSource: DATASOURCE,
-      database: DATABASE,
-      collection: COLLECTION,
-      pipeline: agg,
-    });
+    const response = await collection.aggregate<LoreEntry>(agg).toArray();
 
-    return response.data.documents;
+    return response;
   } catch (error) {
     console.error("Data Error:", error);
   }
@@ -133,16 +134,11 @@ function createWordSearchQuery(querystring: string) {
 
 export async function fetchLoreEntry(id: string) {
   try {
-    const client = createClient();
+    const collection = await createClient();
 
-    const response = await client.post("/action/findOne", {
-      dataSource: DATASOURCE,
-      database: DATABASE,
-      collection: COLLECTION,
-      filter: { _id: { $oid: id } },
-    });
+    const response = await collection.findOne<LoreEntry>({ _id: new ObjectId(id) });
 
-    return response.data.document;
+    return response;
   } catch (error) {
     console.error("Data Error:", error);
   }
@@ -153,23 +149,22 @@ export async function fetchLoreEntry(id: string) {
 export async function fetchManyLoreEntries(ids: any) {
   try {
     const idParams = ids.map((i: string) => ({ $oid: i }));
-    const client = createClient();
-    const response = await client.post("/action/find", {
-      dataSource: DATASOURCE,
-      database: DATABASE,
-      collection: COLLECTION,
-      filter: { _id: { $in: idParams } },
-    });
+    const collection = await createClient();
+    const response = await collection.find<LoreEntry>({
+      _id: { $in: idParams },
+    }).toArray();
 
-    const items = response.data.documents;
-    const sortedItems: LoreEntry[] = [];
+    return response;
+    // const sortedItems: LoreEntry[] = [];
 
-    ids.forEach((id: string) => {
-      const foundItem = items.find((x: any) => x._id == id);
-      sortedItems.push(foundItem);
-    });
+    // ids.forEach((id: string) => {
+    //   const foundItem = items.find((x: any) => x._id == id);
+    //   if (foundItem) {
+    //     sortedItems.push(foundItem);
+    //   }
+    // });
 
-    return sortedItems;
+    // return sortedItems;
   } catch (error) {
     console.error("Data Error:", error);
   }
@@ -179,15 +174,9 @@ export async function fetchManyLoreEntries(ids: any) {
 
 export async function fetchSynonyms() {
   try {
-    const client = createClient();
-    const response = await client.post("/action/find", {
-      dataSource: DATASOURCE,
-      database: DATABASE,
-      collection: "synonyms",
-      filter: {},
-    });
+    const collection = await createClient("synonyms");
+    const items = await collection.find({}).toArray();
 
-    const items = response.data.documents;
     const dictItems = mapSynonymsToDict(items);
     return dictItems;
   } catch (error) {
