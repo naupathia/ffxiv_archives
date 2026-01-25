@@ -1,7 +1,5 @@
-import requests
 from pydantic import ValidationError, BaseModel
-from . import _scrub
-from ._tools import timeit, Timer
+from ._tools import Timer
 import urllib
 import httpx
 from pydantic.fields import FieldInfo
@@ -171,7 +169,7 @@ class Quest(XivModel):
     PlaceName: Optional[PlaceName]
     JournalGenre: Optional[JournalGenre]
     PreviousQuest: List[PreviousQuest]
-    Text: Optional[str] = None
+    Text: Optional[List] = []
 
 
 class Item(XivModel):
@@ -230,9 +228,10 @@ class Status(XivModel):
 
 
 class SheetParseData(XivModel):
+    """Represents sheet data from xivapi"""
     key: str
     Name: str
-    Text: str
+    TextLines: list
     expansion: Optional[str] = None
 
     __speakerpos__: int = 3
@@ -240,10 +239,6 @@ class SheetParseData(XivModel):
     @staticmethod
     def from_sheet_and_text(sheetname, text):
         pass
-
-    @classmethod
-    def get_speaker(cls, text):
-        return _scrub.get_speaker(text, cls.__speakerpos__)
 
 
 class CustomText(SheetParseData):
@@ -253,7 +248,7 @@ class CustomText(SheetParseData):
     def from_sheet_and_text(sheetname, text):
         keydef = CustomTextKey(sheetname)
         return CustomText(
-            row_id=keydef.row_id, key=keydef.key, Text=text, Name=keydef.key
+            row_id=keydef.row_id, key=keydef.key, TextLines=text, Name=keydef.key
         )
 
 
@@ -267,14 +262,10 @@ class CutsceneText(SheetParseData):
         return CutsceneText(
             row_id=keydef.row_id,
             key=keydef.key,
-            Text=text,
+            TextLines=text,
             Name=f"{keydef.patch_num} {keydef.expansion} Cutscenes [{keydef.key}]",
             expansion=keydef.expansion,
         )
-
-    @classmethod
-    def get_speaker(cls, text):
-        return _scrub.get_speaker(text, cls.__speakerpos__)
 
 class XivApiClient:
     """Wrapper for xivapi calls to provide common FFXIV data access patterns"""
@@ -298,7 +289,34 @@ class XivApiClient:
         self._client = None
 
     def _flatten_item_data(self, data: Any) -> Any:
-        """Extract and flatten row data from API response."""
+        """Extract and flatten row data from API response.
+        
+        When reading data from a sheet that is text data, it will be in the form
+
+        {
+            "rows": [
+                {
+                    "row_id": 1,
+                    "fields": {
+                        "field1": "text",
+                        "field2": "text2"
+                }
+            ]
+        }
+
+        This function will "flatten" the dictionary into simple row data:
+
+        [
+            {
+                "row_id": 1,
+                "field1": "text",
+                "field2": "text2"
+            }
+        ]
+
+        It will also extract any "transient" fields lined to add them to the data returned.
+
+        """
         if not data:
             return None
 
@@ -355,7 +373,7 @@ class XivApiClient:
                 except ValidationError as e:
                     row_id = item_data.get("row_id")
                     LOGGER.error(f"Error with model for {model_class.__name__} {row_id}. Skipping.")
-                    LOGGER.debug(f'Error detail:', exc_info=e)
+                    LOGGER.debug(f'Error with model for {model_class.__name__} {row_id}. Error detail:', exc_info=e)
             else:
                 yield processed_data
 
@@ -368,7 +386,7 @@ class XivApiClient:
     def sheet[T: XivModel](
         self, model_class: type[T] | str, rows: Optional[List[int]] = None
     ) -> Iterator[T | dict]:
-        rows_param = ",".join(str(id) for id in rows) if rows else None
+        # rows_param = ",".join(str(id) for id in rows) if rows else None
 
         is_model_query = not isinstance(model_class, str)
         sheet_name = (
@@ -419,16 +437,16 @@ class XivApiClient:
             # use last row_id as the start of next batch
             start = rows[-1]["row_id"]
             prev_results = rows
-
-
-    def get_sheet_data_as_text(self, sheet_name, get_speaker_func) -> str:
+    
+    
+    def get_sheet_rows(self, sheet_name) -> str:
 
         sheet_rows = []
 
         for item in self.sheet(sheet_name):
             sheet_rows.append(tuple(item.values()))
 
-        return _scrub.parse_speaker_lines(sheet_rows, get_speaker_func)
+        return sheet_rows
 
     def search[T: XivModel](self, model_class: type[T], query) -> Iterator[T]:
 
@@ -507,7 +525,7 @@ class XivDataAccess:
         for sheet_name in cls.get_sheet_names(model_class.__sheetname__):
 
             # the sheet data will be the quest text
-            text = cls.client().get_sheet_data_as_text(sheet_name, lambda s: model_class.get_speaker(s))
+            text = cls.client().get_sheet_rows(sheet_name)
 
             yield model_class.from_sheet_and_text(sheet_name, text)
 
@@ -526,9 +544,7 @@ class XivDataAccess:
             folder_num = quest_model.Id[-5:-2]
             sheet_name = f"quest/{folder_num}/{quest_model.Id}"
             # the sheet data will be the quest text
-            quest_text = cls.client().get_sheet_data_as_text(sheet_name, _scrub.get_speaker)
-
-            quest_model.Text = quest_text
+            quest_model.Text = cls.client().get_sheet_rows(sheet_name)
 
             yield quest_model
 

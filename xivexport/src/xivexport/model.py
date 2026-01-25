@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Optional
 from pydantic import BaseModel
 
 class DataTypes:
@@ -12,14 +12,37 @@ class DataTypes:
     TRIPLETRIAD = 'card'
     CUSTOM = 'custom'
 
+
+class Expansion (BaseModel):
+    num: int 
+    name: str
+    abbr: str
+
+EXPANSIONS = (
+    Expansion(num=1, name="A Realm Reborn", abbr="ARR"),
+    Expansion(num=2, name="Heavensward", abbr="HW"),
+    Expansion(num=3, name="Stormblood", abbr="STB"),
+    Expansion(num=4, name="Shadowbringers", abbr="SHB"),
+    Expansion(num=5, name="Endwalker", abbr="EW"),
+    Expansion(num=6, name="Dawntrail", abbr="DT")
+)
+
+EXPANSIONS_LOOKUP = {
+    e.name.lower() : e
+    for e in EXPANSIONS
+}
+
+
 class SearchItem(BaseModel):
     row_id: int
     key: str
     name: str 
-    text: str 
+    textHtml: str 
+    textClean: str
     datatype: str
-    expansion: Optional[str] = None
-    rank: int = 0
+    expansion: Optional[Expansion] = None
+    speakers: Optional[list] = None
+    meta: Optional[object] = None
 
     def remote_id(self):
         return f"{self.datatype}_{self.key}_{self.row_id}"
@@ -32,7 +55,7 @@ class SearchItem(BaseModel):
 
 {self.name}
 
-{self.text}
+{self.textHtml}
 
 """
 
@@ -45,7 +68,6 @@ class QuestMeta(BaseModel):
 
 class Quest(SearchItem):
     datatype: str = DataTypes.QUEST
-    meta: QuestMeta    
     
     def as_plain_text(self):
 
@@ -55,38 +77,13 @@ class Quest(SearchItem):
  
 {self.name} [{self.key}]
 Issuer: {self.meta.issuer} [{self.meta.place_name}]
-Journal: {self.meta.journal_genre} [{self.expansion}]
+Journal: {self.meta.journal_genre} [{self.expansion.name}]
 
-{self.text}
+{self.textHtml}
 
 """
 
 class ItemMeta(BaseModel):
     category: str = None
 
-
-class Item(SearchItem):
-    datatype: str = DataTypes.ITEM
-    meta: ItemMeta
-
-class Cutscene(SearchItem):
-    datatype: str = DataTypes.CUTSCENE
-
-class Fate(SearchItem):
-    datatype: str = DataTypes.FATE
-
-class Fish(SearchItem):
-    datatype: str = DataTypes.FISH
-
-class Mount(SearchItem):
-    datatype: str = DataTypes.MOUNT
-
-class Status(SearchItem):
-    datatype: str = DataTypes.STATUS
-
-class TripleTriadCard(SearchItem):
-    datatype: str = DataTypes.TRIPLETRIAD
-
-class CustomText(SearchItem):
-    datatype: str = DataTypes.CUSTOM
 

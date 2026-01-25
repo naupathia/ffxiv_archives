@@ -11,8 +11,10 @@ SPEAKER_MAPS = {
     "WUKLAMAT": "WUK LAMAT",
     "GULOOLJA": "GULOOL JA",
     "GULOOLJAJA": "GULOOL JA JA",
-    "GRAHATIA": "G'RAHA TIA",
+    "GRAHATIA": "GRAHA TIA",
 }
+
+RE_UNICODE = re.compile(r'[^\x00-\x7F]+')
 
 def get_col_value(row, col_name):
 
@@ -26,16 +28,27 @@ def get_speaker(value, pos=3):
 
     value_tokens = value.split("_")
 
-    try:
-        return value_tokens[pos]
-    except IndexError:
-        return ""
+    speaker = value_tokens[pos]
+    return SPEAKER_MAPS.get(speaker) or speaker
 
 def parse_speaker_lines(row_iterator, speaker_func = get_speaker):
     
+    speakers = set()
+    raw_text = []
+
     speaker_lines = []
-    parsed = []
+    pretty_text = []
     speaker = ''
+
+    def add_lines():
+        nonlocal speaker, speaker_lines, raw_text
+        if speaker_lines and speaker not in SPEAKER_SKIPS:
+            pretty_text.append(prettify_speaker_text(speaker, speaker_lines))
+            pretty_text.append('')
+            speakers.add(speaker)
+            raw_text = raw_text + [remove_non_ascii(x) for x in speaker_lines]
+        
+        speaker_lines = []
         
     for line in row_iterator:
 
@@ -44,28 +57,29 @@ def parse_speaker_lines(row_iterator, speaker_func = get_speaker):
         next_speaker = speaker_func(description)
             
         if speaker and speaker != next_speaker:
-
-            if speaker_lines and speaker not in SPEAKER_SKIPS:
-                parsed.append(format_speaker_text(speaker, speaker_lines))
-                parsed.append('')
-
-            speaker_lines = []
+            add_lines()
 
         if text:
             speaker_lines.append(sanitize_text(text))
         
         speaker = next_speaker
 
-    if speaker_lines and speaker not in SPEAKER_SKIPS:
-        parsed.append(format_speaker_text(speaker, speaker_lines))
-        parsed.append('')
+    add_lines()
 
-    return '\n'.join(parsed)
+    full_pretty_text = '\n'.join(pretty_text)
+    full_raw_text = ' '.join(raw_text)
 
-def format_speaker_text(speaker, lines):
-    speaker_name_fixed = SPEAKER_MAPS.get(speaker, speaker) or speaker
-    dialogue = '\n'.join(lines)
-    return f"{speaker_name_fixed}:\n{dialogue}"
+    return full_pretty_text, full_raw_text, list(speakers)
+
+def prettify_speaker_text(speaker, lines):
+    dialogue = '\n</br>'.join(lines)
+    return f"<section>\n<h2>{speaker}:</h2>\n<p>{dialogue}</p>\n</section>"
+
+def remove_non_ascii(text_string):
+    # Encode to ASCII, ignoring errors, then decode back to a string
+    # return text_string.encode("ascii", errors="ignore").decode("ascii")
+    return re.sub(r'[^\x00-\x7F]+',' ', text_string)
+
 
 
 RE_HIGHLIGHT = re.compile(r'<Highlight>(.*?)<\/Highlight>')
