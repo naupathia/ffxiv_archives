@@ -1,5 +1,5 @@
-from typing import Any, Optional
-from pydantic import BaseModel, Field
+from typing import Optional
+from pydantic import BaseModel
 
 class DataTypes:
     QUEST = 'quest'
@@ -20,6 +20,10 @@ class DataTypes:
     BOZJA_NOTES = 'bozja note'
     OCCULT_RECORD = 'occult record'
     VARIANT_DUNGEON = 'variant dungeon'
+    CE_DEVELOPMENT_LOG = 'cosmic exploration log'
+    CE_MISSION = 'cosmic exploration mission'
+    SPEARFISHING_ITEM = 'spearfishing'
+    SNIPE_TALK = 'snipe talk'
 
 
 class Expansion (BaseModel):

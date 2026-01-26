@@ -9,7 +9,7 @@ import logging
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(logging.StreamHandler())
-LOGGER.setLevel(logging.INFO)
+LOGGER.setLevel(logging.CRITICAL)
 
 # Language constants
 ENGLISH_LANG = "en"
@@ -303,17 +303,15 @@ class NpcYell(XivModel):
     Text: str
 
 class EventIdData(BaseModel):
-    Description: Optional[str] = None
-    Impression: Optional[str] = None 
-    Name: Optional[str] = None
+    Name: str    
 
 class LevelData(BaseModel):
-    EventId: Optional[EventIdData] = None
+    EventId: EventIdData = None
 
 class Adventure(XivModel):
     Description: str 
     Impression: str 
-    Level: Optional[LevelData]
+    Level: LevelData
     PlaceName: PlaceName
 
 class DescriptionString(BaseModel):
@@ -321,6 +319,22 @@ class DescriptionString(BaseModel):
 
 class DescriptionPage(XivModel):
     Text: List[DescriptionString]
+
+class WKSPioneeringTrailString(XivModel):
+    DevelopmentLogName: str 
+    DevelopmentLogText: str 
+    DevelopmentLogDescription: str
+
+class WKSMissionText(XivModel):
+    Text: str
+
+class SpearfishingItem(XivModel):
+    Description: str
+    Item: Item
+
+class SnipeTalk(XivModel):
+    Name: NameField
+    Text: str
 
 class XivApiClient:
     """Wrapper for xivapi calls to provide common FFXIV data access patterns"""
