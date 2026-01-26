@@ -14,15 +14,7 @@ SPEAKER_MAPS = {
     "GRAHATIA": "GRAHA TIA",
 }
 
-HTML_NEWLINE = '<br/>\n'
-
 RE_UNICODE = re.compile(r'[^\x00-\x7F]+')
-
-def replace_new_lines(text):
-    if not text:
-        return text
-    
-    return text.replace('\n', HTML_NEWLINE)
 
 def get_col_value(row, col_name):
 
@@ -41,20 +33,15 @@ def get_speaker(value, pos=3):
 
 def parse_speaker_lines(row_iterator, speaker_func = get_speaker):
     
-    speakers = set()
-    raw_text = []
-
-    speaker_lines = []
-    pretty_text = []
     speaker = ''
+    speaker_lines = []
+
+    text_tuples = []
 
     def add_lines():
-        nonlocal speaker, speaker_lines, raw_text
+        nonlocal speaker, speaker_lines
         if speaker_lines and speaker not in SPEAKER_SKIPS:
-            pretty_text.append(prettify_speaker_text(speaker, speaker_lines))
-            pretty_text.append('')
-            speakers.add(speaker)
-            raw_text = raw_text + [remove_non_ascii(x) for x in speaker_lines]
+            text_tuples.append((speaker, create_paragraph(speaker_lines)))
         
         speaker_lines = []
         
@@ -74,21 +61,27 @@ def parse_speaker_lines(row_iterator, speaker_func = get_speaker):
 
     add_lines()
 
-    full_pretty_text = '\n'.join(pretty_text)
-    full_raw_text = ' '.join(raw_text)
+    return text_tuples
 
-    return full_pretty_text, full_raw_text, list(speakers)
-
-def prettify_speaker_text(speaker, lines):
-    dialogue = HTML_NEWLINE.join(lines)
-    return f"<section>\n<h2>{speaker}:</h2>\n<p>{dialogue}</p>\n</section>"
+def create_paragraph(speaker_lines):
+    if not speaker_lines:
+        return ''
+    
+    return '\n'.join(speaker_lines)
 
 def remove_non_ascii(text_string):
+    if not text_string:
+        return text_string
+    
     # Encode to ASCII, ignoring errors, then decode back to a string
     # return text_string.encode("ascii", errors="ignore").decode("ascii")
     return re.sub(r'[^\x00-\x7F]+',' ', text_string)
 
-
+def clean_text(text_string):
+    if not text_string:
+        return text_string
+    
+    return remove_non_ascii(text_string).replace('\n', ' ')
 
 RE_HIGHLIGHT = re.compile(r'<Highlight>(.*?)<\/Highlight>')
 RE_SPLIT = re.compile(r'<Split\((.*?), ,\d\)\/>')

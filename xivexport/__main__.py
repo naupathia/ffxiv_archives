@@ -80,7 +80,7 @@ def clear_data(is_test):
 def main():
     """Entry point for the xivexport application."""
     debug = True
-    debug_adapter = [adapter.AdventureAdapter]
+    debug_adapter = None
     connect()
 
     clear_data(debug)

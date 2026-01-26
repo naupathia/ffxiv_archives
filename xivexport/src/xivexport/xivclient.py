@@ -3,7 +3,7 @@ from ._tools import Timer
 import urllib
 import httpx
 from pydantic.fields import FieldInfo
-from typing import Iterator, List, Any, Optional
+from typing import Iterator, List, Any, Optional, Type
 
 import logging
 
@@ -44,6 +44,7 @@ class QuestKey:
         self.folder = tokens[1]
         self.key = tokens[2]
         self.row_id = int(self.key.split("_")[1])
+        self.name = None
 
 
 class CutsceneKey:
@@ -57,6 +58,7 @@ class CutsceneKey:
         self.row_id = int(self.key.split("_")[1])
         self.patch_num = f"{expansion_num}.{expansion[2]}"
         self.expansion = expansion_name_from_number(expansion_num)
+        self.name = f"{self.patch_num} {self.expansion} Cutscenes [{self.key}]"
 
 
 class CustomTextKey:
@@ -66,6 +68,8 @@ class CustomTextKey:
 
         self.key = tokens[2]
         self.row_id = int(tokens[1])
+        self.name = self.key
+        self.expansion = None
 
 
 def get_field_names(field, field_info: FieldInfo):
@@ -170,9 +174,9 @@ class Quest(XivModel):
     PlaceName: Optional[PlaceName]
     JournalGenre: Optional[JournalGenre]
     PreviousQuest: List[PreviousQuest]
-    Text: Optional[List] = []
-
-    sheet_name: str = None
+    
+    _sheet_name: Optional[str] = None
+    _sheet_rows: Optional[list] = []
 
 
 class Item(XivModel):
@@ -237,17 +241,44 @@ class SheetParseData(XivModel):
 
     key: str
     Name: str
-    TextLines: list
-    expansion: Optional[str] = None
+    
+    _sheet_name: Optional[str] = None
+    _sheet_rows: Optional[list] = []
+    _expansion: Optional[str] = None
+    __key_type__: Type = None
 
-    sheet_name: str = None
+    @classmethod
+    def from_sheet_and_text(cls, sheetname, text):
+        keydef = cls.__key_type__(sheetname)
+        result = cls(
+            row_id=keydef.row_id,
+            key=keydef.key,
+            Name=keydef.name,
+        )
+        result._sheet_rows=text
+        result._sheet_name=sheetname
+        result._expansion=keydef.expansion
 
-    @staticmethod
-    def from_sheet_and_text(sheetname, text):
-        pass
+        return result
 
 class AkatsukiNoteString(XivModel):
     Text: str
+
+class NameField(BaseModel):
+    Name: Optional[str] = None
+
+class MYCWarResultNotebook(XivModel):
+    Description: str
+    Name: str
+    Quest: Quest
+
+class MKDLore(XivModel):
+    Name: str 
+    Description: str
+
+class VVDNotebookContents(XivModel):
+    Name: str 
+    Description: str
 
 class CustomTalk(XivModel):
     Name: Optional[str] = None
@@ -259,34 +290,11 @@ class CustomText(SheetParseData):
     Type: Optional[str] = None 
 
     __sheetname__: str = CUSTOM
-
-    @staticmethod
-    def from_sheet_and_text(sheetname, text):
-        keydef = CustomTextKey(sheetname)
-        return CustomText(
-            row_id=keydef.row_id,
-            key=keydef.key,
-            TextLines=text,
-            Name=keydef.key,
-            sheet_name=sheetname,
-        )
-
+    __key_type__ = CustomTextKey
 
 class CutsceneText(SheetParseData):
     __sheetname__: str = CUTSCENE
-    __speakerpos__: int = 4
-
-    @staticmethod
-    def from_sheet_and_text(sheetname, text):
-        keydef = CutsceneKey(sheetname)
-        return CutsceneText(
-            row_id=keydef.row_id,
-            key=keydef.key,
-            TextLines=text,
-            Name=f"{keydef.patch_num} {keydef.expansion} Cutscenes [{keydef.key}]",
-            expansion=keydef.expansion,
-            sheet_name=sheetname,
-        )
+    __key_type__ = CutsceneKey
 
 class Balloon(XivModel):
     Dialogue: str
@@ -307,6 +315,12 @@ class Adventure(XivModel):
     Impression: str 
     Level: Optional[LevelData]
     PlaceName: PlaceName
+
+class DescriptionString(BaseModel):
+    Text: Optional[str] = None
+
+class DescriptionPage(XivModel):
+    Text: List[DescriptionString]
 
 class XivApiClient:
     """Wrapper for xivapi calls to provide common FFXIV data access patterns"""
@@ -410,7 +424,7 @@ class XivApiClient:
             if model_class:
                 try:
                     yield model_class.model_validate(processed_data)
-                    LOGGER.info(
+                    LOGGER.debug(
                         f"Processed {model_class.__name__} sheet data for {processed_data.get("row_id")}"
                     )
                 except ValidationError as e:
@@ -609,7 +623,7 @@ class XivDataAccess:
             folder_num = quest_model.Id[-5:-2]
             sheet_name = f"quest/{folder_num}/{quest_model.Id}"
             # the sheet data will be the quest text
-            quest_model.Text = cls.client().get_sheet_rows(sheet_name)
-            quest_model.sheet_name = sheet_name
+            quest_model._sheet_rows = cls.client().get_sheet_rows(sheet_name)
+            quest_model._sheet_name = sheet_name
 
             yield quest_model

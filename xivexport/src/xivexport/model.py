@@ -16,6 +16,10 @@ class DataTypes:
     BALLOON = 'balloon'
     NPCYELL = 'npc yell'
     LOOKOUT = 'lookout'
+    DESCRIPTION = 'description'
+    BOZJA_NOTES = 'bozja note'
+    OCCULT_RECORD = 'occult record'
+    VARIANT_DUNGEON = 'variant dungeon'
 
 
 class Expansion (BaseModel):
@@ -95,3 +99,16 @@ class ItemMeta(BaseModel):
     category: str = None
 
 
+class UnendingCodexEntry:
+
+    def __init__(self):
+        self.title = None
+        self.headers = []
+        self.text = None
+
+    def add_header(self, text):
+        if not self.title:
+            self.title = text
+
+        else:
+            self.headers.append(text)
