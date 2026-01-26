@@ -206,11 +206,18 @@ class MountAdapter(DataAdapter):
 
     @classmethod
     def get_text(cls, data):
-        return (
-            f"{data.Description}\n\n{data.DescriptionEnhanced}\n\nTooltip:\n{data.Tooltip}"
-            if data.Tooltip
-            else f"{data.Description}\n\n{data.DescriptionEnhanced}"
-        )
+        return f"{data.Description} {data.DescriptionEnhanced} {data.Tooltip}"
+    
+    @classmethod
+    def get_pretty_text(cls, data):
+
+        tooltip = ''
+        if data.Tooltip:
+            tooltip = html.h1('Tooltip:') + html.p(data.Tooltip)
+        
+        return (html.p(data.Description) 
+                + html.h1('Enhanced Description') + html.p(data.DescriptionEnhanced)
+                + tooltip)
 
 
 class FishAdapter(DataAdapter):
@@ -477,9 +484,32 @@ class SnipeTalkAdapter(DataAdapter):
     def get_text(cls, data):
         return data.Text
 
+class CompanionAdapter(DataAdapter):
+    DATA_CLASS = xivclient.Companion
+    DATA_TYPE = model.DataTypes.COMPANION
+    
+    @classmethod
+    def get_name(cls, data: xivclient.Companion):
+        return data.Singular.title()
+
+    @classmethod
+    def get_text(cls, data):
+        return f"{data.Description} {data.DescriptionEnhanced} {data.Tooltip}"
+    
+    @classmethod
+    def get_pretty_text(cls, data):
+
+        tooltip = ''
+        if data.Tooltip:
+            tooltip = html.h1('Tooltip:') + html.p(data.Tooltip)
+        
+        return (html.p(data.Description) 
+                + html.h1('Enhanced Description') + html.p(data.DescriptionEnhanced)
+                + tooltip)
 
 __all__ = [
     MountAdapter,
+    CompanionAdapter,
     FishAdapter,
     FateAdapter,
     FateEventAdapter,

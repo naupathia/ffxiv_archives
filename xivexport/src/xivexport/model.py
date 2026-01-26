@@ -24,6 +24,7 @@ class DataTypes:
     CE_MISSION = 'cosmic exploration mission'
     SPEARFISHING_ITEM = 'spearfishing'
     SNIPE_TALK = 'snipe talk'
+    COMPANION = 'companion'
 
 
 class Expansion (BaseModel):

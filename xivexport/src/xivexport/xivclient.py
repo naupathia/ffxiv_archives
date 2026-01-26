@@ -336,6 +336,20 @@ class SnipeTalk(XivModel):
     Name: NameField
     Text: str
 
+class CompanionTransient(XivModel):
+    Description: str 
+    DescriptionEnhanced: str
+    Tooltip: str
+
+class Companion(XivModel):
+    Singular: str
+    Description: str 
+    DescriptionEnhanced: str
+    Tooltip: str
+
+    __transient__ = CompanionTransient
+
+
 class XivApiClient:
     """Wrapper for xivapi calls to provide common FFXIV data access patterns"""
 
