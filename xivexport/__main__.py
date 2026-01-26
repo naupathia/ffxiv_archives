@@ -80,18 +80,25 @@ def clear_data(is_test):
 def main():
     """Entry point for the xivexport application."""
     debug = True
+    debug_adapter = [adapter.AdventureAdapter]
     connect()
 
     clear_data(debug)
 
+    batch_size = 10 if debug else 1000
+
     try:
-        adapters = [adapter.FishAdapter]  #adapter.__all__
+        adapters = debug_adapter if debug and debug_adapter else adapter.__all__
 
         for adp in adapters:
             print(f"Loading docs for {adp.__name__}...")
-            for docs in batched(adp.get_all(), 10):
+            for docs in batched(adp.get_all(), batch_size):
                 save_batch(docs, not debug)
+                if debug:
+                    break
+
             print(f"*******************************\nDone with {adp.__name__}!\n*******************************")
+
     finally:
         print("Done!")
         close()

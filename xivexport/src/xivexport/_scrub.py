@@ -14,7 +14,15 @@ SPEAKER_MAPS = {
     "GRAHATIA": "GRAHA TIA",
 }
 
+HTML_NEWLINE = '<br/>\n'
+
 RE_UNICODE = re.compile(r'[^\x00-\x7F]+')
+
+def replace_new_lines(text):
+    if not text:
+        return text
+    
+    return text.replace('\n', HTML_NEWLINE)
 
 def get_col_value(row, col_name):
 
@@ -72,7 +80,7 @@ def parse_speaker_lines(row_iterator, speaker_func = get_speaker):
     return full_pretty_text, full_raw_text, list(speakers)
 
 def prettify_speaker_text(speaker, lines):
-    dialogue = '\n</br>'.join(lines)
+    dialogue = HTML_NEWLINE.join(lines)
     return f"<section>\n<h2>{speaker}:</h2>\n<p>{dialogue}</p>\n</section>"
 
 def remove_non_ascii(text_string):
@@ -127,6 +135,9 @@ PATTERNS = (
 )
 
 def sanitize_text(input: str):
+
+    if not input:
+        return ''
 
     # GC rank insert
     input = input.replace("<Clickable(<If(GreaterThan(PlayerParameter(52),0))><Sheet(GCRankLimsaMaleText,PlayerParameter(52),8)/><Else/></If><If(GreaterThan(PlayerParameter(53),0))><Sheet(GCRankGridaniaMaleText,PlayerParameter(53),8)/><Else/></If><If(GreaterThan(PlayerParameter(54),0))><Sheet(GCRankUldahMaleText,PlayerParameter(54),8)/><Else/></If>)/>", "_GCRANK_")

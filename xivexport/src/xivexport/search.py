@@ -22,7 +22,7 @@ class ClientManager:
             except Exception as e:
                 print(e)
 
-        cls._collection = cls._client.tea.lore
+        cls._collection = cls._client.tea.lore_v2
 
     @classmethod
     def truncate(cls):

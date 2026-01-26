@@ -19,6 +19,7 @@ API_URL = "https://v2.xivapi.com/api"
 CUTSCENE = "cut_scene"
 CUSTOM = "custom"
 
+
 def expansion_name_from_number(number: int):
     if number == 2:
         return "A Realm Reborn"
@@ -171,6 +172,8 @@ class Quest(XivModel):
     PreviousQuest: List[PreviousQuest]
     Text: Optional[List] = []
 
+    sheet_name: str = None
+
 
 class Item(XivModel):
     """Item model for xivapy"""
@@ -205,6 +208,8 @@ class FishParameter(XivModel):
     Text: str
     Item: Item
 
+class FateEvent(XivModel):
+    Text: list
 
 class Fate(XivModel):
     """Fate model for xivapy"""
@@ -229,26 +234,41 @@ class Status(XivModel):
 
 class SheetParseData(XivModel):
     """Represents sheet data from xivapi"""
+
     key: str
     Name: str
     TextLines: list
     expansion: Optional[str] = None
 
-    __speakerpos__: int = 3
+    sheet_name: str = None
 
     @staticmethod
     def from_sheet_and_text(sheetname, text):
         pass
 
+class AkatsukiNoteString(XivModel):
+    Text: str
+
+class CustomTalk(XivModel):
+    Name: Optional[str] = None
+    MainOption: Optional[str] = None
 
 class CustomText(SheetParseData):
+
+    Name: Optional[str] = None
+    Type: Optional[str] = None 
+
     __sheetname__: str = CUSTOM
 
     @staticmethod
     def from_sheet_and_text(sheetname, text):
         keydef = CustomTextKey(sheetname)
         return CustomText(
-            row_id=keydef.row_id, key=keydef.key, TextLines=text, Name=keydef.key
+            row_id=keydef.row_id,
+            key=keydef.key,
+            TextLines=text,
+            Name=keydef.key,
+            sheet_name=sheetname,
         )
 
 
@@ -265,7 +285,28 @@ class CutsceneText(SheetParseData):
             TextLines=text,
             Name=f"{keydef.patch_num} {keydef.expansion} Cutscenes [{keydef.key}]",
             expansion=keydef.expansion,
+            sheet_name=sheetname,
         )
+
+class Balloon(XivModel):
+    Dialogue: str
+
+class NpcYell(XivModel):
+    Text: str
+
+class EventIdData(BaseModel):
+    Description: Optional[str] = None
+    Impression: Optional[str] = None 
+    Name: Optional[str] = None
+
+class LevelData(BaseModel):
+    EventId: Optional[EventIdData] = None
+
+class Adventure(XivModel):
+    Description: str 
+    Impression: str 
+    Level: Optional[LevelData]
+    PlaceName: PlaceName
 
 class XivApiClient:
     """Wrapper for xivapi calls to provide common FFXIV data access patterns"""
@@ -290,7 +331,7 @@ class XivApiClient:
 
     def _flatten_item_data(self, data: Any) -> Any:
         """Extract and flatten row data from API response.
-        
+
         When reading data from a sheet that is text data, it will be in the form
 
         {
@@ -348,7 +389,7 @@ class XivApiClient:
     def _call_get_api(self, url, params=None) -> dict:
         """makes the async api call"""
 
-        LOGGER.debug(f'calling api {url}, params {params}')
+        LOGGER.debug(f"calling api {url}, params {params}")
 
         response = self._client.get(f"{self.base_api_path}/{url}", params=params)
         response.raise_for_status()
@@ -369,11 +410,18 @@ class XivApiClient:
             if model_class:
                 try:
                     yield model_class.model_validate(processed_data)
-                    LOGGER.info(f"Processed {model_class.__name__} sheet data for {processed_data.get("row_id")}")
+                    LOGGER.info(
+                        f"Processed {model_class.__name__} sheet data for {processed_data.get("row_id")}"
+                    )
                 except ValidationError as e:
                     row_id = item_data.get("row_id")
-                    LOGGER.error(f"Error with model for {model_class.__name__} {row_id}. Skipping.")
-                    LOGGER.debug(f'Error with model for {model_class.__name__} {row_id}. Error detail:', exc_info=e)
+                    LOGGER.error(
+                        f"Error with model for {model_class.__name__} {row_id}. Skipping."
+                    )
+                    LOGGER.debug(
+                        f"Error with model for {model_class.__name__} {row_id}. Error detail:",
+                        exc_info=e,
+                    )
             else:
                 yield processed_data
 
@@ -403,7 +451,7 @@ class XivApiClient:
             "fields": fields,
             "transient": transient_fields,
             "limit": 500,
-            "after": 0
+            "after": 0,
         }
         start = 0
         limit = 500  # xivapi max limit
@@ -437,8 +485,7 @@ class XivApiClient:
             # use last row_id as the start of next batch
             start = rows[-1]["row_id"]
             prev_results = rows
-    
-    
+
     def get_sheet_rows(self, sheet_name) -> str:
 
         sheet_rows = []
@@ -493,6 +540,9 @@ class XivDataAccess:
     def get_all(cls, model_class, row=None):
         if model_class == Quest:
             return cls._get_quests(row)
+                
+        if model_class == CustomText:
+            return cls._get_custom_text(row)
 
         elif issubclass(model_class, SheetParseData):
             return cls._get_sheet_text_data(model_class, row)
@@ -521,7 +571,7 @@ class XivDataAccess:
     @classmethod
     def _get_sheet_text_data(cls, model_class: type[SheetParseData], rows=None):
         count = 0
-        LOGGER.debug(f'loading data for {model_class.__name__}')
+        LOGGER.debug(f"loading data for {model_class.__name__}")
         for sheet_name in cls.get_sheet_names(model_class.__sheetname__):
 
             # the sheet data will be the quest text
@@ -532,6 +582,21 @@ class XivDataAccess:
             count += 1
             if rows and count >= rows:
                 break
+
+    @classmethod
+    def _get_custom_text(cls, rows=None):
+
+        custom_text_data = {m.Name: m for m in cls.client().sheet(CustomTalk) if m.Name}
+
+        model: CustomText
+        for model in cls._get_sheet_text_data(CustomText, [rows] if rows else None):
+
+            # find the metadata
+            metadata = custom_text_data.get(model.Name, None)
+            model.row_id = metadata.row_id if metadata else model.row_id
+            model.Type = metadata.MainOption if metadata else "Custom Talk"
+
+            yield model
 
     @classmethod
     def _get_quests(cls, rows=None):
@@ -545,6 +610,6 @@ class XivDataAccess:
             sheet_name = f"quest/{folder_num}/{quest_model.Id}"
             # the sheet data will be the quest text
             quest_model.Text = cls.client().get_sheet_rows(sheet_name)
+            quest_model.sheet_name = sheet_name
 
             yield quest_model
-

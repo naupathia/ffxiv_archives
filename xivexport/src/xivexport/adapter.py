@@ -7,6 +7,34 @@ LOGGER.addHandler(logging.StreamHandler())
 LOGGER.setLevel(logging.DEBUG)
 
 
+class HtmlBuilder:
+
+    @classmethod
+    def h1(cls, text):
+        return f'<h1>{text}</h1>\n\n'
+
+    @classmethod
+    def p(cls, text):
+        return f'<p>{text}</p>\n\n'
+        
+    @classmethod
+    def br(cls):
+        return '<br/>\n'
+    
+    @classmethod
+    def replace_new_lines(cls, text):
+        return _scrub.replace_new_lines(text)
+    
+def get_expansion_number(name: str): 
+    if name:
+        exp = model.EXPANSIONS_LOOKUP.get(name.lower(), None)
+        return exp.num if exp else None
+    
+    return None
+
+html = HtmlBuilder
+
+
 class TextLinesParser:
 
     speaker_pos = 3
@@ -54,7 +82,7 @@ class DataAdapter:
         for data in cls.get_data(row):
             try:
                 result = cls.map_model(data)
-                if not result.textHtml:  # ignore items without text to search
+                if not result.text_clean or not result.text_clean.strip():  # ignore items without text to search
                     continue
                 yield result
             except Exception as e:
@@ -74,7 +102,7 @@ class DataAdapter:
     
     @classmethod
     def get_pretty_text(cls, data: xivclient.XivModel):
-        return '<p>' + cls.get_search_text(data) + "</p>"
+        return html.p(cls.get_search_text(data))
     
     @classmethod
     def get_search_text(cls, data: xivclient.XivModel):
@@ -86,6 +114,14 @@ class DataAdapter:
     
     @classmethod
     def get_expansion(cls, data: xivclient.XivModel):
+        name = cls.get_expansion_name(data)
+        if name:
+            return model.EXPANSIONS_LOOKUP.get(name, None)
+        
+        return None
+    
+    @classmethod
+    def get_expansion_name(cls, data: xivclient.XivModel):
         return None
     
     @classmethod
@@ -95,12 +131,13 @@ class DataAdapter:
     @classmethod
     def map_model(cls, data: xivclient.XivModel) -> model.SearchItem:
 
-        return model.SearchItem(            
+        return model.SearchItem(
+            _id=f"{cls.DATA_TYPE}-{data.row_id}",            
             row_id=data.row_id,
             key=cls.get_key(data),
             name=cls.get_name(data),
-            textHtml=cls.get_pretty_text(data),
-            textClean=cls.get_search_text(data),
+            text_html=cls.get_pretty_text(data),
+            text_clean=cls.get_search_text(data),
             expansion=cls.get_expansion(data),
             speakers=cls.get_speakers(data),
             meta=cls.get_meta(data),
@@ -114,11 +151,12 @@ class QuestAdapter(DataAdapter):
     LINE_PARSER = TextLinesParser()
 
     @classmethod
-    def get_expansion(cls, data: xivclient.Quest):
-        if data.Expansion.Name:
-            return model.EXPANSIONS_LOOKUP.get(data.Expansion.Name.lower(), None)
-        
-        return None
+    def get_expansion_name(cls, data: xivclient.Quest):
+        return data.Expansion.Name.lower() if data.Expansion.Name else None
+    
+    @classmethod
+    def get_key(cls, data: xivclient.XivModel):
+        return data.sheet_name
     
     @classmethod
     def get_meta(cls, data: xivclient.Quest):
@@ -166,11 +204,11 @@ class MountAdapter(DataAdapter):
     
     @classmethod
     def get_pretty_text(cls, data: xivclient.Mount):
-        return (
+        return html.p(html.replace_new_lines(
             f"{data.Description}\n\n{data.DescriptionEnhanced}\n\nTooltip:\n{data.Tooltip}"
             if data.Tooltip
             else f"{data.Description}\n\n{data.DescriptionEnhanced}"
-        )
+        ))
     
     @classmethod
     def get_search_text(cls, data: xivclient.Mount):
@@ -197,6 +235,30 @@ class FateAdapter(DataAdapter):
     DATA_TYPE: str = model.DataTypes.FATE
 
 
+class FateEventAdapter(DataAdapter):
+    DATA_CLASS = xivclient.FateEvent
+    DATA_TYPE: str = model.DataTypes.FATE_EVENT
+
+    @classmethod
+    def get_name(cls, data):
+        return "Fate Event Text"
+
+    @classmethod
+    def get_pretty_text(cls, data: xivclient.FateEvent):
+                
+        lines = [_scrub.sanitize_text(line) for line in data.Text if line]
+
+        return html.p(html.br().join(lines))
+    
+    
+    @classmethod
+    def get_search_text(cls, data: xivclient.FateEvent):
+        
+        lines = [_scrub.remove_non_ascii(_scrub.sanitize_text(line)) for line in data.Text if line]
+
+        return ' '.join(lines)
+
+
 class TripleTriadCardAdapter(DataAdapter):
     DATA_CLASS = xivclient.TripleTriadCard
     DATA_TYPE: str = model.DataTypes.TRIPLETRIAD
@@ -213,11 +275,8 @@ class CutsceneAdapter(DataAdapter):
     LINE_PARSER = TextLinesParser(4)
 
     @classmethod
-    def get_expansion(cls, data: xivclient.CutsceneText):
-        if data.expansion:
-            return model.EXPANSIONS_LOOKUP.get(data.expansion.lower(), None)
-        
-        return None
+    def get_expansion_name(cls, data):
+        return data.expansion.lower()
     
     @classmethod
     def get_speakers(cls, data: xivclient.CutsceneText):
@@ -231,6 +290,9 @@ class CutsceneAdapter(DataAdapter):
     def get_pretty_text(cls, data: xivclient.CutsceneText):
         return cls.LINE_PARSER.get_pretty_text(data.TextLines)
     
+    @classmethod
+    def get_key(cls, data: xivclient.XivModel):
+        return data.sheet_name
 
 class CustomTextAdapter(DataAdapter):
     DATA_CLASS = xivclient.CustomText
@@ -238,30 +300,140 @@ class CustomTextAdapter(DataAdapter):
     LINE_PARSER = TextLinesParser()
 
     @classmethod
-    def get_search_text(cls, data):
-        return data.Text
+    def get_name(cls, data: xivclient.CustomText):
+        return data.Type or "Custom Text"
 
+    @classmethod
+    def get_search_text(cls, data: xivclient.CustomText):
+        return data.Text
     
     @classmethod
-    def get_speakers(cls, data: xivclient.CutsceneText):
+    def get_speakers(cls, data: xivclient.CustomText):
         return cls.LINE_PARSER.get_speakers(data.TextLines)
 
     @classmethod
-    def get_search_text(cls, data: xivclient.CutsceneText):
+    def get_search_text(cls, data: xivclient.CustomText):
         return cls.LINE_PARSER.get_search_text(data.TextLines)
     
     @classmethod
-    def get_pretty_text(cls, data: xivclient.CutsceneText):
+    def get_pretty_text(cls, data: xivclient.CustomText):
         return cls.LINE_PARSER.get_pretty_text(data.TextLines)
 
+    @classmethod
+    def get_key(cls, data: xivclient.CustomText):
+        return data.Name
+
+class UnendingCodexAdapter(DataAdapter):
+    DATA_CLASS = xivclient.AkatsukiNoteString
+    DATA_TYPE: str = model.DataTypes.CODEX
+
+    @classmethod
+    def format_headers(cls, headers):
+        if headers:
+            val ='\n'.join(headers)
+            return html.h1(html.replace_new_lines(val))
+        
+        return ''
+
+    @classmethod
+    def get_all(cls, row=None):
+
+        # Unending codex is all in one big file, with text split into the rows
+        # we want to extract separate models for each "entry" in the journal 
+
+        headers = []
+        for row in super().get_data(row):
+            if not row.Text:
+                continue 
+
+            # the only way to check what is text vs title is to see if there is punctuation
+            if '.' in row.Text:
+
+                yield model.SearchItem(
+                    row_id=row.row_id,
+                    key=f'{row.row_id}',
+                    name=headers[0],
+                    text_html=cls.format_headers(headers[1:]) + html.p(html.replace_new_lines(row.Text)),
+                    text_clean=row.Text,
+                    datatype=cls.DATA_TYPE
+                )
+
+                headers = []
+
+            else:
+                headers.append(row.Text)
+
+
+class BalloonAdapter(DataAdapter):
+    DATA_CLASS = xivclient.Balloon
+    DATA_TYPE: str = model.DataTypes.BALLOON
+
+    @classmethod
+    def get_name(cls, data):
+        return "Balloon Text"
+    
+    @classmethod
+    def get_search_text(cls, data):
+        return _scrub.remove_non_ascii(data.Dialogue)
+    
+    @classmethod
+    def get_pretty_text(cls, data):
+        return html.p(_scrub.replace_new_lines(data.Dialogue))
+
+
+class NpcYellAdapter(DataAdapter):
+    DATA_CLASS = xivclient.Balloon
+    DATA_TYPE: str = model.DataTypes.BALLOON
+
+    @classmethod
+    def get_name(cls, data):
+        return "NPC Yell"
+    
+    @classmethod
+    def get_search_text(cls, data):
+        return _scrub.remove_non_ascii(data.Text)
+    
+    @classmethod
+    def get_pretty_text(cls, data):
+        return html.p(_scrub.replace_new_lines(data.Text))
+
+
+class AdventureAdapter(DataAdapter):
+    DATA_CLASS = xivclient.Adventure
+    DATA_TYPE: str = model.DataTypes.LOOKOUT
+
+    @classmethod
+    def get_meta(cls, data: xivclient.Adventure):
+        return {
+            "place_name": data.PlaceName.Name if data.PlaceName else None
+        }
+
+    @classmethod
+    def get_name(cls, data: xivclient.Adventure):
+        return data.Level.EventId.Name
+    
+    @classmethod
+    def get_search_text(cls, data: xivclient.Adventure):
+        return _scrub.remove_non_ascii(data.Description) + " " + _scrub.remove_non_ascii(data.Impression)
+    
+    @classmethod
+    def get_pretty_text(cls, data: xivclient.Adventure):
+        return html.p(data.Impression) + html.h1('Description') + html.p(data.Description)
+
+
 __all__ = [
-    QuestAdapter,
     MountAdapter,
     FishAdapter,
     FateAdapter,
+    FateEventAdapter,
     TripleTriadCardAdapter,
     StatusAdapter,
     CutsceneAdapter,
     CustomTextAdapter,
     ItemAdapter,
+    UnendingCodexAdapter,
+    BalloonAdapter,
+    NpcYellAdapter,
+    AdventureAdapter,
+    QuestAdapter,
 ]

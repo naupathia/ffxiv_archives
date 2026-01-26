@@ -1,16 +1,21 @@
-from typing import Optional
-from pydantic import BaseModel
+from typing import Any, Optional
+from pydantic import BaseModel, Field
 
 class DataTypes:
     QUEST = 'quest'
     ITEM = 'item'
     CUTSCENE = 'cutscene'
     FATE = 'fate'
+    FATE_EVENT = 'fate event'
     FISH = 'fish'
     MOUNT = 'mount'
     STATUS = 'status'
-    TRIPLETRIAD = 'card'
+    TRIPLETRIAD = 'triple triad card'
     CUSTOM = 'custom'
+    CODEX = 'unending codex'
+    BALLOON = 'balloon'
+    NPCYELL = 'npc yell'
+    LOOKOUT = 'lookout'
 
 
 class Expansion (BaseModel):
@@ -37,8 +42,8 @@ class SearchItem(BaseModel):
     row_id: int
     key: str
     name: str 
-    textHtml: str 
-    textClean: str
+    text_html: str 
+    text_clean: str
     datatype: str
     expansion: Optional[Expansion] = None
     speakers: Optional[list] = None
@@ -46,6 +51,9 @@ class SearchItem(BaseModel):
 
     def remote_id(self):
         return f"{self.datatype}_{self.key}_{self.row_id}"
+    
+    def get_doc_id(self):
+        return f"{self.datatype}-{self.row_id}"
     
     def as_plain_text(self):
 
@@ -55,7 +63,7 @@ class SearchItem(BaseModel):
 
 {self.name}
 
-{self.textHtml}
+{self.text_html}
 
 """
 
@@ -79,7 +87,7 @@ class Quest(SearchItem):
 Issuer: {self.meta.issuer} [{self.meta.place_name}]
 Journal: {self.meta.journal_genre} [{self.expansion.name}]
 
-{self.textHtml}
+{self.text_html}
 
 """
 
