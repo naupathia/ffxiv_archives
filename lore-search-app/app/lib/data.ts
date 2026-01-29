@@ -34,23 +34,6 @@ function collection(client: MongoClient) {
   return client.db(DATABASE).collection(COLLECTION);
 }
 
-function createFilters(expansion: string[], category: string[]) {
-  let filters = [];
-  if (expansion && expansion.length > 0) {
-    filters.push({
-      in: { path: "expansion", value: expansion },
-    });
-  }
-
-  if (category && category.length > 0) {
-    filters.push({
-      in: { path: "datatype", value: category },
-    });
-  }
-
-  return filters;
-}
-
 export async function fetchSearchResults(
   querystring: string = "",
   currentPage: number = 1,
@@ -76,7 +59,17 @@ export async function fetchSearchResults(
 
   if (sort && sort == SORT_TYPES.CATEGORY) {
     agg.push({
-      $sort: { "datatype.category": 1, "datatype.name": 1, "expansion.num": 1, "searchScore": { $meta: "searchScore" }, _id: 1 },
+      $sort: {
+        "datatype.category": 1,
+        "datatype.name": 1,
+        "expansion.num": 1,
+        searchScore: { $meta: "searchScore" },
+        _id: 1,
+      },
+    });
+  } else {
+    agg.push({
+      $sort: { searchScore: { $meta: "searchScore" }, _id: 1 },
     });
   }
 
@@ -177,7 +170,7 @@ function createQuery(querystring: string, filters: Filter[]) {
       compound: {
         must: innerMustFilter,
         should: innerShouldFilter,
-        minimumShouldMatch: innerShouldFilter ? 1 : 0,
+        minimumShouldMatch: innerShouldFilter.length > 0 ? 1 : 0,
       },
     });
   }
