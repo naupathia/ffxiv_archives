@@ -12,6 +12,7 @@ export default function SearchPage() {
   const [searchParams, setSearchParams] = useState({
     category: [],
     expansion: [],
+    type: [],
     q: "",
     sort: "",
   } as SearchParams);
