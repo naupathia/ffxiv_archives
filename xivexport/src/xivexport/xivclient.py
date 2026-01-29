@@ -37,40 +37,27 @@ def expansion_name_from_number(number: int):
     return ""
 
 
-class QuestKey:
-    def __init__(self, sheet_name: str):
-        # example sheet name: quest/050/KinGzb011_05040
-        tokens = sheet_name.split("/")
-        self.folder = tokens[1]
-        self.key = tokens[2]
-        self.row_id = int(self.key.split("_")[1])
-        self.name = None
-
-
-class CutsceneKey:
+class SheetKey:
     def __init__(self, sheet_name: str):
         # example sheet name: cut_scene/034/VoiceMan_03401
         tokens = sheet_name.split("/")
-        expansion = tokens[1]
-        expansion_num = int(expansion[:2])
 
+        self.folder = tokens[1]
         self.key = tokens[2]
         self.row_id = int(self.key.split("_")[1])
-        self.patch_num = f"{expansion_num}.{expansion[2]}"
-        self.expansion = expansion_name_from_number(expansion_num)
-        self.name = f"{self.patch_num} {self.expansion} Cutscenes [{self.key}]"
-
-
-class CustomTextKey:
-    def __init__(self, sheet_name: str):
-        # example sheet name: custom/009/RegYok6BreathBetween_00906
-        tokens = sheet_name.split("/")
-
-        self.key = tokens[2]
-        self.row_id = int(tokens[1])
         self.name = self.key
         self.expansion = None
 
+class CutsceneKey(SheetKey):
+    def __init__(self, sheet_name: str):
+        super().__init__(sheet_name)
+        # example sheet name: cut_scene/034/VoiceMan_03401
+        expansion = self.folder
+        expansion_num = int(expansion[:2])
+
+        patch_num = f"{expansion_num}.{expansion[2]}"
+        self.expansion = expansion_name_from_number(expansion_num)
+        self.name = f"{patch_num} {self.expansion} Cutscenes"
 
 def get_field_names(field, field_info: FieldInfo):
 
@@ -290,7 +277,7 @@ class CustomText(SheetParseData):
     Type: Optional[str] = None 
 
     __sheetname__: str = CUSTOM
-    __key_type__ = CustomTextKey
+    __key_type__ = SheetKey
 
 class CutsceneText(SheetParseData):
     __sheetname__: str = CUTSCENE
@@ -348,6 +335,12 @@ class Companion(XivModel):
     Tooltip: str
 
     __transient__ = CompanionTransient
+
+class Leve(XivModel):
+    Description: str 
+    Name: str
+    PlaceNameIssued: Optional[PlaceName]
+
 
 
 class XivApiClient:
@@ -474,7 +467,7 @@ class XivApiClient:
         return [row["name"] for row in res["sheets"]]
 
     def sheet[T: XivModel](
-        self, model_class: type[T] | str, rows: Optional[List[int]] = None
+        self, model_class: type[T] | str, start_at: Optional[int] = None
     ) -> Iterator[T | dict]:
         # rows_param = ",".join(str(id) for id in rows) if rows else None
 
@@ -489,14 +482,15 @@ class XivApiClient:
         if is_model_query and model_class.__transient__:
             transient_fields = model_class.__transient__.get_fields_str()
 
+
+        start = start_at or 0
+        limit = 500  # xivapi max limit
         params = {
             "fields": fields,
             "transient": transient_fields,
-            "limit": 500,
-            "after": 0,
+            "limit": limit,
+            "after": start
         }
-        start = 0
-        limit = 500  # xivapi max limit
         has_more = True
         prev_results = None
 
@@ -579,17 +573,17 @@ class XivDataAccess:
         return XivApiClientManager.client
 
     @classmethod
-    def get_all(cls, model_class, row=None):
+    def get_all(cls, model_class, start_at=None):
         if model_class == Quest:
-            return cls._get_quests(row)
+            return cls._get_quests(start_at)
                 
         if model_class == CustomText:
-            return cls._get_custom_text(row)
+            return cls._get_custom_text(start_at)
 
         elif issubclass(model_class, SheetParseData):
-            return cls._get_sheet_text_data(model_class, row)
+            return cls._get_sheet_text_data(model_class, start_at)
 
-        return cls.client().sheet(model_class, [row] if row else None)
+        return cls.client().sheet(model_class, [start_at] if start_at else None)
 
     @classmethod
     def get_sheet_names(cls, name):
@@ -611,27 +605,24 @@ class XivDataAccess:
         return cls._sheets[name]
 
     @classmethod
-    def _get_sheet_text_data(cls, model_class: type[SheetParseData], rows=None):
-        count = 0
+    def _get_sheet_text_data(cls, model_class: type[SheetParseData], start_at=None):
         LOGGER.debug(f"loading data for {model_class.__name__}")
+
         for sheet_name in cls.get_sheet_names(model_class.__sheetname__):
 
-            # the sheet data will be the quest text
+            # the sheet data will be the text contents
             text = cls.client().get_sheet_rows(sheet_name)
 
             yield model_class.from_sheet_and_text(sheet_name, text)
 
-            count += 1
-            if rows and count >= rows:
-                break
 
     @classmethod
-    def _get_custom_text(cls, rows=None):
+    def _get_custom_text(cls, start_at=None):
 
         custom_text_data = {m.Name: m for m in cls.client().sheet(CustomTalk) if m.Name}
 
         model: CustomText
-        for model in cls._get_sheet_text_data(CustomText, [rows] if rows else None):
+        for model in cls._get_sheet_text_data(CustomText, start_at):
 
             # find the metadata
             metadata = custom_text_data.get(model.Name, None)
@@ -641,9 +632,9 @@ class XivDataAccess:
             yield model
 
     @classmethod
-    def _get_quests(cls, rows=None):
+    def _get_quests(cls, start_at=None):
 
-        for quest_model in cls.client().sheet(Quest, [rows] if rows else None):
+        for quest_model in cls.client().sheet(Quest, start_at):
 
             # folder num is part of the key
             # example key: ChrHdy399_04784

@@ -15,7 +15,10 @@ export function mapSynonymsToDict(synonyms: any) {
 }
 
 // @ts-ignore
-export const fetcher = (...args) => fetch(...args).then((res) => res.json());
+export const fetcher = (...args) => fetch(...args).then((res) => {
+  console.log('api call finished');
+  return res.json();
+});
 
 export function isEmptyArray(arr?: string[]) {
   return arr == null || arr.length == 0 || arr[0] == "";
@@ -70,4 +73,28 @@ export function convertToTitleCase(e: string) {
       return word.charAt(0).toUpperCase().concat(word.substring(1));
     })
     .join(" ");
+}
+
+export function formatHighlightToHtml(highlightData: any) {
+  let htmlString = '';
+  highlightData.texts.forEach((textSnippet: any) => {
+    if (textSnippet.type === 'hit') {
+      // Wrap the 'hit' type text with the <mark> tag
+      htmlString += `<mark>${textSnippet.value}</mark>`;
+    } else {
+      // Add 'text' type content as plain text
+      htmlString += textSnippet.value;
+    }
+  });
+  return htmlString;
+}
+
+export function highlightText(text: string, highlightData: HighlightData[]) {
+  let formattedText = text;
+  highlightData.forEach(h => {
+    const originalText = h.texts.map(t=>t.value).join('');
+    const highlightText = formatHighlightToHtml(h);
+    formattedText = formattedText.replace(originalText, highlightText);
+  })
+  return formattedText;
 }

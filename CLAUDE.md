@@ -12,6 +12,7 @@ This repository contains a FFXIV (Final Fantasy XIV) archives system with two ma
 
 1. **Data Export Tool** (`xivexport/`) - Python application that extracts game data from various sources and uploads to MongoDB
 2. **Lore Search App** (`lore-search-app/`) - Next.js web application for searching through the archived game content
+3. **Tea Tools Web** (`teatoolsweb/`) - python Flask app to make an updated web front end for searching and viewing the data from MongoDB
 
 ## Common Commands
 
@@ -95,7 +96,7 @@ npm install
 
 ## Development Notes
 
-- Both components share the same MongoDB database (`tea.lore` collection)
+- Both components share the same MongoDB database (`tea.lore` or `tea.lore_v2` collection)
 - The data export tool truncates and rebuilds the entire collection on each run
 - Web app uses SWR for client-side data fetching
 - TypeScript path aliases configured with `@/*` pointing to root directory

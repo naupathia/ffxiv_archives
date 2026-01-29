@@ -1,11 +1,22 @@
+type Expansion = {
+  num: number;
+  name: string;
+  abbr: string;
+}
+
+type TypeDefinition = {
+  category: string;
+  name: string
+}
+
 type LoreEntry = {
   _id: string;
-  datatype: string;
-  name: string;
-  text: string;
-  expansion?: string;
-  rank?: number;
+  datatype: TypeDefinition;
+  title: string;
+  text_html: string;
+  expansion?: Expansion;
   meta?: LoreEntryMetadata;  
+  highlights: HighlightData[];
 };
 
 type LoreEntryMetadata = {
@@ -15,27 +26,30 @@ type LoreEntryMetadata = {
   journal_genre?: string;
 };
 
-type Bookmark = {
-  id: string;
-  name: string;
-  datatype: string;
-};
-
 type Project = {
   id: string;
   name: string;
-};
-
-type CheckBoxItem = {
-  value: string;
-  label: string;
-  isChecked: boolean;
 };
 
 type SearchParams = {
   q?: string;
   sort?: string;
   category: string[];
+  type: string[];
   expansion: string[];
-  page: number;
 };
+
+type HighlightTexts = {
+  type: string;
+  value: string;
+}
+
+type HighlightData = {
+  path: string;
+  texts: HighlightTexts[];
+}
+
+type Filter = {
+  name: string,
+  values: string[]
+}

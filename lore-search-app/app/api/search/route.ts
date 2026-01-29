@@ -8,9 +8,27 @@ export async function GET(req: NextRequest) {
   const page = parseInt(searchParams.get("page") || "1");
   const sort = searchParams.get("sort");
   const categories = searchParams.getAll("category") || [];
+  const types = searchParams.getAll("type") || [];
   const expansions = searchParams.getAll("expansion") || [];
 
-  const data: any[] = await fetchSearchResults(q || '', page, sort || '', expansions, categories);
+  const filters = [];
 
-  return Response.json(data);
+  if (categories && categories.length > 0) {
+    filters.push({ name: "category", values: categories });
+  }
+  if (types && types.length > 0) {
+    filters.push({ name: "datatype", values: types });
+  }
+  if (expansions && expansions.length > 0) {
+    filters.push({ name: "expansion", values: expansions });
+  }
+
+  const data: any = await fetchSearchResults(
+    q || "",
+    page,
+    sort || "",
+    filters,
+  );
+
+  return Response.json(data.items);
 }

@@ -3,34 +3,91 @@ from pydantic import BaseModel
 
 class DataTypes:
     QUEST = 'quest'
+    CUTSCENE = 'cutscene'    
     ITEM = 'item'
-    CUTSCENE = 'cutscene'
-    FATE = 'fate'
-    FATE_EVENT = 'fate event'
     FISH = 'fish'
     MOUNT = 'mount'
-    STATUS = 'status'
     TRIPLETRIAD = 'triple triad card'
-    CUSTOM = 'custom'
+    CUSTOM = 'npc talk'
     CODEX = 'unending codex'
-    BALLOON = 'balloon'
-    NPCYELL = 'npc yell'
-    LOOKOUT = 'lookout'
-    DESCRIPTION = 'description'
-    BOZJA_NOTES = 'bozja note'
+    BALLOON = 'balloon text' 
+    NPCYELL = 'npc yell' 
+    LOOKOUT = 'lookout' 
+    BOZJA_NOTES = 'bozja note' 
     OCCULT_RECORD = 'occult record'
-    VARIANT_DUNGEON = 'variant dungeon'
+    VARIANT_DUNGEON = 'variant record'
+    SNIPE_TALK = 'snipe text'  
+    MINION = 'minion' 
+    LEVE = 'leve'
+    FATE = 'fate'
+    FATE_EVENT = 'fate npc'
     CE_DEVELOPMENT_LOG = 'cosmic exploration log'
     CE_MISSION = 'cosmic exploration mission'
-    SPEARFISHING_ITEM = 'spearfishing'
-    SNIPE_TALK = 'snipe talk'
-    COMPANION = 'companion'
+    SYSTEM_DESCRIPTION = 'system description'
 
+    # not uploaded currently
+    STATUS = 'status'
+
+    
+TYPE_CATEGORIES = {
+    "collection": [
+        DataTypes.BOZJA_NOTES,
+        DataTypes.OCCULT_RECORD,
+        DataTypes.SYSTEM_DESCRIPTION,
+        DataTypes.CODEX,
+        DataTypes.LOOKOUT,
+        DataTypes.VARIANT_DUNGEON,        
+        DataTypes.CE_DEVELOPMENT_LOG
+    ],
+    "npc dialogue": [
+        DataTypes.NPCYELL,
+        DataTypes.BALLOON,
+        DataTypes.SNIPE_TALK,
+        DataTypes.CUSTOM,
+        DataTypes.FATE_EVENT
+    ],
+    "items": [
+        DataTypes.FISH,
+        DataTypes.TRIPLETRIAD,
+        DataTypes.MINION,
+        DataTypes.MOUNT,
+        DataTypes.ITEM
+    ],
+    # "system": [
+    #     DataTypes.STATUS
+    # ],
+    "quest": [
+        DataTypes.QUEST,
+        DataTypes.FATE,
+        DataTypes.LEVE,
+        DataTypes.CE_MISSION
+    ],
+    "story": [
+        DataTypes.CUTSCENE
+    ]
+}
+
+CATEGORY_LOOKUP = {
+    t: k
+    for k, v in TYPE_CATEGORIES.items()
+    for t in v
+}
 
 class Expansion (BaseModel):
     num: int 
     name: str
     abbr: str
+
+class DataType(BaseModel):
+    category: str 
+    name: str
+
+    @staticmethod
+    def from_type_name(name: str):
+        return DataType(
+            name=name,
+            category=CATEGORY_LOOKUP[name]
+        )
 
 EXPANSIONS = (
     Expansion(num=1, name="A Realm Reborn", abbr="ARR"),
@@ -50,27 +107,21 @@ EXPANSIONS_LOOKUP = {
 class SearchItem(BaseModel):
     row_id: int
     key: str
-    name: str 
+    title: Optional[str] = None 
     text_html: str 
     text_clean: str
-    datatype: str
+    datatype: DataType
     expansion: Optional[Expansion] = None
     speakers: Optional[list] = None
     meta: Optional[object] = None
-
-    def remote_id(self):
-        return f"{self.datatype}_{self.key}_{self.row_id}"
-    
-    def get_doc_id(self):
-        return f"{self.datatype}-{self.row_id}"
     
     def as_plain_text(self):
 
         return f"""
 ---------------------------------------------------------------------
-[{self.datatype.upper()}]
+[{self.datatype.name.upper()}]
 
-{self.name}
+{self.title or ''}
 
 {self.text_html}
 
@@ -92,7 +143,7 @@ class Quest(SearchItem):
 ---------------------------------------------------------------------
 [QUEST]
  
-{self.name} [{self.key}]
+{self.title} [{self.key}]
 Issuer: {self.meta.issuer} [{self.meta.place_name}]
 Journal: {self.meta.journal_genre} [{self.expansion.name}]
 

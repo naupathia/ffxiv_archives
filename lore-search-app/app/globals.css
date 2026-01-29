@@ -1,161 +1,115 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@layer tailwind-base, primereact, tailwind-utilities;
+
+/* IMPORTANT: In "styled" mode you must add the PrimeReact Theme here. Do NOT include in "unstyled" mode */
+@import 'primereact/resources/themes/lara-dark-blue/theme.css' layer(primereact);
+
+@layer tailwind-base {
+  @tailwind base;
+}
+
+@layer tailwind-utilities {
+  @tailwind components;
+  @tailwind utilities;
+}
 
 :root {
-  --border-gold: #ffc954;
-  --fg-gold: #fab92e;
+  --max-width: 70%;
+
+  --dark-gold: #927000;
+  --dark-blue: #0d0d1a;  
+  --header-blue: #171727;
+  --font-color: #b0b0b4;
+
+  --drop-shadow: 2px 3px 2px rgba(0, 0, 0, 0.9);
+
+  font-size: larger;
+
+  /* color-scheme: dark; */
 }
 
-/* :root {
-  --fg-rgb: white;
-  --bg-start-rgb: #040611;
-  --bg-end-rgb: #040611;
+@font-face {
+  font-family: 'AxisLatinPro'; /* A name you choose to use later */
+  src: url('/fonts/AxisLatinPro-Regular.woff2') format('woff2');
+  font-weight: normal; /* Define the weight and style of this specific file */
+  font-style: normal;
+  font-display: swap; /* Prevents render-blocking; shows fallback text first */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --fg-rgb: white;
-    --bg-start-rgb: #040611;
-    --bg-end-rgb: #040611
-  }
-} */
-
-/* body {
-  color: var(--fg-rgb);
-  background: linear-gradient(
-      to left,
-      transparent,
-      var(--bg-end-rgb)
-    )
-    var(--bg-start-rgb);
-} */
-
-/* body {
-  color: white;
-  background: #040611;
-  font-family: Helvetica, Arial, sans-serif;
-} 
-
-.paper {
-  background-color: #FCF5E5;
-}
-
-.lore-item {
-  background-color: #191A36;
-  font-family: 'monaco', 'Consolas', 'Menlo', Courier, monospace;
-} 
-*/
 
 body {
-  background-color: #1a1a2e; 
-  color: #ffffff; 
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  background-color: var(--surface-ground);
+  font-family: 'AxisLatinPro', sans-serif;
 }
 
-mark {
-  background: #213fec;
-  color: white;
+main {
+  max-width: var(--max-width);
+  margin: 2em auto;
+  padding: 2em;
 }
 
-legend {  
-  color: var(--fg-gold); /* Gold link color */
+.site-title {
+  border-bottom: 2px solid var(--dark-gold);
 }
 
-.form-button {
-  color: rgb(119, 119, 165); 
+h1 {
+  font-size: xx-large;
+  text-shadow: var(--drop-shadow);
 }
 
-.container {
-  max-width: 800px;
-  margin: 0 auto;
+h2 {
+  font-size: x-large;
+  font-weight: bold;
+  margin-top: 2em;
+  text-shadow: var(--drop-shadow);
 }
 
-.header {
-  padding: 20px;
-  text-align: center;
+blockquote {
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 0.5em;  
+  padding-left: 2em;
+  padding-right: 2em;
+  color: lightgray;
 }
 
-.lore-item {
-  background-color: #0d0d1a;
-  padding: 20px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-  border: 1px solid var(--border-gold);
-  border-radius: 2px;
-  /* font-family: "monaco", "Consolas", "Menlo", Courier, monospace; */
+.p-panel {  
+  color: var(--font-color);
 }
 
-.lore-item h2 {
-  color: var(--fg-gold); /* Gold heading color */
+.p-panel-header {
+  border: 1px solid var(--dark-gold);
+  background-color: var(--dark-blue);
+  font-family: 'Source Sans 3', sans-serif;
+  color: var(--font-color);
+  background-color: var(--header-blue);
 }
 
-.lore-item-body {
-  padding-top: 2em;
-  padding-left: 20px;
-  padding-right: 20px;
+.p-panel-content {
+  border-left: 1px solid var(--dark-gold);
+  border-right: 1px solid var(--dark-gold);
+  border-bottom: 1px solid var(--dark-gold);
+  background-color: var(--dark-blue);
+  font-family: 'Source Sans 3', sans-serif;
+  color: var(--font-color);
 }
 
-.lore-item-body p {
-  line-height: 1.6;
+.p-card {
+  border: 1px solid var(--dark-gold);
+  background-color: var(--dark-blue);
 }
 
-.footer {
-  background-color: #0d0d1a; /* Darker footer background */
-  padding: 10px;
-  text-align: center;
+.p-multiselect-label {
+    display: flex;
+    flex-wrap: wrap; /* Allows chips to wrap to the next line */
+    gap: 0.25rem;    /* Adds space between wrapped chips */
+    overflow-x: hidden; /* Prevents horizontal scroll */
+    flex-grow: 1;
 }
 
-a {
-  color: var(--fg-gold); /* Gold link color */
-}
-
-a:hover {
-  color: #fddf9f; /* Lighter gold on hover */
-}
-
-.scrollToTopBtn {
-  display: none;
-  position: fixed;
-  bottom: 20px;
-  background-color: #eaf0ff;
-  color: #000;
-  border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  font-size: 20px;
-  cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  transition: background-color 0.1s;
-}
-
-.scrollToTopBtn:hover {
-  background-color: var(--fg-gold);
-}
-
-.tab-header {
-  padding: 0.5rem;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  gap: 1rem;
-  border-bottom: 2px solid var(--border-gold);
-  border-top: 2px solid var(--border-gold);
-  box-shadow: 0 -4px 4px rgba(0, 0, 0, 0.5), 0 4px 4px rgba(0, 0, 0, 0.5);
-}
-
-.tab {
-  padding: 2px;
-  text-align: center;
-  flex-grow: 1;
-}
-
-.tab:hover {
-  background-color: var(--fg-gold);
-  color: black;
-  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.5), 2px 2px 5px rgba(0, 0, 0, 0.2);
-}
-
-.gold-border {
-  border-color: var(--border-gold);
+p {
+  font-size: larger;
+  line-height: 2em;
+  text-shadow: 2px 3px 2px rgba(0, 0, 0, 0.5);
 }

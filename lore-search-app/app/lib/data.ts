@@ -1,7 +1,6 @@
 // import "server-only";
 
 import { MongoClient, ServerApiVersion, ObjectId } from "mongodb";
-import axios from "axios";
 import { SORT_TYPES } from "@/types/enums";
 import { mapSynonymsToDict } from "./functions";
 
@@ -11,33 +10,52 @@ if (!process.env.MONGODB_URI) {
 
 const uri: string = process.env.MONGODB_URI ?? "";
 
-const ITEMS_PER_PAGE = 100;
-const API_KEY = process.env.API_KEY;
-const DATASOURCE = "Cluster0";
+const ITEMS_PER_PAGE = 1000;
 const DATABASE = "tea";
-const COLLECTION = "lore";
+const COLLECTION = "lore_v2";
 const INDEX_NAME = "default";
 const SYNONYMS = "synonym_mapping";
+const SEARCH_FIELDS = ["name", "text_clean"];
 
-async function createClient(col: string = COLLECTION) {
+async function connect(col: string = COLLECTION) {
   const client = new MongoClient(uri, {
     serverApi: {
       version: ServerApiVersion.v1,
       strict: false,
       deprecationErrors: true,
     },
+    maxPoolSize: 100,
   });
   await client.connect();
-  const database = client.db(DATABASE);
-  return database.collection(col);
+  return client;
+}
+
+function collection(client: MongoClient) {
+  return client.db(DATABASE).collection(COLLECTION);
+}
+
+function createFilters(expansion: string[], category: string[]) {
+  let filters = [];
+  if (expansion && expansion.length > 0) {
+    filters.push({
+      in: { path: "expansion", value: expansion },
+    });
+  }
+
+  if (category && category.length > 0) {
+    filters.push({
+      in: { path: "datatype", value: category },
+    });
+  }
+
+  return filters;
 }
 
 export async function fetchSearchResults(
   querystring: string = "",
   currentPage: number = 1,
   sort: string = "",
-  expansion: string[] = [],
-  category: string[] = []
+  filters: Filter[] = [],
 ) {
   if (!querystring) {
     return [];
@@ -48,35 +66,17 @@ export async function fetchSearchResults(
 
   const skip = (currentPage - 1) * ITEMS_PER_PAGE;
 
-  let query: any = createWordSearchQuery(querystring);
-
-  if (querystring.startsWith('"') && querystring.endsWith('"')) {
-    query = createPhraseSearchQuery(querystring);
-  }
+  let query: any = createQuery(querystring, filters);
 
   const agg: any[] = [];
 
-  agg.push(query);
-
-  if (expansion) {
-    let e: any = [...expansion];
-    if (expansion.length > 0 && expansion[0] != "") {
-      e = [...expansion, null];
-    }
-    agg.push({
-      $match: { expansion: { $in: e } },
-    });
-  }
-
-  if (category) {
-    agg.push({
-      $match: { datatype: { $in: category } },
-    });
-  }
+  agg.push({
+    $search: query,
+  });
 
   if (sort && sort == SORT_TYPES.CATEGORY) {
     agg.push({
-      $sort: { datatype: -1, rank: 1, name: 1 },
+      $sort: { datatype: 1, "expansion.num": 1, name: 1, _id: 1 },
     });
   }
 
@@ -88,73 +88,176 @@ export async function fetchSearchResults(
     $limit: ITEMS_PER_PAGE,
   });
 
+  console.log(JSON.stringify(agg));
+
+  const client = await connect();
+  const col = await collection(client);
   try {
-    const collection = await createClient();
+    const response = await col.aggregate<LoreEntry>(agg).toArray();
 
-    const response = await collection.aggregate<LoreEntry>(agg).toArray();
-
-    return response;
+    return {
+      query: agg,
+      items: response,
+    };
   } catch (error) {
     console.error("Data Error:", error);
+  } finally {
+    client.close();
   }
 
-  return [];
+  return { items: [], query: agg };
 }
 
-function createPhraseSearchQuery(querystring: string) {
-  return {
-    $search: {
-      index: INDEX_NAME,
+function createQuery(querystring: string, filters: Filter[]) {
+  let mustFilters: any = [];
+  let shouldFilters: any = [];
+
+  if (querystring.startsWith('"') && querystring.endsWith('"')) {
+    mustFilters.push({
       phrase: {
         query: querystring,
-        path: ["name", "text"],
+        path: SEARCH_FIELDS,
       },
+    });
+  } else {
+    shouldFilters = [
+      {
+        phrase: {
+          query: querystring,
+          path: SEARCH_FIELDS,
+          score: {
+            boost: {
+              value: 10,
+            },
+          },
+        },
+      },
+      {
+        text: {
+          query: querystring,
+          path: SEARCH_FIELDS,
+          matchCriteria: "all",
+          synonyms: SYNONYMS,
+        },
+      },
+    ];
+  }
+
+  if (filters && filters.length > 0) {
+    console.log(JSON.stringify(filters));
+    const innerShouldFilter: any[] = [];
+    const innerMustFilter: any[] = [];
+    filters.forEach((element) => {
+      if (element.name == "category") {
+        innerShouldFilter.push({
+          in: {
+            path: "datatype.category",
+            value: element.values,
+          },
+        });
+      } else if (element.name == "datatype") {
+        innerShouldFilter.push({
+          in: {
+            path: "datatype.name",
+            value: element.values,
+          },
+        });
+      } else {
+        const filterName = "expansion.name";
+        innerMustFilter.push({
+          in: {
+            path: filterName,
+            value: element.values,
+          },
+        });
+      }
+    });
+
+    mustFilters.push({
+      compound: {
+        must: innerMustFilter,
+        should: innerShouldFilter,
+        minimumShouldMatch: innerShouldFilter ? 1 : 0,
+      },
+    });
+  }
+
+  return {
+    index: INDEX_NAME,
+    compound: {
+      should: shouldFilters,
+      must: mustFilters,
+      minimumShouldMatch: shouldFilters.length > 0 ? 1 : 0,
+    },
+    highlight: {
+      path: "text_clean",
+      maxNumPassages: 50,
     },
   };
 }
 
-function createWordSearchQuery(querystring: string) {
-  const wordQueries = querystring.split(" ").map((word) => ({
-    text: {
-      query: word,
-      path: ["text", "name"],
-      synonyms: SYNONYMS,
-    },
-  }));
-
-  return {
-    $search: {
-      index: INDEX_NAME,
-      compound: {
-        must: wordQueries,
+export async function fetchFilters() {
+  const client = await connect();
+  const col = await collection(client);
+  try {
+    const response = await col.aggregate([
+      {
+        $facet: {
+          categories: [
+            { $group: { _id: "$datatype" } },
+            { $sort: { "_id.category": 1, "_id.name": 1 } },
+          ],
+          expansions: [
+            { $group: { _id: "$expansion" } },
+            { $sort: { "_id.num": 1 } },
+          ],
+        },
       },
-    },
-  };
+      {
+        $project: {
+          categories: "$categories._id",
+          expansions: "$expansions._id.name",
+        },
+      },
+    ]);
+
+    return await response.next();
+  } finally {
+    await client.close();
+  }
 }
 
 export async function fetchLoreEntry(id: string) {
+  const client = await connect();
+  const col = await collection(client);
   try {
-    const collection = await createClient();
+    const response = await col.findOne<LoreEntry>({
+      _id: new ObjectId(id),
+    });
 
-    const response = await collection.findOne<LoreEntry>({ _id: new ObjectId(id) });
-
-    return response;
+    return await response;
   } catch (error) {
     console.error("Data Error:", error);
+  } finally {
+    await client.close();
   }
 
   return null;
 }
 
 export async function fetchManyLoreEntries(ids: any) {
+  const client = await connect();
+  const col = await collection(client);
   try {
     const idParams = ids.map((i: string) => ({ $oid: i }));
-    const collection = await createClient();
-    const response = await collection.find<LoreEntry>({
-      _id: { $in: idParams },
-    }).toArray();
 
-    return response;
+    const response = await col
+      .find<LoreEntry>({
+        _id: { $in: idParams },
+      })
+      .toArray();
+
+    return await response;
     // const sortedItems: LoreEntry[] = [];
 
     // ids.forEach((id: string) => {
@@ -167,20 +270,26 @@ export async function fetchManyLoreEntries(ids: any) {
     // return sortedItems;
   } catch (error) {
     console.error("Data Error:", error);
+  } finally {
+    await client.close();
   }
 
   return [];
 }
 
 export async function fetchSynonyms() {
-  try {
-    const collection = await createClient("synonyms");
-    const items = await collection.find({}).toArray();
+  const client = await connect();
+  const col = await collection(client);
 
-    const dictItems = mapSynonymsToDict(items);
+  try {
+    const items = await col.find({}).toArray();
+
+    const dictItems = await mapSynonymsToDict(items);
     return dictItems;
   } catch (error) {
     console.error("Data Error:", error);
+  } finally {
+    await client.close();
   }
 
   return [];

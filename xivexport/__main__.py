@@ -70,9 +70,10 @@ def close():
 
 def save_batch(docs: list[model.SearchItem], remote_save=True):
     dump_docs(docs)
-    print(f"inserting records...")
+    print(f"inserting batch records...")
     if remote_save:
         search.ClientManager.upload_docs([d.model_dump() for d in docs])
+    print(f"Done inserting records.")
 
 
 def clear_data(is_test):
