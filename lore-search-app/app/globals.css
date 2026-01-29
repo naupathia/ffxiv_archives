@@ -96,7 +96,6 @@ blockquote {
   border-bottom: 1px solid var(--dark-gold);
   background-color: var(--dark-blue);
   font-family: 'Source Sans 3', sans-serif;
-  color: var(--font-color);
 }
 
 .p-card {
@@ -115,7 +114,6 @@ blockquote {
 p {
   font-size: larger;
   line-height: 2em;
-  text-shadow: 2px 3px 2px rgba(0, 0, 0, 0.5);
 }
 
 .p-panel-header-link:hover {
