@@ -162,6 +162,7 @@ export default function SearchBox({
               }
               value={selectedCategories}
               selectionMode="multiple"
+              // @ts-ignore
               onChange={(e) => setSelectedCategories(e.value)}
               placeholder={isLoading ? "loading..." : "Categories"}
               filter
