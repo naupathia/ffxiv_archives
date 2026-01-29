@@ -1,16 +1,15 @@
 "use client";
 import { MultiSelect } from "primereact/multiselect";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { InputText } from "primereact/inputtext";
 import { FloatLabel } from "primereact/floatlabel";
-import { useFilters } from "@/app/context/FiltersContext";
+import { useFilters } from "@/app/ui/context/FiltersContext";
 import { convertToTitleCase } from "@/app/lib/functions";
 import { Card } from "primereact/card";
 import { SORT_TYPES } from "@/types/enums";
 import { Checkbox } from "primereact/checkbox";
 import { TreeNode } from "primereact/treenode";
-import { TreeSelect, TreeSelectSelectionKeysType } from "primereact/treeselect";
-import { TreeCheckboxSelectionKeys } from "primereact/tree";
+import { TreeSelect } from "primereact/treeselect";
 
 export default function SearchBox({
   setSearchParams,
@@ -112,7 +111,6 @@ export default function SearchBox({
     return results;
   }
 
-
   function handleSearch() {
     console.log(selectedCategories);
     const params = {
@@ -153,8 +151,9 @@ export default function SearchBox({
               value={selectedExpansions}
               onChange={(e) => setSelectedExpansions(e.value)}
               placeholder={isLoading ? "loading..." : "Expansions"}
-              display="chip"
               showClear
+              maxSelectedLabels={2}
+              className="basis-64"
             />
             <TreeSelect
               options={
@@ -168,11 +167,12 @@ export default function SearchBox({
               filter
               metaKeySelection={false}
               showClear
+              className="grow"
             />
 
-            <div>
+            <div className="flex items-center">
               <Checkbox
-                name="sort"
+                inputId="sort"
                 checked={useCatgorySort}
                 onChange={handleSortChange}
               />

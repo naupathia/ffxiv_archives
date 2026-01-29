@@ -16,7 +16,7 @@ export default function SearchPage() {
     q: "",
     sort: "",
   } as SearchParams);
-  const PAGE_SIZE = 100;
+  const PAGE_SIZE = 500;
 
   const shouldFetch = searchParams.q != null && searchParams.q != "";
   const categoryList = !isEmptyArray(searchParams.category)
@@ -65,7 +65,7 @@ export default function SearchPage() {
         </div>
       </div>
 
-      <div className="flex flex-col">
+      <div className="flex flex-col mt-8">
         <button
           className={clsx(data && data.length > 0 ? "" : "hidden")}
           disabled={isLoadingMore || isReachingEnd}

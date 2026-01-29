@@ -1,3 +1,5 @@
+"use client"
+
 import { convertToTitleCase } from "@/app/lib/functions";
 
 export default function LoreBody({
@@ -8,7 +10,7 @@ export default function LoreBody({
   lore: LoreEntry;
 }) {
   const metadata =
-    lore.datatype == "quest"
+    lore.datatype.name == "quest"
       ? {
           expansion: lore.expansion?.name || "",
           placeName: lore.meta?.place_name || "",

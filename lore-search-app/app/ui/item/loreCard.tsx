@@ -1,7 +1,8 @@
+"use client"
+
 import { Panel, PanelHeaderTemplateOptions } from "primereact/panel";
 import { useState } from "react";
 import LoreBody from "./loreBody";
-import Link from "next/link";
 
 export default function LoreCard({
   text,
@@ -16,12 +17,24 @@ export default function LoreCard({
 
   const headerTemplate = function (options: PanelHeaderTemplateOptions) {
     const className = `${options.className} flex align-items-center justify-content-between pt-8 pb-8`;
-    const titleClassName = `${options.titleClassName} text-xl`
+    const titleClassName = `text-xl`;
 
     return (
       <div className={className}>
         <div className="flex items-baseline gap-2">
-          <h1 className={titleClassName}><Link href={`/item/${lore._id}`} target="_blank">{lore.title}</Link></h1>
+          <h1 className={titleClassName}>
+            {toggleable ? (
+              <a
+                className="p-panel-header-link"
+                href={`/item/${lore._id}`}
+                target="_blank"
+              >
+                {lore.title}
+              </a>
+            ) : (
+              <>{lore.title}</>
+            )}
+          </h1>
           <span className="text-sm">{lore.datatype.name.toUpperCase()}</span>
         </div>
         {options.togglerElement}

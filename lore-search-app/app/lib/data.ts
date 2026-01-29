@@ -10,7 +10,7 @@ if (!process.env.MONGODB_URI) {
 
 const uri: string = process.env.MONGODB_URI ?? "";
 
-const ITEMS_PER_PAGE = 1000;
+const ITEMS_PER_PAGE = 500;
 const DATABASE = "tea";
 const COLLECTION = "lore_v2";
 const INDEX_NAME = "default";
@@ -76,7 +76,7 @@ export async function fetchSearchResults(
 
   if (sort && sort == SORT_TYPES.CATEGORY) {
     agg.push({
-      $sort: { datatype: 1, "expansion.num": 1, name: 1, _id: 1 },
+      $sort: { "datatype.category": 1, "datatype.name": 1, "expansion.num": 1, "searchScore": { $meta: "searchScore" }, _id: 1 },
     });
   }
 
@@ -231,11 +231,15 @@ export async function fetchLoreEntry(id: string) {
   const client = await connect();
   const col = await collection(client);
   try {
-    const response = await col.findOne<LoreEntry>({
+    const document = await col.findOne<LoreEntry>({
       _id: new ObjectId(id),
     });
 
-    return await response;
+    if (document) {
+      document._id = document._id.toString();
+    }
+
+    return await document;
   } catch (error) {
     console.error("Data Error:", error);
   } finally {

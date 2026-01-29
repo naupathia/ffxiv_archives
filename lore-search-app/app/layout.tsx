@@ -5,7 +5,7 @@ import "primeicons/primeicons.css";
 import "./globals.css";
 import Image from "next/image";
 import { HeartIcon } from "@heroicons/react/24/solid";
-import { FiltersProvider } from "@/app/context/FiltersContext";
+import { FiltersProvider } from "@/app/ui/context/FiltersContext";
 import { Source_Sans_3 } from "next/font/google";
 
 
