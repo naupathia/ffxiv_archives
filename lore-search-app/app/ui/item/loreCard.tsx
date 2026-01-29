@@ -1,8 +1,9 @@
-"use client"
+"use client";
 
 import { Panel, PanelHeaderTemplateOptions } from "primereact/panel";
 import { useState } from "react";
 import LoreBody from "./loreBody";
+import { convertToTitleCase } from "@/app/lib/functions";
 
 export default function LoreCard({
   text,
@@ -14,6 +15,8 @@ export default function LoreCard({
   toggleable: boolean;
 }) {
   const [collapsed, setCollapsed] = useState(false);
+  const headerText = lore.title ? lore.title : convertToTitleCase(lore.datatype.name);
+  const typeText = lore.title ? lore.datatype.name.toUpperCase() : '';
 
   const headerTemplate = function (options: PanelHeaderTemplateOptions) {
     const className = `${options.className} flex align-items-center justify-content-between pt-8 pb-8`;
@@ -29,13 +32,13 @@ export default function LoreCard({
                 href={`/item/${lore._id}`}
                 target="_blank"
               >
-                {lore.title}
+                {headerText}
               </a>
             ) : (
-              <>{lore.title}</>
+              <>{headerText}</>
             )}
           </h1>
-          <span className="text-sm">{lore.datatype.name.toUpperCase()}</span>
+          <span className="text-sm">{typeText}</span>
         </div>
         {options.togglerElement}
       </div>
