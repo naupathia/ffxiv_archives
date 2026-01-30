@@ -60,7 +60,7 @@ export default function SearchPage() {
           {isLoading ? (
             <p>searching...</p>
           ) : (
-            <LoreEntryList items={results} searchText={searchParams.q ?? ""} />
+            <LoreEntryList items={results} />
           )}
         </div>
       </div>

@@ -5,10 +5,8 @@ import LoreCard from "../item/loreCard";
 
 export default function LoreEntryList({
   items,
-  searchText,
 }: {
   items: LoreEntry[];
-  searchText: string;
 }) {
   const options = {
     cssTransition: false,
@@ -25,7 +23,6 @@ export default function LoreEntryList({
               <div key={item._id}>
                 <a id={item._id} />
                 <LoreCard
-                  text={item.text_html}
                   lore={item}
                   toggleable={true}
                 ></LoreCard>

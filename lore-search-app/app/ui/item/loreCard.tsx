@@ -6,11 +6,9 @@ import LoreBody from "./loreBody";
 import { convertToTitleCase } from "@/app/lib/functions";
 
 export default function LoreCard({
-  text,
   lore,
   toggleable,
 }: {
-  text: string;
   lore: LoreEntry;
   toggleable: boolean;
 }) {
@@ -52,7 +50,7 @@ export default function LoreCard({
       collapsed={collapsed}
       onToggle={(e) => setCollapsed(e.value)}
     >
-      <LoreBody text={text} lore={lore} />
+      <LoreBody lore={lore} />
     </Panel>
   );
 }

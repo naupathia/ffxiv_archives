@@ -25,6 +25,7 @@
     "primereact": "^10.9.7",
     "react": "^18",
     "react-dom": "^18",
+    "react-showdown": "^2.3.1",
     "react-tabs": "^6.0.2",
     "react-use-downloader": "^1.2.4",
     "swr": "^2.2.4"

@@ -90,12 +90,12 @@ class DataType(BaseModel):
         )
 
 EXPANSIONS = (
-    Expansion(num=1, name="A Realm Reborn", abbr="ARR"),
-    Expansion(num=2, name="Heavensward", abbr="HW"),
-    Expansion(num=3, name="Stormblood", abbr="STB"),
-    Expansion(num=4, name="Shadowbringers", abbr="SHB"),
-    Expansion(num=5, name="Endwalker", abbr="EW"),
-    Expansion(num=6, name="Dawntrail", abbr="DT")
+    Expansion(num=1, name="a realm reborn", abbr="ARR"),
+    Expansion(num=2, name="heavensward", abbr="HW"),
+    Expansion(num=3, name="stormblood", abbr="STB"),
+    Expansion(num=4, name="shadowbringers", abbr="SHB"),
+    Expansion(num=5, name="endwalker", abbr="EW"),
+    Expansion(num=6, name="dawntrail", abbr="DT")
 )
 
 EXPANSIONS_LOOKUP = {
@@ -108,23 +108,35 @@ class SearchItem(BaseModel):
     row_id: int
     key: str
     title: Optional[str] = None 
-    text_html: str 
-    text_clean: str
+    text: str 
     datatype: DataType
     expansion: Optional[Expansion] = None
     speakers: Optional[list] = None
     meta: Optional[object] = None
+
+    def plain_meta_data(self):
+        if not self.meta:
+            return ''
+        
+        if self.datatype.name == DataTypes.QUEST:
+            return f"""
+```
+Issuer: {self.meta.issuer} [{self.meta.place_name}]
+Journal: {self.meta.journal_genre} [{self.expansion.name.title()}]
+```
+"""
+        return ""
     
     def as_plain_text(self):
 
         return f"""
----------------------------------------------------------------------
+---
+
+# {self.title or self.datatype.name.title()}
+
 [{self.datatype.name.upper()}]
-
-{self.title or ''}
-
-{self.text_html}
-
+{self.plain_meta_data()}
+{self.text}
 """
 
 class QuestMeta(BaseModel):
@@ -136,20 +148,6 @@ class QuestMeta(BaseModel):
 
 class Quest(SearchItem):
     datatype: str = DataTypes.QUEST
-    
-    def as_plain_text(self):
-
-        return f"""
----------------------------------------------------------------------
-[QUEST]
- 
-{self.title} [{self.key}]
-Issuer: {self.meta.issuer} [{self.meta.place_name}]
-Journal: {self.meta.journal_genre} [{self.expansion.name}]
-
-{self.text_html}
-
-"""
 
 class ItemMeta(BaseModel):
     category: str = None

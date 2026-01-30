@@ -1,12 +1,12 @@
 from pymongo.mongo_client import MongoClient, Collection
 from pymongo.server_api import ServerApi
-import pymongo
 
 import logging
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(logging.StreamHandler())
 LOGGER.setLevel(logging.CRITICAL)
+
 
 class ClientManager:
     _client: MongoClient = None
@@ -17,45 +17,68 @@ class ClientManager:
         return f"{type}{row_id}-{key}"
 
     @classmethod
-    def connect(cls, api_user, api_secret) -> MongoClient:
+    def connect(cls) -> MongoClient:
         """Connects to the mongodb"""
         if not cls._client:
-            uri = f"mongodb+srv://{api_user}:{api_secret}@cluster0.1buu3qz.mongodb.net/?retryWrites=true&w=majority"
+            uri = f"mongodb+srv://{cls.API_USER}:{cls.API_SECRET}@cluster0.1buu3qz.mongodb.net/?retryWrites=true&w=majority"
 
             # Create a new client and connect to the server
             cls._client = MongoClient(uri, server_api=ServerApi("1"))
 
-            # Send a ping to confirm a successful connection
-            try:
-                cls._client.admin.command("ping")
-                print("Pinged your deployment. You successfully connected to MongoDB!")
-            except Exception as e:
-                print(e)
+        cls._collection = cls._client.tea.lore
 
-        cls._collection = cls._client.tea.lore_v2
+    @classmethod
+    def ping(cls, api_user, api_secret):
+        cls.API_USER = api_user
+        cls.API_SECRET = api_secret
+        try:
+            cls.connect()
+            cls._client.admin.command("ping")
+            print("Pinged your deployment. You successfully connected to MongoDB!")
+
+        except Exception as e:
+            print(e)
+
+        finally:
+            cls.close()
 
     @classmethod
     def truncate(cls):
         """Clears out the current collection"""
-        cls._collection.delete_many({})
+        try:
+            cls.connect()
+            cls._collection.delete_many({})
+
+        finally:
+            cls.close()
 
     @classmethod
     def upload_docs(cls, docs):
         """Inserts the records to mongodb"""
-        # try:
-        cls._collection.insert_many(docs)
-        
+        try:
+            cls.connect()
+            cls._collection.insert_many(docs)
+
         # except pymongo.errors.BulkWriteError as e:
         #     LOGGER.warning(e, exc_info=e)
-            
+
+        finally:
+            cls.close()
+
     @classmethod
     def find_doc(cls, type, row, name):
-        doc_id = cls.create_doc_key(type, row, name)
 
-        return cls._collection.find_one(doc_id)
+        try:
+            cls.connect()
+            doc_id = cls.create_doc_key(type, row, name)
+            return cls._collection.find_one(doc_id)
+
+        finally:
+            cls.close()
 
     @classmethod
     def close(cls):
-        cls._collection = None
-        cls._client.close()
-        cls._client = None
+        if cls._client:
+            cls._collection = None
+            cls._client.close()
+            cls._client = None
