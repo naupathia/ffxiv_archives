@@ -4,36 +4,33 @@ import logging
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(logging.StreamHandler())
-LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.INFO)
 
 
-class HtmlBuilder:
+class MarkdownBuilder:
 
     @classmethod
-    def h2(cls, text):
-        return f"<h2>{text}</h2>\n\n"
-
+    def h3(cls, text):
+        return f"### {text}\n"
+    
     @classmethod
     def p(cls, text):
-        return f"<p>{cls.replace_new_lines(text)}</p>\n\n"
+        return f"{text}\n\n"
 
     @classmethod
     def br(cls):
-        return "<br/>\n"
+        return "\n\n"
 
     @classmethod
-    def blockquote(cls, text):
-        return f"<blockquote>{text}</blockquote>\n\n"
-    
+    def blockquote(cls, text: str):
+        return "> " + "\n> ".join(text.splitlines())
+
     @classmethod
     def replace_new_lines(cls, text):
-        if not text:
-            return text
-
-        return text.replace("\n", cls.br())
+        return text
 
 
-html = HtmlBuilder
+md = MarkdownBuilder
 
 
 def get_expansion_number(name: str):
@@ -49,14 +46,9 @@ def extract_unique_speakers(text_tuples):
 
 
 def prettify_dialogue(text_tuples):
-    return '\n\n'.join(
-        [html.h2(f'{speaker}:') + html.p(text) for speaker, text in text_tuples]
+    return "\n\n".join(
+        [md.h3(f"{speaker}:") + md.p(text) for speaker, text in text_tuples]
     )
-
-
-def clean_dialogue(text_tuples):
-    text_string = " ".join([speaker + " " + text for speaker, text in text_tuples])
-    return _scrub.clean_text(text_string)
 
 
 class DataAdapter:
@@ -75,13 +67,18 @@ class DataAdapter:
                 try:
                     result = cls.map_model(data)
                     if (
-                        not result.text_clean or not result.text_clean.strip()
+                        not result.text or not result.text.strip()
                     ):  # ignore items without text to search
                         continue
+
+                    LOGGER.debug(f"succesfully mapped {cls.__name__}: {data.row_id}")
                     yield result
                 except Exception as e:
                     LOGGER.error("Failed to map data into search model", exc_info=e)
                     raise
+
+            else:
+                LOGGER.debug(f"skipping model for {cls.__name__}: {data.row_id}")
 
     @classmethod
     def get_data(cls, row=None) -> Iterator[xivclient.XivModel]:
@@ -89,28 +86,24 @@ class DataAdapter:
 
     @classmethod
     def get_key(cls, data: xivclient.XivModel):
-        name = cls.get_name(data) or ''
+        name = cls.get_name(data) or ""
 
         if name:
-            return name.lower().replace(' ', '_')
-        
+            return name.lower().replace(" ", "_")
+
         return str(data.row_id)
 
     @classmethod
-    def get_name(cls, data: xivclient.XivModel):
+    def get_name(cls, data):
         return data.Name or ""
 
     @classmethod
     def get_text(cls, data):
-        return data.Description or ""
+        return data.Description
 
     @classmethod
     def get_pretty_text(cls, data: xivclient.XivModel):
-        return html.p(cls.get_text(data))
-
-    @classmethod
-    def get_search_text(cls, data: xivclient.XivModel):
-        return _scrub.clean_text(cls.get_text(data))
+        return md.p(cls.get_text(data))
 
     @classmethod
     def get_meta(cls, data: xivclient.XivModel):
@@ -139,8 +132,7 @@ class DataAdapter:
             row_id=data.row_id,
             key=cls.get_key(data),
             title=cls.get_name(data),
-            text_html=cls.get_pretty_text(data) or "",
-            text_clean=cls.get_search_text(data) or "",
+            text=cls.get_pretty_text(data),  # if this is empty should raise error
             expansion=cls.get_expansion(data),
             speakers=cls.get_speakers(data),
             meta=cls.get_meta(data),
@@ -154,16 +146,14 @@ class TextFileDataAdapter(DataAdapter):
 
     @classmethod
     def map_model(cls, data):
-        cls.parsed_text = _scrub.parse_speaker_lines(data._sheet_rows, lambda x: _scrub.get_speaker(x, cls.speaker_pos))
+        cls.parsed_text = _scrub.parse_speaker_lines(
+            data._sheet_rows, lambda x: _scrub.get_speaker(x, cls.speaker_pos)
+        )
         return super().map_model(data)
 
     @classmethod
     def get_speakers(cls, data):
         return extract_unique_speakers(cls.parsed_text)
-
-    @classmethod
-    def get_search_text(cls, data):
-        return clean_dialogue(cls.parsed_text)
 
     @classmethod
     def get_pretty_text(cls, data):
@@ -201,9 +191,11 @@ class ItemAdapter(DataAdapter):
 
     @classmethod
     def get_meta(cls, data: xivclient.Item):
-        return model.ItemMeta(
-            category=data.ItemUICategory.Name or "",
-        )
+        if data.ItemUICategory:
+            return model.ItemMeta(
+                category=data.ItemUICategory.Name or "",
+            )
+        return None
 
 
 class MountAdapter(DataAdapter):
@@ -217,15 +209,15 @@ class MountAdapter(DataAdapter):
     @classmethod
     def get_text(cls, data):
         return f"{data.Description} {data.DescriptionEnhanced} {data.Tooltip}"
-    
+
     @classmethod
     def get_pretty_text(cls, data):
 
-        tooltip = ''
+        tooltip = ""
         if data.Tooltip:
-            tooltip = html.blockquote(data.Tooltip)
-        
-        return tooltip + html.p(data.Description) + html.p(data.DescriptionEnhanced)
+            tooltip = md.blockquote(data.Tooltip)
+
+        return tooltip + md.p(data.Description) + md.p(data.DescriptionEnhanced)
 
 
 class FishAdapter(DataAdapter):
@@ -257,9 +249,9 @@ class FateEventAdapter(DataAdapter):
     @classmethod
     def get_text(cls, data: xivclient.FateEvent):
 
-        lines = [_scrub.sanitize_text(line) for line in data.Text if line]
+        lines = [line for line in data.Text if line]
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
 
 class TripleTriadCardAdapter(DataAdapter):
@@ -279,7 +271,7 @@ class CutsceneAdapter(TextFileDataAdapter):
 
     @classmethod
     def get_expansion_name(cls, data):
-        return data._expansion.lower() if data._expansion else None
+        return data._expansion
 
     @classmethod
     def get_key(cls, data: xivclient.XivModel):
@@ -307,8 +299,7 @@ class UnendingCodexAdapter(DataAdapter):
     @classmethod
     def format_headers(cls, headers):
         if headers:
-            val = html.br().join(headers)
-            return html.h2(val)
+            return '\n'.join((md.h3(h) for h in headers)) + md.br()
 
         return ""
 
@@ -331,8 +322,7 @@ class UnendingCodexAdapter(DataAdapter):
                     row_id=row.row_id,
                     key=f"{row.row_id}",
                     title=entry.title,
-                    text_html=cls.format_headers(entry.headers) + html.p(entry.text),
-                    text_clean=_scrub.clean_text(entry.text),
+                    text=cls.format_headers(entry.headers) + md.p(entry.text),
                     datatype=model.DataType.from_type_name(cls.DATA_TYPE),
                 )
 
@@ -371,6 +361,7 @@ class NpcYellAdapter(DataAdapter):
     def get_text(cls, data):
         return data.Text
 
+
 class AdventureAdapter(DataAdapter):
     DATA_CLASS = xivclient.Adventure
     DATA_TYPE: str = model.DataTypes.LOOKOUT
@@ -384,14 +375,8 @@ class AdventureAdapter(DataAdapter):
         return data.Level.EventId.Name
 
     @classmethod
-    def get_search_text(cls, data: xivclient.Adventure):
-        return data.Description + " " + data.Impression
-
-    @classmethod
     def get_pretty_text(cls, data: xivclient.Adventure):
-        return (
-            html.p(data.Impression) + html.h2("Description") + html.p(data.Description)
-        )
+        return md.p(data.Impression) + md.h3("Description") + md.p(data.Description)
 
 
 class DescriptionPageAdapter(DataAdapter):
@@ -404,21 +389,21 @@ class DescriptionPageAdapter(DataAdapter):
 
     @classmethod
     def get_name(cls, data: xivclient.DescriptionPage):
-        return next((t.Text for t in data.Text if t.Text), '')
+        return next((t.Text for t in data.Text if t.Text), "")
 
     @classmethod
     def get_text(cls, data: xivclient.DescriptionPage):
         if len(data.Text) > 1:
             return "\n".join((t.Text for t in data.Text[1:] if t.Text))
-        
+
         return data.Text[0].Text
 
     @classmethod
     def get_pretty_text(cls, data: xivclient.DescriptionPage):
         if len(data.Text) > 1:
-            return html.br().join((html.p(t.Text) for t in data.Text[1:] if t.Text))
+            return md.br().join((md.p(t.Text) for t in data.Text[1:] if t.Text))
 
-        return html.p(data.Text[0].Text)
+        return md.p(data.Text[0].Text)
 
 
 class MYCWarResultNotebookAdapter(DataAdapter):
@@ -471,12 +456,8 @@ class SpearfishingItemAdapter(DataAdapter):
         return data.Item.Name
 
     @classmethod
-    def get_search_text(cls, data):
-        return _scrub.clean_text(data.Description + " " + data.Item.Description)
-
-    @classmethod
     def get_pretty_text(cls, data):
-        return html.blockquote(data.Description) + html.p(data.Item.Description)
+        return md.blockquote(data.Description) + md.p(data.Item.Description)
 
 
 class SnipeTalkAdapter(DataAdapter):
@@ -493,16 +474,17 @@ class SnipeTalkAdapter(DataAdapter):
 
     @classmethod
     def get_text(cls, data):
-        return data.Name.Name + ' ' + data.Text
-    
+        return data.Name.Name + " " + data.Text
+
     @classmethod
     def get_pretty_text(cls, data):
-        return html.h2(data.Name.Name) + html.p(data.Text)
+        return md.h3(data.Name.Name) + md.p(data.Text)
+
 
 class CompanionAdapter(DataAdapter):
     DATA_CLASS = xivclient.Companion
     DATA_TYPE = model.DataTypes.MINION
-    
+
     @classmethod
     def get_name(cls, data: xivclient.Companion):
         return data.Singular.title()
@@ -510,31 +492,25 @@ class CompanionAdapter(DataAdapter):
     @classmethod
     def get_text(cls, data):
         return f"{data.Description} {data.DescriptionEnhanced} {data.Tooltip}"
-    
+
     @classmethod
     def get_pretty_text(cls, data):
 
-        tooltip = ''
+        tooltip = ""
         if data.Tooltip:
-            tooltip = html.blockquote(data.Tooltip)
-        
-        return tooltip + html.p(data.Description) + html.p(data.DescriptionEnhanced)
+            tooltip = md.blockquote(data.Tooltip)
+
+        return tooltip + md.p(data.Description) + md.p(data.DescriptionEnhanced)
+
 
 class LeveAdapter(DataAdapter):
     DATA_CLASS = xivclient.Leve
     DATA_TYPE = model.DataTypes.LEVE
-    
-    @classmethod
-    def get_name(cls, data: xivclient.Leve):
-        return data.Name
 
     @classmethod
-    def get_text(cls, data):
-        return data.Description
-    
-    @classmethod
     def get_meta(cls, data: xivclient.Leve):
-        return { "place_name" : data.PlaceNameIssued and data.PlaceNameIssued.Name} 
+        return {"place_name": data.PlaceNameIssued and data.PlaceNameIssued.Name}
+
 
 __all__ = [
     MountAdapter,
@@ -543,7 +519,7 @@ __all__ = [
     FateAdapter,
     FateEventAdapter,
     TripleTriadCardAdapter,
-    # StatusAdapter,
+    # StatusAdapter, # not needed
     ItemAdapter,
     UnendingCodexAdapter,
     DescriptionPageAdapter,

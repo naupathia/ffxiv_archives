@@ -1,38 +1,37 @@
-"use client"
+"use client";
 
 import { convertToTitleCase } from "@/app/lib/functions";
+var showdown = require("showdown");
 
 export default function LoreBody({
-  text,
   lore,
 }: {
-  text: string;
   lore: LoreEntry;
 }) {
-  const metadata =
-    lore.datatype.name == "quest"
-      ? {
-          expansion: lore.expansion?.name || "",
-          placeName: lore.meta?.place_name || "",
-          journalGenre: lore.meta?.journal_genre || "",
-          issuer: lore.meta?.issuer || "",
-        }
-      : null;
+  const isQuest = lore.datatype.name == "quest";
+  const hasPlace = lore.meta?.place_name != null;
+
+  const converter = new showdown.Converter();
+  const html = converter.makeHtml(lore.text);
 
   return (
-    <div className="flex flex-col items-start gap-y-2">
-      {metadata ? (
+    <div className="flex flex-col items-start">
+      {isQuest ? (
         <blockquote>
-            {metadata.issuer} ({metadata.placeName})<br/>
-            {metadata.journalGenre} ({convertToTitleCase(metadata.expansion)})
+          {lore.meta?.issuer} ({lore.meta?.place_name ?? ""})<br />
+          {lore.meta?.journal_genre ?? ""} (
+          {convertToTitleCase(lore.expansion?.name ?? "")})
         </blockquote>
+      ) : hasPlace ? (
+        <blockquote>{lore.meta?.place_name ?? ""}</blockquote>
       ) : (
         <></>
       )}
 
       <div
+        className="lore-panel flex flex-col"
         dangerouslySetInnerHTML={{
-          __html: text,
+          __html: html,
         }}
       ></div>
     </div>

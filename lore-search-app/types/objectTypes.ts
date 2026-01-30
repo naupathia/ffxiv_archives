@@ -13,7 +13,7 @@ type LoreEntry = {
   _id: string;
   datatype: TypeDefinition;
   title: string;
-  text_html: string;
+  text: string;
   expansion?: Expansion;
   meta?: LoreEntryMetadata;  
   highlights: HighlightData[];

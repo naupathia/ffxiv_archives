@@ -9,7 +9,7 @@ import logging
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(logging.StreamHandler())
-LOGGER.setLevel(logging.CRITICAL)
+LOGGER.setLevel(logging.INFO)
 
 # Language constants
 ENGLISH_LANG = "en"
@@ -18,7 +18,7 @@ API_URL = "https://v2.xivapi.com/api"
 
 CUTSCENE = "cut_scene"
 CUSTOM = "custom"
-
+BATCH_SIZE = 500 # max api limit is 500
 
 def expansion_name_from_number(number: int):
     if number == 2:
@@ -171,7 +171,7 @@ class Item(XivModel):
 
     Name: str
     Description: Optional[str] = ""
-    ItemUICategory: ItemUICategory
+    ItemUICategory: Optional[ItemUICategory] = None
 
 
 class MountTransient(XivModel):
@@ -352,7 +352,7 @@ class XivApiClient:
         self.base_url: str = "https://v2.xivapi.com"
         self.base_api_path: str = "/api"
         self.game_version: str = "latest"
-        self._client = httpx.Client(base_url=self.base_url, timeout=30)
+        self._client = httpx.Client(base_url=self.base_url, timeout=60)
 
     def __enter__(self):
         return self
@@ -440,6 +440,8 @@ class XivApiClient:
             if not item_data:
                 continue
 
+            LOGGER.debug(f"raw item data from api: {item_data}")
+
             processed_data = self._flatten_item_data(item_data)
 
             if model_class:
@@ -471,6 +473,7 @@ class XivApiClient:
     ) -> Iterator[T | dict]:
         # rows_param = ",".join(str(id) for id in rows) if rows else None
 
+
         is_model_query = not isinstance(model_class, str)
         sheet_name = (
             model_class.get_sheet_name()
@@ -482,9 +485,8 @@ class XivApiClient:
         if is_model_query and model_class.__transient__:
             transient_fields = model_class.__transient__.get_fields_str()
 
-
         start = start_at or 0
-        limit = 500  # xivapi max limit
+        limit = BATCH_SIZE  # xivapi max limit 500
         params = {
             "fields": fields,
             "transient": transient_fields,
@@ -497,6 +499,8 @@ class XivApiClient:
         while has_more:
 
             params["after"] = start
+            
+            LOGGER.debug(f'calling xivapi for sheet {sheet_name} - after: {start}')
 
             data = self._call_get_api(
                 f"sheet/{sheet_name}",
@@ -527,7 +531,12 @@ class XivApiClient:
         sheet_rows = []
 
         for item in self.sheet(sheet_name):
-            sheet_rows.append(tuple(item.values()))
+            # item should be { "row_id" 1, "unknown0": "", "unknown1": ""}
+            col1, col2, col3 = item.values()
+            if not col3:
+                continue
+
+            sheet_rows.append((col1, col2, col3))
 
         return sheet_rows
 

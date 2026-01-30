@@ -12,10 +12,10 @@ const uri: string = process.env.MONGODB_URI ?? "";
 
 const ITEMS_PER_PAGE = 500;
 const DATABASE = "tea";
-const COLLECTION = "lore_v2";
+const COLLECTION = "lore";
 const INDEX_NAME = "default";
 const SYNONYMS = "synonym_mapping";
-const SEARCH_FIELDS = ["name", "text_clean"];
+const SEARCH_FIELDS = ["title", "text"];
 
 async function connect(col: string = COLLECTION) {
   const client = new MongoClient(uri, {
@@ -104,25 +104,24 @@ export async function fetchSearchResults(
 function createQuery(querystring: string, filters: Filter[]) {
   let mustFilters: any = [];
   let shouldFilters: any = [];
+  let minShould = 0;
 
   if (querystring.startsWith('"') && querystring.endsWith('"')) {
+    const searchString = querystring.slice(1, -1);
+    console.log(searchString);
     mustFilters.push({
       phrase: {
-        query: querystring,
+        query: searchString,
         path: SEARCH_FIELDS,
       },
     });
   } else {
+    minShould = 1;
     shouldFilters = [
       {
         phrase: {
           query: querystring,
           path: SEARCH_FIELDS,
-          score: {
-            boost: {
-              value: 10,
-            },
-          },
         },
       },
       {
@@ -180,10 +179,10 @@ function createQuery(querystring: string, filters: Filter[]) {
     compound: {
       should: shouldFilters,
       must: mustFilters,
-      minimumShouldMatch: shouldFilters.length > 0 ? 1 : 0,
+      minimumShouldMatch: minShould,
     },
     highlight: {
-      path: "text_clean",
+      path: "text",
       maxNumPassages: 50,
     },
   };

@@ -1,6 +1,6 @@
 "use client";
 import { MultiSelect } from "primereact/multiselect";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { InputText } from "primereact/inputtext";
 import { FloatLabel } from "primereact/floatlabel";
 import { useFilters } from "@/app/ui/context/FiltersContext";
@@ -139,6 +139,7 @@ export default function SearchBox({
               name="q"
               value={q}
               onChange={(e) => setQ(e.target.value)}
+              autoFocus
             />
             <label htmlFor="search">search</label>
           </FloatLabel>

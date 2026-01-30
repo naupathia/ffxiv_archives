@@ -70,12 +70,20 @@ h2 {
   color: var(--font-gold)
 }
 
+h3 {
+  font-size: x-large;
+  font-weight: bold;
+  text-shadow: var(--drop-shadow);
+  color: var(--font-gold)
+}
+
 blockquote {
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(255, 255, 255, 0.08);
   padding: 0.5em;  
   padding-left: 2em;
   padding-right: 2em;
   color: lightgray;
+  margin-bottom: 1em;
 }
 
 .p-panel {  
@@ -122,4 +130,8 @@ p {
 
 .site-title {
   background-color: var(--dark-blue);
+}
+
+p:not(:last-child) {
+  margin-bottom: 2em;
 }

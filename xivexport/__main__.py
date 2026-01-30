@@ -3,7 +3,7 @@
 import os
 from pprint import pp
 from dotenv import load_dotenv
-from src.xivexport import adapter, search, xivclient, model
+from src.xivexport import adapter, search, xivclient, model, _scrub
 from itertools import batched
 import json
 
@@ -20,7 +20,7 @@ VERSION_NAME = os.listdir(INPUT_PATH)[-1]
 
 DATA_PATH = f"{INPUT_PATH}\\{VERSION_NAME}\\exd"
 OUTPUT_PATH = f"{ROOT_PATH}\\_dumps\\output"
-OUTPUT_FILE = f"{OUTPUT_PATH}\\dump.txt"
+OUTPUT_FILE = f"{OUTPUT_PATH}\\dump.md"
 OUTPUT_FILE_JSON = f"{OUTPUT_PATH}\\dump.json"
 
 
@@ -47,21 +47,20 @@ def dump_docs(docs):
             fh.write("\n")
             fh.write(doc.as_plain_text())
 
-    data = []
-    try:
-        with open(OUTPUT_FILE_JSON, "r", encoding="UTF-8") as fh:
-            data = json.load(fh)
-    except Exception:
-        data = []
+    # data = []
+    # try:
+    #     with open(OUTPUT_FILE_JSON, "r", encoding="UTF-8") as fh:
+    #         data = json.load(fh)
+    # except Exception:
+    #     data = []
 
-    with open(OUTPUT_FILE_JSON, "w", encoding="UTF-8") as fh:
-        json.dump(data + [x.model_dump() for x in docs], fh, indent=2)
+    # with open(OUTPUT_FILE_JSON, "w", encoding="UTF-8") as fh:
+    #     json.dump(data + [x.model_dump() for x in docs], fh, indent=2)
 
 
 def connect():
-    search.ClientManager.connect(API_USER, API_SECRET)
+    search.ClientManager.ping(API_USER, API_SECRET)
     xivclient.XivApiClientManager.connect()
-
 
 def close():
     search.ClientManager.close()
@@ -82,8 +81,7 @@ def clear_data(is_test):
 
     if not is_test:
         print("Truncating records...")
-        search.ClientManager.truncate()
-
+        search.ClientManager.truncate()    
 
 def main():
     """Entry point for the xivexport application."""
