@@ -9,6 +9,7 @@ import { TreeNode } from "primereact/treenode";
 import { TreeSelect } from "primereact/treeselect";
 import { Button } from "primereact/button";
 import { Dropdown } from "primereact/dropdown";
+import { TooltipOptions } from "primereact/tooltip/tooltipoptions";
 
 export default function SearchBox({
   setSearchParams,
@@ -18,8 +19,8 @@ export default function SearchBox({
   isSearching: boolean;
 }) {
   const { filters, isLoading } = useFilters();
-  const [selectedCategories, setSelectedCategories] = useState(null);
-  const [selectedExpansions, setSelectedExpansions] = useState(null);
+  const [selectedCategories, setSelectedCategories] = useState<any>(null);
+  const [selectedExpansions, setSelectedExpansions] = useState<string[]>([]);
   const [sort, setSort] = useState("");
   const [q, setQ] = useState("");
 
@@ -32,6 +33,29 @@ export default function SearchBox({
 
   const categoryKey = "datatype.category:";
   const typeKey = "datatype.name:";
+
+  const questKey = typeKey + "quest";
+  const cutsceneKey = typeKey + "cutscene";
+
+  function updateSelectedCategories(values: object) {
+    console.log("selected categories: " + JSON.stringify(values));
+    if (
+      !values ||
+      Object.keys(values).find((x) => x != cutsceneKey && x != questKey)
+    ) {
+      setSelectedExpansions([]);
+    }
+    setSelectedCategories(values);
+  }
+
+  function updateSelectedExpansions(values: string[]) {
+    // set selected categories to only quest and cutscene
+    const valueMap: any = {};
+    valueMap[questKey] = true;
+    valueMap[cutsceneKey] = true;
+    setSelectedCategories(valueMap);
+    setSelectedExpansions(values);
+  }
 
   function createOptions(values: string[]) {
     if (!values || values.length == 0) {
@@ -160,10 +184,12 @@ export default function SearchBox({
                 isLoading ? [] : createOptions(filters?.expansions ?? [])
               }
               value={selectedExpansions}
-              onChange={(e) => setSelectedExpansions(e.value)}
+              onChange={(e) => updateSelectedExpansions(e.value)}
               placeholder={isLoading ? "loading..." : "Expansions"}
               showClear
               maxSelectedLabels={2}
+              tooltip="Filter to specific expansions. Note that this only applies for `Quest` and `Cutscene` data types."
+              tooltipOptions={{position: "top",showDelay: 1000}}
               className="basis-64"
             />
             <TreeSelect
@@ -173,11 +199,13 @@ export default function SearchBox({
               value={selectedCategories}
               selectionMode="multiple"
               // @ts-ignore
-              onChange={(e) => setSelectedCategories(e.value)}
+              onChange={(e) => updateSelectedCategories(e.value)}
               placeholder={isLoading ? "loading..." : "Categories"}
               filter
               metaKeySelection={false}
               showClear
+              tooltip="Filter to specific game data types. You can select multiple types!"
+              tooltipOptions={{position: "top",showDelay: 1000}}
               className="grow"
             />
 
@@ -190,6 +218,8 @@ export default function SearchBox({
               optionValue="value"
               onChange={(e) => setSort(e.value)}
               placeholder="Sort by"
+              tooltip="How the results should be sorted. Default is `Relevance` based on term matching."
+              tooltipOptions={{position: "top",showDelay: 1000}}
               className="basis-60"
             />
           </div>

@@ -1,4 +1,3 @@
-"use client";
 
 import SearchPage from "../ui/search/searchPage";
 

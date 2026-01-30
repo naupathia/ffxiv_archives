@@ -7,6 +7,8 @@ import Image from "next/image";
 import { HeartIcon } from "@heroicons/react/24/solid";
 import { FiltersProvider } from "@/app/ui/context/FiltersContext";
 import { Source_Sans_3 } from "next/font/google";
+import DiscordLink from "./ui/discordLink";
+import Link from "next/link";
 
 
 const sourcesans3 = Source_Sans_3({
@@ -42,7 +44,9 @@ export default function RootLayout({
               </div>
 
               {/* Patreon support link */}
-              <div className="flex items-end m-4">
+              <div className="a-header flex items-end m-4 gap-4">
+                <Link href="/faq">FAQ</Link>
+                <DiscordLink/>
                 <a
                   className="flex flex-row text-nowrap"
                   href="https://patreon.com/eorzeanarchives?utm_medium=clipboard_copy&utm_source=copyLink&utm_campaign=creatorshare_creator&utm_content=join_link"
