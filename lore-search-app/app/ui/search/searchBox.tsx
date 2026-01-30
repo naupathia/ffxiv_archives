@@ -114,7 +114,6 @@ export default function SearchBox({
   }
 
   function handleSearch() {
-    console.log(selectedCategories);
     const params = {
       q: q,
       category: getSelectedCategories(),
@@ -124,7 +123,6 @@ export default function SearchBox({
     } as SearchParams;
 
     console.log(params);
-
     setSearchParams(params);
   }
 
