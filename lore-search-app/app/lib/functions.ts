@@ -71,7 +71,6 @@ export function highlightText(text: string, highlightData: HighlightData[]) {
   highlightData.forEach((h) => {
     const originalText = h.texts.map((t) => t.value).join("");
     const highlightText = formatHighlightToHtml(h);
-    console.log('replacing formatted text: ' + highlightText)
     formattedText = formattedText.replace(originalText, highlightText);
   });
   return formattedText;
