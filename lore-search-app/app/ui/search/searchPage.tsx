@@ -12,9 +12,11 @@ export default function SearchPage() {
   const [searchParams, setSearchParams] = useState({
     category: [],
     expansion: [],
-    page: 1,
+    type: [],
+    q: "",
+    sort: "",
   } as SearchParams);
-  const PAGE_SIZE = 100;
+  const PAGE_SIZE = 500;
 
   const shouldFetch = searchParams.q != null && searchParams.q != "";
   const categoryList = !isEmptyArray(searchParams.category)
@@ -23,9 +25,14 @@ export default function SearchPage() {
   const expansionList = !isEmptyArray(searchParams.expansion)
     ? "&expansion=" + searchParams.expansion.join("&expansion=")
     : "";
+  const typeList = !isEmptyArray(searchParams.type)
+    ? "&type=" + searchParams.type.join("&type=")
+    : "";
   const searchUri = encodeURI(
-    `/api/search?q=${searchParams.q}&sort=${searchParams.sort}${categoryList}${expansionList}`
+    `/api/search?q=${searchParams.q}&sort=${searchParams.sort}${categoryList}${expansionList}${typeList}`,
   );
+
+  console.log(searchUri);
   // if (shouldFetch) {
   //   console.log(searchParams);
   // }
@@ -33,7 +40,7 @@ export default function SearchPage() {
   const { data, mutate, size, setSize, isValidating, isLoading } =
     useSWRInfinite(
       (page) => shouldFetch && searchUri + `&page=${page + 1}`,
-      fetcher
+      fetcher,
     );
 
   const results = data ? [].concat(...data) : [];
@@ -46,24 +53,19 @@ export default function SearchPage() {
 
   return (
     <div className="flex flex-col">
-      <div className="flex-1 ">
-        <div className="flex items-center justify-between gap-2 min-w-full">
-          <SearchBox
-            placeholder="search..."
-            setSearchParams={setSearchParams}
-          />
-        </div>
+      <div className="flex-1">
+        <SearchBox setSearchParams={setSearchParams} />
 
-        <div className="mt-6">
+        <div className="mt-8">
           {isLoading ? (
-            Loading()
+            <p>searching...</p>
           ) : (
-            <LoreEntryList items={results} searchText={searchParams.q} />
+            <LoreEntryList items={results} searchText={searchParams.q ?? ""} />
           )}
         </div>
       </div>
 
-      <div className="flex flex-col items-center justify-between pb-20">
+      <div className="flex flex-col mt-8">
         <button
           className={clsx(data && data.length > 0 ? "" : "hidden")}
           disabled={isLoadingMore || isReachingEnd}
@@ -72,16 +74,12 @@ export default function SearchPage() {
           {isLoadingMore
             ? "loading..."
             : isReachingEnd
-            ? "end of results"
-            : "load more"}
+              ? "end of results"
+              : "load more"}
         </button>
       </div>
 
       <ScrollToTopButton />
     </div>
   );
-}
-
-function Loading() {
-  return <p className="mt-6">searching...</p>;
 }

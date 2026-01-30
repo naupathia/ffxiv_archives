@@ -1,38 +1,129 @@
-from typing import Any, Optional
+from typing import Optional
 from pydantic import BaseModel
 
 class DataTypes:
     QUEST = 'quest'
+    CUTSCENE = 'cutscene'    
     ITEM = 'item'
-    CUTSCENE = 'cutscene'
-    FATE = 'fate'
     FISH = 'fish'
     MOUNT = 'mount'
+    TRIPLETRIAD = 'triple triad card'
+    CUSTOM = 'npc talk'
+    CODEX = 'unending codex'
+    BALLOON = 'balloon text' 
+    NPCYELL = 'npc yell' 
+    LOOKOUT = 'lookout' 
+    BOZJA_NOTES = 'bozja note' 
+    OCCULT_RECORD = 'occult record'
+    VARIANT_DUNGEON = 'variant record'
+    SNIPE_TALK = 'snipe text'  
+    MINION = 'minion' 
+    LEVE = 'leve'
+    FATE = 'fate'
+    FATE_EVENT = 'fate npc'
+    CE_DEVELOPMENT_LOG = 'cosmic exploration log'
+    CE_MISSION = 'cosmic exploration mission'
+    SYSTEM_DESCRIPTION = 'system description'
+
+    # not uploaded currently
     STATUS = 'status'
-    TRIPLETRIAD = 'card'
-    CUSTOM = 'custom'
+
+    
+TYPE_CATEGORIES = {
+    "collection": [
+        DataTypes.BOZJA_NOTES,
+        DataTypes.OCCULT_RECORD,
+        DataTypes.SYSTEM_DESCRIPTION,
+        DataTypes.CODEX,
+        DataTypes.LOOKOUT,
+        DataTypes.VARIANT_DUNGEON,        
+        DataTypes.CE_DEVELOPMENT_LOG
+    ],
+    "npc dialogue": [
+        DataTypes.NPCYELL,
+        DataTypes.BALLOON,
+        DataTypes.SNIPE_TALK,
+        DataTypes.CUSTOM,
+        DataTypes.FATE_EVENT
+    ],
+    "items": [
+        DataTypes.FISH,
+        DataTypes.TRIPLETRIAD,
+        DataTypes.MINION,
+        DataTypes.MOUNT,
+        DataTypes.ITEM
+    ],
+    # "system": [
+    #     DataTypes.STATUS
+    # ],
+    "quest": [
+        DataTypes.QUEST,
+        DataTypes.FATE,
+        DataTypes.LEVE,
+        DataTypes.CE_MISSION
+    ],
+    "story": [
+        DataTypes.CUTSCENE
+    ]
+}
+
+CATEGORY_LOOKUP = {
+    t: k
+    for k, v in TYPE_CATEGORIES.items()
+    for t in v
+}
+
+class Expansion (BaseModel):
+    num: int 
+    name: str
+    abbr: str
+
+class DataType(BaseModel):
+    category: str 
+    name: str
+
+    @staticmethod
+    def from_type_name(name: str):
+        return DataType(
+            name=name,
+            category=CATEGORY_LOOKUP[name]
+        )
+
+EXPANSIONS = (
+    Expansion(num=1, name="A Realm Reborn", abbr="ARR"),
+    Expansion(num=2, name="Heavensward", abbr="HW"),
+    Expansion(num=3, name="Stormblood", abbr="STB"),
+    Expansion(num=4, name="Shadowbringers", abbr="SHB"),
+    Expansion(num=5, name="Endwalker", abbr="EW"),
+    Expansion(num=6, name="Dawntrail", abbr="DT")
+)
+
+EXPANSIONS_LOOKUP = {
+    e.name.lower() : e
+    for e in EXPANSIONS
+}
+
 
 class SearchItem(BaseModel):
     row_id: int
     key: str
-    name: str 
-    text: str 
-    datatype: str
-    expansion: Optional[str] = None
-    rank: int = 0
-
-    def remote_id(self):
-        return f"{self.datatype}_{self.key}_{self.row_id}"
+    title: Optional[str] = None 
+    text_html: str 
+    text_clean: str
+    datatype: DataType
+    expansion: Optional[Expansion] = None
+    speakers: Optional[list] = None
+    meta: Optional[object] = None
     
     def as_plain_text(self):
 
         return f"""
 ---------------------------------------------------------------------
-[{self.datatype.upper()}]
+[{self.datatype.name.upper()}]
 
-{self.name}
+{self.title or ''}
 
-{self.text}
+{self.text_html}
 
 """
 
@@ -45,7 +136,6 @@ class QuestMeta(BaseModel):
 
 class Quest(SearchItem):
     datatype: str = DataTypes.QUEST
-    meta: QuestMeta    
     
     def as_plain_text(self):
 
@@ -53,11 +143,11 @@ class Quest(SearchItem):
 ---------------------------------------------------------------------
 [QUEST]
  
-{self.name} [{self.key}]
+{self.title} [{self.key}]
 Issuer: {self.meta.issuer} [{self.meta.place_name}]
-Journal: {self.meta.journal_genre} [{self.expansion}]
+Journal: {self.meta.journal_genre} [{self.expansion.name}]
 
-{self.text}
+{self.text_html}
 
 """
 
@@ -65,28 +155,16 @@ class ItemMeta(BaseModel):
     category: str = None
 
 
-class Item(SearchItem):
-    datatype: str = DataTypes.ITEM
-    meta: ItemMeta
+class UnendingCodexEntry:
 
-class Cutscene(SearchItem):
-    datatype: str = DataTypes.CUTSCENE
+    def __init__(self):
+        self.title = None
+        self.headers = []
+        self.text = None
 
-class Fate(SearchItem):
-    datatype: str = DataTypes.FATE
+    def add_header(self, text):
+        if not self.title:
+            self.title = text
 
-class Fish(SearchItem):
-    datatype: str = DataTypes.FISH
-
-class Mount(SearchItem):
-    datatype: str = DataTypes.MOUNT
-
-class Status(SearchItem):
-    datatype: str = DataTypes.STATUS
-
-class TripleTriadCard(SearchItem):
-    datatype: str = DataTypes.TRIPLETRIAD
-
-class CustomText(SearchItem):
-    datatype: str = DataTypes.CUSTOM
-
+        else:
+            self.headers.append(text)

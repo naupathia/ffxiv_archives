@@ -1,76 +1,188 @@
 "use client";
-
+import { MultiSelect } from "primereact/multiselect";
+import { useState } from "react";
+import { InputText } from "primereact/inputtext";
+import { FloatLabel } from "primereact/floatlabel";
+import { useFilters } from "@/app/ui/context/FiltersContext";
+import { convertToTitleCase } from "@/app/lib/functions";
+import { Card } from "primereact/card";
 import { SORT_TYPES } from "@/types/enums";
-import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import CheckboxGroup from "../checkboxgroup";
-import RadioGroup from "../radiogroup";
+import { Checkbox } from "primereact/checkbox";
+import { TreeNode } from "primereact/treenode";
+import { TreeSelect } from "primereact/treeselect";
 
 export default function SearchBox({
-  placeholder,
   setSearchParams,
 }: {
-  placeholder: string;
   setSearchParams: any;
 }) {
-  const expansions: CheckBoxItem[] = [
-    { value: "a realm reborn", label: "A Realm Reborn", isChecked: true },
-    { value: "heavensward", label: "Heavensward", isChecked: true },
-    { value: "stormblood", label: "Stormblood", isChecked: true },
-    { value: "shadowbringers", label: "Shadowbringers", isChecked: true },
-    { value: "endwalker", label: "Endwalker", isChecked: true },
-    { value: "dawntrail", label: "Dawntrail", isChecked: true },
-  ];
-  const categories: CheckBoxItem[] = [
-    { value: "quest", label: "quest", isChecked: true },
-    { value: "cutscene", label: "cutscene", isChecked: true },
-    { value: "custom", label: "dialogue", isChecked: true },
-    { value: "fate", label: "fate", isChecked: true },
-    { value: "item", label: "item", isChecked: true },
-    { value: "fish", label: "fish", isChecked: true },
-    { value: "card", label: "triple triad card", isChecked: true },
-    { value: "mount", label: "mount", isChecked: true },
-  ];
-  const sortValues: CheckBoxItem[] = [
-    { value: SORT_TYPES.RELEVANCE, label: "relevance", isChecked: true },
-    { value: SORT_TYPES.CATEGORY, label: "category", isChecked: false },
-  ];
+  const { filters, isLoading } = useFilters();
+  const [selectedCategories, setSelectedCategories] = useState(null);
+  const [selectedExpansions, setSelectedExpansions] = useState(null);
+  const [q, setQ] = useState("");
+  const [useCatgorySort, setUseCategorySort] = useState(false);
 
-  function handleSearch(e: any) {
+  const categoryKey = "datatype.category:";
+  const typeKey = "datatype.name:";
+
+  function createOptions(values: string[]) {
+    if (!values || values.length == 0) {
+      return [];
+    }
+    return values
+      .filter((v: string) => v != null)
+      .map((v: string) => {
+        return {
+          label: convertToTitleCase(v),
+          value: v,
+        };
+      });
+  }
+
+  function createTreeNodes(values: { category: string; name: string }[]) {
+    let nodes = new Map<string, TreeNode[]>();
+
+    values.forEach((element) => {
+      const id = `${typeKey}${element.name}`;
+      const childNode = {
+        id: id,
+        key: id,
+        label: convertToTitleCase(element.name),
+      } as TreeNode;
+
+      if (nodes.has(element.category)) {
+        nodes.get(element.category)?.push(childNode);
+      } else {
+        nodes.set(element.category, [childNode]);
+      }
+    });
+
+    return nodes
+      .entries()
+      .map((value, key) => {
+        const id = `${categoryKey}${value[0]}`;
+        return {
+          children: value[1],
+          id: id,
+          key: id,
+          label: convertToTitleCase(value[0]),
+        } as TreeNode;
+      })
+      .toArray();
+  }
+
+  function handleSortChange(e: any) {
+    const checked = e.target.checked;
+    setUseCategorySort(checked);
+  }
+
+  function submit(e: any) {
     e.preventDefault();
+    handleSearch();
+  }
 
-    const formData = new FormData(e.target);
-    // console.log(formData)
+  function getSelectedCategories() {
+    if (selectedCategories == null) {
+      return [];
+    }
+
+    const results: string[] = [];
+    Object.keys(selectedCategories).forEach((key) => {
+      if (selectedCategories[key] && key.startsWith(categoryKey)) {
+        results.push(key.replace(categoryKey, ""));
+      }
+    });
+
+    return results;
+  }
+
+  function getSelectedTypes() {
+    if (selectedCategories == null) {
+      return [];
+    }
+
+    const results: string[] = [];
+    Object.keys(selectedCategories).forEach((key) => {
+      if (selectedCategories[key] && key.startsWith(typeKey)) {
+        results.push(key.replace(typeKey, ""));
+      }
+    });
+
+    return results;
+  }
+
+  function handleSearch() {
+    console.log(selectedCategories);
     const params = {
-      q: formData.get("q"),
-      sort: formData.get("sort"),
-      category: formData.getAll("category"),
-      expansion: formData.getAll("expansion"),
-    };
+      q: q,
+      category: getSelectedCategories(),
+      expansion: selectedExpansions ?? [],
+      type: getSelectedTypes(),
+      sort: useCatgorySort ? SORT_TYPES.CATEGORY : "",
+    } as SearchParams;
+
+    console.log(params);
 
     setSearchParams(params);
   }
 
   return (
-    <div className="relative flex flex-1 flex-shrink-0">
-      <form onSubmit={handleSearch} className="peer block w-full">
+    <Card>
+      <form onSubmit={submit}>
         <input type="submit" className="sr-only" name="submit" />
-        <label htmlFor="search" className="sr-only">
-          Search
-        </label>
-        <MagnifyingGlassIcon className="absolute left-3 top-2 h-[18px] w-[18px] text-gray-500 peer-focus:text-gray-900" />
-        <input
-          id="search"
-          name="q"
-          className="peer block w-full text-black py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-          placeholder={placeholder}
-        />
 
-        <RadioGroup group="sort" items={sortValues} />
+        <div className="flex flex-col gap-2">
+          <FloatLabel>
+            <InputText
+              className="p-inputtext-lg h-12 min-w-full p-2"
+              id="search"
+              name="q"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+            />
+            <label htmlFor="search">search</label>
+          </FloatLabel>
 
-        <CheckboxGroup items={categories} group="category" />
+          <div className="flex flex-row gap-2">
+            <MultiSelect
+              options={
+                isLoading ? [] : createOptions(filters?.expansions ?? [])
+              }
+              value={selectedExpansions}
+              onChange={(e) => setSelectedExpansions(e.value)}
+              placeholder={isLoading ? "loading..." : "Expansions"}
+              showClear
+              maxSelectedLabels={2}
+              className="basis-64"
+            />
+            <TreeSelect
+              options={
+                isLoading ? [] : createTreeNodes(filters?.categories ?? [])
+              }
+              value={selectedCategories}
+              selectionMode="multiple"
+              // @ts-ignore
+              onChange={(e) => setSelectedCategories(e.value)}
+              placeholder={isLoading ? "loading..." : "Categories"}
+              filter
+              metaKeySelection={false}
+              showClear
+              className="grow"
+            />
 
-        <CheckboxGroup items={expansions} group="expansion" />
+            <div className="flex items-center">
+              <Checkbox
+                inputId="sort"
+                checked={useCatgorySort}
+                onChange={handleSortChange}
+              />
+              <label htmlFor="sort" className="ml-2">
+                sort by category
+              </label>
+            </div>
+          </div>
+        </div>
       </form>
-    </div>
+    </Card>
   );
 }

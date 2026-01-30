@@ -11,8 +11,10 @@ SPEAKER_MAPS = {
     "WUKLAMAT": "WUK LAMAT",
     "GULOOLJA": "GULOOL JA",
     "GULOOLJAJA": "GULOOL JA JA",
-    "GRAHATIA": "G'RAHA TIA",
+    "GRAHATIA": "GRAHA TIA",
 }
+
+RE_UNICODE = re.compile(r'[^\x00-\x7F]+')
 
 def get_col_value(row, col_name):
 
@@ -26,16 +28,22 @@ def get_speaker(value, pos=3):
 
     value_tokens = value.split("_")
 
-    try:
-        return value_tokens[pos]
-    except IndexError:
-        return ""
+    speaker = value_tokens[pos]
+    return SPEAKER_MAPS.get(speaker) or speaker
 
 def parse_speaker_lines(row_iterator, speaker_func = get_speaker):
     
-    speaker_lines = []
-    parsed = []
     speaker = ''
+    speaker_lines = []
+
+    text_tuples = []
+
+    def add_lines():
+        nonlocal speaker, speaker_lines
+        if speaker_lines and speaker not in SPEAKER_SKIPS:
+            text_tuples.append((speaker, create_paragraph(speaker_lines)))
+        
+        speaker_lines = []
         
     for line in row_iterator:
 
@@ -44,29 +52,36 @@ def parse_speaker_lines(row_iterator, speaker_func = get_speaker):
         next_speaker = speaker_func(description)
             
         if speaker and speaker != next_speaker:
-
-            if speaker_lines and speaker not in SPEAKER_SKIPS:
-                parsed.append(format_speaker_text(speaker, speaker_lines))
-                parsed.append('')
-
-            speaker_lines = []
+            add_lines()
 
         if text:
             speaker_lines.append(sanitize_text(text))
         
         speaker = next_speaker
 
-    if speaker_lines and speaker not in SPEAKER_SKIPS:
-        parsed.append(format_speaker_text(speaker, speaker_lines))
-        parsed.append('')
+    add_lines()
 
-    return '\n'.join(parsed)
+    return text_tuples
 
-def format_speaker_text(speaker, lines):
-    speaker_name_fixed = SPEAKER_MAPS.get(speaker, speaker) or speaker
-    dialogue = '\n'.join(lines)
-    return f"{speaker_name_fixed}:\n{dialogue}"
+def create_paragraph(speaker_lines):
+    if not speaker_lines:
+        return ''
+    
+    return '\n'.join(speaker_lines)
 
+def remove_non_ascii(text_string):
+    if not text_string:
+        return text_string
+    
+    # Encode to ASCII, ignoring errors, then decode back to a string
+    # return text_string.encode("ascii", errors="ignore").decode("ascii")
+    return re.sub(r'[^\x00-\x7F]+',' ', text_string)
+
+def clean_text(text_string):
+    if not text_string:
+        return text_string
+    
+    return remove_non_ascii(text_string).replace('\n', ' ')
 
 RE_HIGHLIGHT = re.compile(r'<Highlight>(.*?)<\/Highlight>')
 RE_SPLIT = re.compile(r'<Split\((.*?), ,\d\)\/>')
@@ -113,6 +128,9 @@ PATTERNS = (
 )
 
 def sanitize_text(input: str):
+
+    if not input:
+        return ''
 
     # GC rank insert
     input = input.replace("<Clickable(<If(GreaterThan(PlayerParameter(52),0))><Sheet(GCRankLimsaMaleText,PlayerParameter(52),8)/><Else/></If><If(GreaterThan(PlayerParameter(53),0))><Sheet(GCRankGridaniaMaleText,PlayerParameter(53),8)/><Else/></If><If(GreaterThan(PlayerParameter(54),0))><Sheet(GCRankUldahMaleText,PlayerParameter(54),8)/><Else/></If>)/>", "_GCRANK_")

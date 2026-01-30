@@ -1,10 +1,20 @@
 from pymongo.mongo_client import MongoClient, Collection
 from pymongo.server_api import ServerApi
+import pymongo
 
+import logging
+
+LOGGER = logging.getLogger(__name__)
+LOGGER.addHandler(logging.StreamHandler())
+LOGGER.setLevel(logging.CRITICAL)
 
 class ClientManager:
     _client: MongoClient = None
     _collection: Collection = None
+
+    @classmethod
+    def create_doc_key(cls, type, row_id, key):
+        return f"{type}{row_id}-{key}"
 
     @classmethod
     def connect(cls, api_user, api_secret) -> MongoClient:
@@ -22,7 +32,7 @@ class ClientManager:
             except Exception as e:
                 print(e)
 
-        cls._collection = cls._client.tea.lore
+        cls._collection = cls._client.tea.lore_v2
 
     @classmethod
     def truncate(cls):
@@ -32,7 +42,17 @@ class ClientManager:
     @classmethod
     def upload_docs(cls, docs):
         """Inserts the records to mongodb"""
+        # try:
         cls._collection.insert_many(docs)
+        
+        # except pymongo.errors.BulkWriteError as e:
+        #     LOGGER.warning(e, exc_info=e)
+            
+    @classmethod
+    def find_doc(cls, type, row, name):
+        doc_id = cls.create_doc_key(type, row, name)
+
+        return cls._collection.find_one(doc_id)
 
     @classmethod
     def close(cls):

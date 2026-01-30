@@ -1,17 +1,15 @@
-import requests
 from pydantic import ValidationError, BaseModel
-from . import _scrub
-from ._tools import timeit, Timer
+from ._tools import Timer
 import urllib
 import httpx
 from pydantic.fields import FieldInfo
-from typing import Iterator, List, Any, Optional
+from typing import Iterator, List, Any, Optional, Type
 
 import logging
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(logging.StreamHandler())
-LOGGER.setLevel(logging.INFO)
+LOGGER.setLevel(logging.CRITICAL)
 
 # Language constants
 ENGLISH_LANG = "en"
@@ -20,6 +18,7 @@ API_URL = "https://v2.xivapi.com/api"
 
 CUTSCENE = "cut_scene"
 CUSTOM = "custom"
+
 
 def expansion_name_from_number(number: int):
     if number == 2:
@@ -38,36 +37,27 @@ def expansion_name_from_number(number: int):
     return ""
 
 
-class QuestKey:
-    def __init__(self, sheet_name: str):
-        # example sheet name: quest/050/KinGzb011_05040
-        tokens = sheet_name.split("/")
-        self.folder = tokens[1]
-        self.key = tokens[2]
-        self.row_id = int(self.key.split("_")[1])
-
-
-class CutsceneKey:
+class SheetKey:
     def __init__(self, sheet_name: str):
         # example sheet name: cut_scene/034/VoiceMan_03401
         tokens = sheet_name.split("/")
-        expansion = tokens[1]
-        expansion_num = int(expansion[:2])
 
+        self.folder = tokens[1]
         self.key = tokens[2]
         self.row_id = int(self.key.split("_")[1])
-        self.patch_num = f"{expansion_num}.{expansion[2]}"
-        self.expansion = expansion_name_from_number(expansion_num)
+        self.name = self.key
+        self.expansion = None
 
-
-class CustomTextKey:
+class CutsceneKey(SheetKey):
     def __init__(self, sheet_name: str):
-        # example sheet name: custom/009/RegYok6BreathBetween_00906
-        tokens = sheet_name.split("/")
+        super().__init__(sheet_name)
+        # example sheet name: cut_scene/034/VoiceMan_03401
+        expansion = self.folder
+        expansion_num = int(expansion[:2])
 
-        self.key = tokens[2]
-        self.row_id = int(tokens[1])
-
+        patch_num = f"{expansion_num}.{expansion[2]}"
+        self.expansion = expansion_name_from_number(expansion_num)
+        self.name = f"{patch_num} {self.expansion} Cutscenes"
 
 def get_field_names(field, field_info: FieldInfo):
 
@@ -171,7 +161,9 @@ class Quest(XivModel):
     PlaceName: Optional[PlaceName]
     JournalGenre: Optional[JournalGenre]
     PreviousQuest: List[PreviousQuest]
-    Text: Optional[str] = None
+    
+    _sheet_name: Optional[str] = None
+    _sheet_rows: Optional[list] = []
 
 
 class Item(XivModel):
@@ -207,6 +199,8 @@ class FishParameter(XivModel):
     Text: str
     Item: Item
 
+class FateEvent(XivModel):
+    Text: list
 
 class Fate(XivModel):
     """Fate model for xivapy"""
@@ -230,51 +224,124 @@ class Status(XivModel):
 
 
 class SheetParseData(XivModel):
+    """Represents sheet data from xivapi"""
+
     key: str
     Name: str
-    Text: str
-    expansion: Optional[str] = None
-
-    __speakerpos__: int = 3
-
-    @staticmethod
-    def from_sheet_and_text(sheetname, text):
-        pass
+    
+    _sheet_name: Optional[str] = None
+    _sheet_rows: Optional[list] = []
+    _expansion: Optional[str] = None
+    __key_type__: Type = None
 
     @classmethod
-    def get_speaker(cls, text):
-        return _scrub.get_speaker(text, cls.__speakerpos__)
+    def from_sheet_and_text(cls, sheetname, text):
+        keydef = cls.__key_type__(sheetname)
+        result = cls(
+            row_id=keydef.row_id,
+            key=keydef.key,
+            Name=keydef.name,
+        )
+        result._sheet_rows=text
+        result._sheet_name=sheetname
+        result._expansion=keydef.expansion
 
+        return result
+
+class AkatsukiNoteString(XivModel):
+    Text: str
+
+class NameField(BaseModel):
+    Name: Optional[str] = None
+
+class MYCWarResultNotebook(XivModel):
+    Description: str
+    Name: str
+    Quest: Quest
+
+class MKDLore(XivModel):
+    Name: str 
+    Description: str
+
+class VVDNotebookContents(XivModel):
+    Name: str 
+    Description: str
+
+class CustomTalk(XivModel):
+    Name: Optional[str] = None
+    MainOption: Optional[str] = None
 
 class CustomText(SheetParseData):
+
+    Name: Optional[str] = None
+    Type: Optional[str] = None 
+
     __sheetname__: str = CUSTOM
-
-    @staticmethod
-    def from_sheet_and_text(sheetname, text):
-        keydef = CustomTextKey(sheetname)
-        return CustomText(
-            row_id=keydef.row_id, key=keydef.key, Text=text, Name=keydef.key
-        )
-
+    __key_type__ = SheetKey
 
 class CutsceneText(SheetParseData):
     __sheetname__: str = CUTSCENE
-    __speakerpos__: int = 4
+    __key_type__ = CutsceneKey
 
-    @staticmethod
-    def from_sheet_and_text(sheetname, text):
-        keydef = CutsceneKey(sheetname)
-        return CutsceneText(
-            row_id=keydef.row_id,
-            key=keydef.key,
-            Text=text,
-            Name=f"{keydef.patch_num} {keydef.expansion} Cutscenes [{keydef.key}]",
-            expansion=keydef.expansion,
-        )
+class Balloon(XivModel):
+    Dialogue: str
 
-    @classmethod
-    def get_speaker(cls, text):
-        return _scrub.get_speaker(text, cls.__speakerpos__)
+class NpcYell(XivModel):
+    Text: str
+
+class EventIdData(BaseModel):
+    Name: str    
+
+class LevelData(BaseModel):
+    EventId: EventIdData = None
+
+class Adventure(XivModel):
+    Description: str 
+    Impression: str 
+    Level: LevelData
+    PlaceName: PlaceName
+
+class DescriptionString(BaseModel):
+    Text: Optional[str] = None
+
+class DescriptionPage(XivModel):
+    Text: List[DescriptionString]
+
+class WKSPioneeringTrailString(XivModel):
+    DevelopmentLogName: str 
+    DevelopmentLogText: str 
+    DevelopmentLogDescription: str
+
+class WKSMissionText(XivModel):
+    Text: str
+
+class SpearfishingItem(XivModel):
+    Description: str
+    Item: Item
+
+class SnipeTalk(XivModel):
+    Name: NameField
+    Text: str
+
+class CompanionTransient(XivModel):
+    Description: str 
+    DescriptionEnhanced: str
+    Tooltip: str
+
+class Companion(XivModel):
+    Singular: str
+    Description: str 
+    DescriptionEnhanced: str
+    Tooltip: str
+
+    __transient__ = CompanionTransient
+
+class Leve(XivModel):
+    Description: str 
+    Name: str
+    PlaceNameIssued: Optional[PlaceName]
+
+
 
 class XivApiClient:
     """Wrapper for xivapi calls to provide common FFXIV data access patterns"""
@@ -298,7 +365,34 @@ class XivApiClient:
         self._client = None
 
     def _flatten_item_data(self, data: Any) -> Any:
-        """Extract and flatten row data from API response."""
+        """Extract and flatten row data from API response.
+
+        When reading data from a sheet that is text data, it will be in the form
+
+        {
+            "rows": [
+                {
+                    "row_id": 1,
+                    "fields": {
+                        "field1": "text",
+                        "field2": "text2"
+                }
+            ]
+        }
+
+        This function will "flatten" the dictionary into simple row data:
+
+        [
+            {
+                "row_id": 1,
+                "field1": "text",
+                "field2": "text2"
+            }
+        ]
+
+        It will also extract any "transient" fields lined to add them to the data returned.
+
+        """
         if not data:
             return None
 
@@ -330,7 +424,7 @@ class XivApiClient:
     def _call_get_api(self, url, params=None) -> dict:
         """makes the async api call"""
 
-        LOGGER.debug(f'calling api {url}, params {params}')
+        LOGGER.debug(f"calling api {url}, params {params}")
 
         response = self._client.get(f"{self.base_api_path}/{url}", params=params)
         response.raise_for_status()
@@ -351,11 +445,18 @@ class XivApiClient:
             if model_class:
                 try:
                     yield model_class.model_validate(processed_data)
-                    LOGGER.info(f"Processed {model_class.__name__} sheet data for {processed_data.get("row_id")}")
+                    LOGGER.debug(
+                        f"Processed {model_class.__name__} sheet data for {processed_data.get("row_id")}"
+                    )
                 except ValidationError as e:
                     row_id = item_data.get("row_id")
-                    LOGGER.error(f"Error with model for {model_class.__name__} {row_id}. Skipping.")
-                    LOGGER.debug(f'Error detail:', exc_info=e)
+                    LOGGER.error(
+                        f"Error with model for {model_class.__name__} {row_id}. Skipping."
+                    )
+                    LOGGER.debug(
+                        f"Error with model for {model_class.__name__} {row_id}. Error detail:",
+                        exc_info=e,
+                    )
             else:
                 yield processed_data
 
@@ -366,9 +467,9 @@ class XivApiClient:
         return [row["name"] for row in res["sheets"]]
 
     def sheet[T: XivModel](
-        self, model_class: type[T] | str, rows: Optional[List[int]] = None
+        self, model_class: type[T] | str, start_at: Optional[int] = None
     ) -> Iterator[T | dict]:
-        rows_param = ",".join(str(id) for id in rows) if rows else None
+        # rows_param = ",".join(str(id) for id in rows) if rows else None
 
         is_model_query = not isinstance(model_class, str)
         sheet_name = (
@@ -381,14 +482,15 @@ class XivApiClient:
         if is_model_query and model_class.__transient__:
             transient_fields = model_class.__transient__.get_fields_str()
 
+
+        start = start_at or 0
+        limit = 500  # xivapi max limit
         params = {
             "fields": fields,
             "transient": transient_fields,
-            "limit": 500,
-            "after": 0
+            "limit": limit,
+            "after": start
         }
-        start = 0
-        limit = 500  # xivapi max limit
         has_more = True
         prev_results = None
 
@@ -420,15 +522,14 @@ class XivApiClient:
             start = rows[-1]["row_id"]
             prev_results = rows
 
-
-    def get_sheet_data_as_text(self, sheet_name, get_speaker_func) -> str:
+    def get_sheet_rows(self, sheet_name) -> str:
 
         sheet_rows = []
 
         for item in self.sheet(sheet_name):
             sheet_rows.append(tuple(item.values()))
 
-        return _scrub.parse_speaker_lines(sheet_rows, get_speaker_func)
+        return sheet_rows
 
     def search[T: XivModel](self, model_class: type[T], query) -> Iterator[T]:
 
@@ -472,14 +573,17 @@ class XivDataAccess:
         return XivApiClientManager.client
 
     @classmethod
-    def get_all(cls, model_class, row=None):
+    def get_all(cls, model_class, start_at=None):
         if model_class == Quest:
-            return cls._get_quests(row)
+            return cls._get_quests(start_at)
+                
+        if model_class == CustomText:
+            return cls._get_custom_text(start_at)
 
         elif issubclass(model_class, SheetParseData):
-            return cls._get_sheet_text_data(model_class, row)
+            return cls._get_sheet_text_data(model_class, start_at)
 
-        return cls.client().sheet(model_class, [row] if row else None)
+        return cls.client().sheet(model_class, [start_at] if start_at else None)
 
     @classmethod
     def get_sheet_names(cls, name):
@@ -501,24 +605,36 @@ class XivDataAccess:
         return cls._sheets[name]
 
     @classmethod
-    def _get_sheet_text_data(cls, model_class: type[SheetParseData], rows=None):
-        count = 0
-        LOGGER.debug(f'loading data for {model_class.__name__}')
+    def _get_sheet_text_data(cls, model_class: type[SheetParseData], start_at=None):
+        LOGGER.debug(f"loading data for {model_class.__name__}")
+
         for sheet_name in cls.get_sheet_names(model_class.__sheetname__):
 
-            # the sheet data will be the quest text
-            text = cls.client().get_sheet_data_as_text(sheet_name, lambda s: model_class.get_speaker(s))
+            # the sheet data will be the text contents
+            text = cls.client().get_sheet_rows(sheet_name)
 
             yield model_class.from_sheet_and_text(sheet_name, text)
 
-            count += 1
-            if rows and count >= rows:
-                break
 
     @classmethod
-    def _get_quests(cls, rows=None):
+    def _get_custom_text(cls, start_at=None):
 
-        for quest_model in cls.client().sheet(Quest, [rows] if rows else None):
+        custom_text_data = {m.Name: m for m in cls.client().sheet(CustomTalk) if m.Name}
+
+        model: CustomText
+        for model in cls._get_sheet_text_data(CustomText, start_at):
+
+            # find the metadata
+            metadata = custom_text_data.get(model.Name, None)
+            model.row_id = metadata.row_id if metadata else model.row_id
+            model.Type = metadata.MainOption if metadata else "Custom Talk"
+
+            yield model
+
+    @classmethod
+    def _get_quests(cls, start_at=None):
+
+        for quest_model in cls.client().sheet(Quest, start_at):
 
             # folder num is part of the key
             # example key: ChrHdy399_04784
@@ -526,9 +642,7 @@ class XivDataAccess:
             folder_num = quest_model.Id[-5:-2]
             sheet_name = f"quest/{folder_num}/{quest_model.Id}"
             # the sheet data will be the quest text
-            quest_text = cls.client().get_sheet_data_as_text(sheet_name, _scrub.get_speaker)
-
-            quest_model.Text = quest_text
+            quest_model._sheet_rows = cls.client().get_sheet_rows(sheet_name)
+            quest_model._sheet_name = sheet_name
 
             yield quest_model
-
