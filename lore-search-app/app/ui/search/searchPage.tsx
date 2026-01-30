@@ -36,34 +36,44 @@ export default function SearchPage() {
   // if (shouldFetch) {
   //   console.log(searchParams);
   // }
+  const getKey = (pageIndex: number, previousPageData: any) => {
+    // If no previous page data or no items in the previous page, it's the last page
+    if (previousPageData && !previousPageData.items.length) return null;
+
+    if (!shouldFetch) {
+      return null;
+    }
+
+    return searchUri + `&page=${pageIndex + 1}`;
+  };
 
   const { data, mutate, size, setSize, isValidating, isLoading } =
-    useSWRInfinite(
-      (page) => shouldFetch && searchUri + `&page=${page + 1}`,
-      fetcher,
-    );
+    useSWRInfinite(getKey, fetcher);
 
-  const results = data ? [].concat(...data) : [];
+  const results = data?.flatMap((page) => page.documents) ?? [];
   const isLoadingMore =
     isLoading || (size > 0 && data && typeof data[size - 1] === "undefined");
   const isEmpty = data?.[0]?.length === 0;
   const isReachingEnd =
     isEmpty || (data && data[data.length - 1]?.length < PAGE_SIZE);
   const isRefreshing = isValidating && data && data.length === size;
+  const totalResults = data?.at(-1).count ?? 0;
 
   return (
     <div className="flex flex-col">
       <div className="flex-1">
-        <SearchBox setSearchParams={setSearchParams} />
+        <SearchBox setSearchParams={setSearchParams} isSearching={isLoading}/>
 
-        <div className="mt-8">
-          {isLoading ? (
-            <p>searching...</p>
-          ) : (
-            <LoreEntryList items={results} />
-          )}
-        </div>
+        <p className="p-search-info">
+          {isLoading
+            ? "searching..."
+            : data == null
+              ? ""
+              : `found ${totalResults} results`}
+        </p>
       </div>
+
+      {isLoading ? <></> : <LoreEntryList items={results} />}
 
       <div className="flex flex-col mt-8">
         <button
