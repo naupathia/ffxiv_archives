@@ -15,10 +15,7 @@ export function mapSynonymsToDict(synonyms: any) {
 }
 
 // @ts-ignore
-export const fetcher = (...args) => fetch(...args).then((res) => {
-    console.log("api call finished");
-    return res.json();
-  });
+export const fetcher = (...args) => fetch(...args).then((res) => res.json());
 
 export function isEmptyArray(arr?: string[]) {
   return arr == null || arr.length == 0 || arr[0] == "";
