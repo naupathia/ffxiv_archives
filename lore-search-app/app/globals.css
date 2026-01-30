@@ -146,7 +146,7 @@ blockquote > ul > li::before {
   content: "- "; /* Inserts a hyphen and a space */
 }
 
-p:not(:last-child) {
+.lore-panel > p:not(:last-child) {
   margin-bottom: 2em;
 }
 
@@ -178,4 +178,39 @@ mark {
 
 .input-search::placeholder {
   color: rgb(from var(--header-blue) r g b / 0.5);
+}
+
+a {
+  color: var(--dark-gold);
+}
+
+a:hover {
+  color: var(--light-gold);
+}
+
+.a-header > a {
+  color: white !important;
+}
+
+.page-faq h1 {
+  margin-bottom: 10px;
+  font-size: 3em;
+}
+
+.page-faq p {
+  margin-bottom: 1em;
+  line-height: normal;
+}
+
+.page-faq .p-accordion-content ul {
+  list-style: circle;
+  margin-left: 2em;
+}
+
+.page-faq .p-accordion {
+  margin-bottom: 2em;
+}
+
+.p-accordion-header {
+  font-size: larger;
 }
