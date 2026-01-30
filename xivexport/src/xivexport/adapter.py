@@ -1,3 +1,4 @@
+from ._tools import Timer
 from typing import Iterator, Type
 from . import model, _scrub, xivclient
 import logging
@@ -6,32 +7,7 @@ LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(logging.StreamHandler())
 LOGGER.setLevel(logging.INFO)
 
-
-class MarkdownBuilder:
-
-    @classmethod
-    def h3(cls, text):
-        return f"### {text}\n"
-    
-    @classmethod
-    def p(cls, text):
-        return f"{text}\n\n"
-
-    @classmethod
-    def br(cls):
-        return "\n\n"
-
-    @classmethod
-    def blockquote(cls, text: str):
-        return "> " + "\n> ".join(text.splitlines())
-
-    @classmethod
-    def replace_new_lines(cls, text):
-        return text
-
-
-md = MarkdownBuilder
-
+md = _scrub.md
 
 def get_expansion_number(name: str):
     if name:
@@ -39,16 +15,6 @@ def get_expansion_number(name: str):
         return exp.num if exp else None
 
     return None
-
-
-def extract_unique_speakers(text_tuples):
-    return set(speaker for speaker, _ in text_tuples)
-
-
-def prettify_dialogue(text_tuples):
-    return "\n\n".join(
-        [md.h3(f"{speaker}:") + md.p(text) for speaker, text in text_tuples]
-    )
 
 
 class DataAdapter:
@@ -141,23 +107,16 @@ class DataAdapter:
 
 
 class TextFileDataAdapter(DataAdapter):
-    parsed_text = None
     speaker_pos = 3
 
     @classmethod
-    def map_model(cls, data):
-        cls.parsed_text = _scrub.parse_speaker_lines(
-            data._sheet_rows, lambda x: _scrub.get_speaker(x, cls.speaker_pos)
-        )
-        return super().map_model(data)
-
-    @classmethod
     def get_speakers(cls, data):
-        return extract_unique_speakers(cls.parsed_text)
+        return None
 
     @classmethod
     def get_pretty_text(cls, data):
-        return prettify_dialogue(cls.parsed_text)
+        return _scrub.parse_speaker_lines(
+            data._sheet_rows, lambda x: _scrub.get_speaker(x, cls.speaker_pos))
 
 
 class QuestAdapter(TextFileDataAdapter):
@@ -190,11 +149,15 @@ class ItemAdapter(DataAdapter):
     DATA_TYPE: str = model.DataTypes.ITEM
 
     @classmethod
+    def get_text(cls, data):
+        return data.Description or "No description given"
+
+    @classmethod
     def get_meta(cls, data: xivclient.Item):
-        if data.ItemUICategory:
-            return model.ItemMeta(
-                category=data.ItemUICategory.Name or "",
-            )
+        # if data.ItemUICategory:
+        #     return model.ItemMeta(
+        #         category=data.ItemUICategory.Name or "",
+        #     )
         return None
 
 
@@ -281,7 +244,6 @@ class CutsceneAdapter(TextFileDataAdapter):
 class CustomTextAdapter(TextFileDataAdapter):
     DATA_CLASS = xivclient.CustomText
     DATA_TYPE: str = model.DataTypes.CUSTOM
-    parsed_text = None
 
     @classmethod
     def get_name(cls, data: xivclient.CustomText):
@@ -513,6 +475,8 @@ class LeveAdapter(DataAdapter):
 
 
 __all__ = [
+    CustomTextAdapter,
+    CutsceneAdapter,
     MountAdapter,
     CompanionAdapter,
     FishAdapter,
@@ -534,7 +498,5 @@ __all__ = [
     SpearfishingItemAdapter,
     SnipeTalkAdapter,
     LeveAdapter,
-    CustomTextAdapter,
-    CutsceneAdapter,
     QuestAdapter,
 ]

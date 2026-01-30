@@ -57,7 +57,7 @@ class ClientManager:
         """Inserts the records to mongodb"""
         try:
             cls.connect()
-            cls._collection.insert_many(docs)
+            cls._collection.insert_many(docs, ordered=False)
 
         # except pymongo.errors.BulkWriteError as e:
         #     LOGGER.warning(e, exc_info=e)
