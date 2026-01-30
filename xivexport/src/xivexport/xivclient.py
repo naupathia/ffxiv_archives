@@ -171,7 +171,7 @@ class Item(XivModel):
 
     Name: str
     Description: Optional[str] = ""
-    ItemUICategory: Optional[ItemUICategory] = None
+    # ItemUICategory: Optional[ItemUICategory] = None
 
 
 class MountTransient(XivModel):
@@ -416,8 +416,7 @@ class XivApiClient:
 
         transient_fields = data.get("transient", {})
         if transient_fields:
-            for field_name in transient_fields:
-                processed_data[field_name] = transient_fields[field_name]
+            processed_data.update(transient_fields)
 
         return processed_data
 
@@ -440,7 +439,7 @@ class XivApiClient:
             if not item_data:
                 continue
 
-            LOGGER.debug(f"raw item data from api: {item_data}")
+            # LOGGER.debug(f"raw item data from api: {item_data}")
 
             processed_data = self._flatten_item_data(item_data)
 
@@ -453,10 +452,10 @@ class XivApiClient:
                 except ValidationError as e:
                     row_id = item_data.get("row_id")
                     LOGGER.error(
-                        f"Error with model for {model_class.__name__} {row_id}. Skipping."
+                        f"Error with data for {model_class.__name__} {row_id}. Skipping."
                     )
                     LOGGER.debug(
-                        f"Error with model for {model_class.__name__} {row_id}. Error detail:",
+                        f"Error with data for {model_class.__name__} {row_id}. Error detail:",
                         exc_info=e,
                     )
             else:
@@ -499,14 +498,14 @@ class XivApiClient:
         while has_more:
 
             params["after"] = start
-            
-            LOGGER.debug(f'calling xivapi for sheet {sheet_name} - after: {start}')
 
             data = self._call_get_api(
                 f"sheet/{sheet_name}",
                 params=params,
             )
             rows = data.get("rows", [])
+
+            LOGGER.debug(f'received batched sheet response for {sheet_name} - after: {start} - rows: {len(rows)}')
 
             if not rows:
                 break
@@ -525,20 +524,6 @@ class XivApiClient:
             # use last row_id as the start of next batch
             start = rows[-1]["row_id"]
             prev_results = rows
-
-    def get_sheet_rows(self, sheet_name) -> str:
-
-        sheet_rows = []
-
-        for item in self.sheet(sheet_name):
-            # item should be { "row_id" 1, "unknown0": "", "unknown1": ""}
-            col1, col2, col3 = item.values()
-            if not col3:
-                continue
-
-            sheet_rows.append((col1, col2, col3))
-
-        return sheet_rows
 
     def search[T: XivModel](self, model_class: type[T], query) -> Iterator[T]:
 
@@ -611,6 +596,7 @@ class XivDataAccess:
                     if sheet.startswith("cut_scene/"):
                         cls._sheets[CUTSCENE].append(sheet)
 
+        LOGGER.info(f'found {len(cls._sheets[name])} records for {name} sheets')
         return cls._sheets[name]
 
     @classmethod
@@ -620,7 +606,7 @@ class XivDataAccess:
         for sheet_name in cls.get_sheet_names(model_class.__sheetname__):
 
             # the sheet data will be the text contents
-            text = cls.client().get_sheet_rows(sheet_name)
+            text = cls.client().sheet(sheet_name)
 
             yield model_class.from_sheet_and_text(sheet_name, text)
 
@@ -651,7 +637,7 @@ class XivDataAccess:
             folder_num = quest_model.Id[-5:-2]
             sheet_name = f"quest/{folder_num}/{quest_model.Id}"
             # the sheet data will be the quest text
-            quest_model._sheet_rows = cls.client().get_sheet_rows(sheet_name)
+            quest_model._sheet_rows = cls.client().sheet(sheet_name)
             quest_model._sheet_name = sheet_name
 
             yield quest_model

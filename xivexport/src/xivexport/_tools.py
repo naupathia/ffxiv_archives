@@ -5,7 +5,7 @@ import logging
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(logging.StreamHandler())
-# LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.INFO)
 
 def timeit(func):
     @wraps(func)
