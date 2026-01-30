@@ -30,5 +30,5 @@ export async function GET(req: NextRequest) {
     filters,
   );
 
-  return Response.json(data.items);
+  return Response.json(data);
 }

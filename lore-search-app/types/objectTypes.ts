@@ -53,3 +53,8 @@ type Filter = {
   name: string,
   values: string[]
 }
+
+type SearchResponse = {
+  documents: LoreEntry[],
+  count: number
+}

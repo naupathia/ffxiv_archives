@@ -1,4 +1,5 @@
 export const SORT_TYPES = {
-  RELEVANCE: "RELEVANCE",
-  CATEGORY: "CATEGORY",
+  RELEVANCE: "relevance",
+  CATEGORY: "category",
+  NAME: "name"
 };

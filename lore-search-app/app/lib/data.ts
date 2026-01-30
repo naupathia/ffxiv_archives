@@ -57,12 +57,26 @@ export async function fetchSearchResults(
     $search: query,
   });
 
-  if (sort && sort == SORT_TYPES.CATEGORY) {
+  agg.push({
+    $addFields: {
+      highlights: { $meta: "searchHighlights" },
+    },
+  });
+
+  if (sort?.toLowerCase() == SORT_TYPES.CATEGORY) {
     agg.push({
       $sort: {
         "datatype.category": 1,
         "datatype.name": 1,
         "expansion.num": 1,
+        searchScore: { $meta: "searchScore" },
+        _id: 1,
+      },
+    });
+  } else if (sort?.toLowerCase() == SORT_TYPES.NAME) {
+    agg.push({
+      $sort: {
+        "datatype.name": 1,
         searchScore: { $meta: "searchScore" },
         _id: 1,
       },
@@ -74,16 +88,16 @@ export async function fetchSearchResults(
   }
 
   agg.push({
-    $skip: skip,
+    $facet: {
+      documents: [{ $skip: skip }, { $limit: ITEMS_PER_PAGE }],
+      count: [{ $count: "total" }],
+    },
   });
 
   agg.push({
-    $limit: ITEMS_PER_PAGE,
-  });
-
-  agg.push({
-    $addFields: {
-      highlights: { $meta: "searchHighlights" }
+    $project: {
+      documents: 1,
+      count: { $first: "$count.total" },
     },
   });
 
@@ -92,11 +106,12 @@ export async function fetchSearchResults(
   const client = await connect();
   const col = await collection(client);
   try {
-    const response = await col.aggregate<LoreEntry>(agg).toArray();
+    const response = await col.aggregate(agg).toArray();
 
     return {
       query: agg,
-      items: response,
+      documents: response[0].documents,
+      count: response[0].count,
     };
   } catch (error) {
     console.error("Data Error:", error);

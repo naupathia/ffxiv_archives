@@ -1,7 +1,7 @@
 @layer tailwind-base, primereact, tailwind-utilities;
 
 /* IMPORTANT: In "styled" mode you must add the PrimeReact Theme here. Do NOT include in "unstyled" mode */
-@import 'primereact/resources/themes/lara-dark-blue/theme.css' layer(primereact);
+@import "primereact/resources/themes/lara-dark-blue/theme.css" layer(primereact);
 
 @layer tailwind-base {
   @tailwind base;
@@ -16,12 +16,12 @@
   --max-width: 70%;
 
   --dark-gold: #927000;
-  --dark-blue: #0d0d1a;  
+  --dark-blue: #0d0d1a;
   --header-blue: #171727;
   --font-color: #b0b0b4;
   --font-highlight: #4fb8ff;
 
-  --transparent: rgba(0, 0, 0, 0.0);
+  --transparent: rgba(0, 0, 0, 0);
 
   --drop-shadow: 2px 3px 2px rgba(0, 0, 0, 0.9);
   --font-gold: #fab92e;
@@ -33,20 +33,19 @@
 }
 
 @font-face {
-  font-family: 'AxisLatinPro'; /* A name you choose to use later */
-  src: url('/fonts/AxisLatinPro-Regular.woff2') format('woff2');
+  font-family: "AxisLatinPro"; /* A name you choose to use later */
+  src: url("/fonts/AxisLatinPro-Regular.woff2") format("woff2");
   font-weight: normal; /* Define the weight and style of this specific file */
   font-style: normal;
   font-display: swap; /* Prevents render-blocking; shows fallback text first */
 }
-
 
 body {
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
   background-color: var(--surface-ground);
-  font-family: 'AxisLatinPro', sans-serif;
+  font-family: "AxisLatinPro", sans-serif;
 }
 
 main {
@@ -62,39 +61,39 @@ main {
 h1 {
   font-size: xx-large;
   text-shadow: var(--drop-shadow);
-  color: var(--font-gold)
+  color: var(--font-gold);
 }
 
 h2 {
   font-size: x-large;
   font-weight: bold;
   margin-top: 2em;
-  color: var(--font-gold)
+  color: var(--font-gold);
 }
 
 h3 {
   font-size: x-large;
   font-weight: bold;
-  color: var(--font-gold)
+  color: var(--font-gold);
 }
 
 blockquote {
   background-color: rgba(255, 255, 255, 0.08);
-  padding: 0.5em;  
+  padding: 0.5em;
   padding-left: 2em;
   padding-right: 2em;
   color: lightgray;
   margin-bottom: 1em;
 }
 
-.p-panel {  
+.p-panel {
   color: var(--font-color);
 }
 
 .p-panel-header {
   border: 1px solid var(--dark-gold);
   background-color: var(--dark-blue);
-  font-family: 'Source Sans 3', sans-serif;
+  font-family: "Source Sans 3", sans-serif;
   color: var(--font-color);
   background-color: var(--header-blue);
 }
@@ -104,7 +103,7 @@ blockquote {
   border-right: 1px solid var(--dark-gold);
   border-bottom: 1px solid var(--dark-gold);
   background-color: var(--dark-blue);
-  font-family: 'Source Sans 3', sans-serif;
+  font-family: "Source Sans 3", sans-serif;
 }
 
 .p-card {
@@ -113,11 +112,11 @@ blockquote {
 }
 
 .p-multiselect-label {
-    display: flex;
-    flex-wrap: wrap; /* Allows chips to wrap to the next line */
-    gap: 0.25rem;    /* Adds space between wrapped chips */
-    overflow-x: hidden; /* Prevents horizontal scroll */
-    flex-grow: 1;
+  display: flex;
+  flex-wrap: wrap; /* Allows chips to wrap to the next line */
+  gap: 0.25rem; /* Adds space between wrapped chips */
+  overflow-x: hidden; /* Prevents horizontal scroll */
+  flex-grow: 1;
 }
 
 p {
@@ -133,10 +132,9 @@ p {
   background-color: var(--dark-blue);
 }
 
-
 blockquote > p {
   font-size: medium;
-  margin-bottom: 0 !important; 
+  margin-bottom: 0 !important;
 }
 
 blockquote > ul > li {
@@ -161,4 +159,23 @@ mark {
   border-bottom-width: 1px;
   background-color: var(--transparent);
   color: var(--font-highlight);
+}
+
+.p-search-info {
+  margin: 0.5em;
+  font-size: smaller;
+  text-align: center;
+}
+
+.p-button {
+  background-color: var(--dark-gold);
+}
+
+.input-search {
+  background-color: #fff9e6;
+  color: var(--dark-blue);
+}
+
+.input-search::placeholder {
+  color: rgb(from var(--header-blue) r g b / 0.5);
 }
