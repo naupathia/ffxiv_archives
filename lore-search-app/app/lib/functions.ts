@@ -15,41 +15,14 @@ export function mapSynonymsToDict(synonyms: any) {
 }
 
 // @ts-ignore
-export const fetcher = (...args) => fetch(...args).then((res) => {
-  console.log('api call finished');
-  return res.json();
-});
+export const fetcher = (...args) =>
+  fetch(...args).then((res) => {
+    console.log("api call finished");
+    return res.json();
+  });
 
 export function isEmptyArray(arr?: string[]) {
   return arr == null || arr.length == 0 || arr[0] == "";
-}
-
-export function highlightSearchText(
-  text?: string,
-  searchText?: string,
-  synonyms?: any
-) {
-  if (searchText) {
-    if (searchText.startsWith('"') && searchText.endsWith('"')) {
-      const rwords = new RegExp(
-        "\\b(" + searchText.slice(1, -1) + ")\\b",
-        "gmi"
-      );
-      return text?.replace(rwords, "<mark>$&</mark>") ?? "";
-    } else {
-      let words = searchText?.split(" ");
-      if (synonyms) {
-        words.forEach((w: string) => {
-          if (synonyms[w.toLowerCase()]) {
-            words = [...words, ...synonyms[w.toLowerCase()]];
-          }
-        });
-      }
-      const rwords = new RegExp("\\b(" + words.join("|") + ")\\b", "gmi");
-      return text?.replace(rwords, "<mark>$&</mark>") ?? "";
-    }
-  }
-  return text;
 }
 
 export function translateType(type: string) {
@@ -76,9 +49,9 @@ export function convertToTitleCase(e: string) {
 }
 
 export function formatHighlightToHtml(highlightData: any) {
-  let htmlString = '';
+  let htmlString = "";
   highlightData.texts.forEach((textSnippet: any) => {
-    if (textSnippet.type === 'hit') {
+    if (textSnippet.type === "hit") {
       // Wrap the 'hit' type text with the <mark> tag
       htmlString += `<mark>${textSnippet.value}</mark>`;
     } else {
@@ -90,11 +63,16 @@ export function formatHighlightToHtml(highlightData: any) {
 }
 
 export function highlightText(text: string, highlightData: HighlightData[]) {
+  if (!highlightData || highlightData.length == 0) {
+    return text;
+  }
+
   let formattedText = text;
-  highlightData.forEach(h => {
-    const originalText = h.texts.map(t=>t.value).join('');
+  highlightData.forEach((h) => {
+    const originalText = h.texts.map((t) => t.value).join("");
     const highlightText = formatHighlightToHtml(h);
+    console.log('replacing formatted text: ' + highlightText)
     formattedText = formattedText.replace(originalText, highlightText);
-  })
+  });
   return formattedText;
 }

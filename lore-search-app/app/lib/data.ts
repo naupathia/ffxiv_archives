@@ -81,6 +81,12 @@ export async function fetchSearchResults(
     $limit: ITEMS_PER_PAGE,
   });
 
+  agg.push({
+    $addFields: {
+      highlights: { $meta: "searchHighlights" }
+    },
+  });
+
   console.log(JSON.stringify(agg));
 
   const client = await connect();

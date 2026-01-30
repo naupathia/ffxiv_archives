@@ -1,6 +1,6 @@
 "use client";
 
-import { convertToTitleCase } from "@/app/lib/functions";
+import { convertToTitleCase, highlightText } from "@/app/lib/functions";
 var showdown = require("showdown");
 
 export default function LoreBody({
@@ -11,8 +11,10 @@ export default function LoreBody({
   const isQuest = lore.datatype.name == "quest";
   const hasPlace = lore.meta?.place_name != null;
 
+  const bodyText = highlightText(lore.text, lore.highlights)
+
   const converter = new showdown.Converter();
-  const html = converter.makeHtml(lore.text);
+  const html = converter.makeHtml(bodyText);
 
   return (
     <div className="flex flex-col items-start">

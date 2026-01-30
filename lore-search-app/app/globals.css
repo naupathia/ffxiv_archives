@@ -19,6 +19,9 @@
   --dark-blue: #0d0d1a;  
   --header-blue: #171727;
   --font-color: #b0b0b4;
+  --font-highlight: #4fb8ff;
+
+  --transparent: rgba(0, 0, 0, 0.0);
 
   --drop-shadow: 2px 3px 2px rgba(0, 0, 0, 0.9);
   --font-gold: #fab92e;
@@ -66,14 +69,12 @@ h2 {
   font-size: x-large;
   font-weight: bold;
   margin-top: 2em;
-  text-shadow: var(--drop-shadow);
   color: var(--font-gold)
 }
 
 h3 {
   font-size: x-large;
   font-weight: bold;
-  text-shadow: var(--drop-shadow);
   color: var(--font-gold)
 }
 
@@ -132,6 +133,32 @@ p {
   background-color: var(--dark-blue);
 }
 
+
+blockquote > p {
+  font-size: medium;
+  margin-bottom: 0 !important; 
+}
+
+blockquote > ul > li {
+  font-size: medium;
+  padding-left: 20px;
+}
+
+blockquote > ul > li::before {
+  content: "- "; /* Inserts a hyphen and a space */
+}
+
 p:not(:last-child) {
   margin-bottom: 2em;
+}
+
+mark {
+  /* padding-left: 4px;
+  padding-right: 4px; */
+  border-color: var(--font-highlight);
+  border-style: groove;
+  /* border-top-width: 1px; */
+  border-bottom-width: 1px;
+  background-color: var(--transparent);
+  color: var(--font-highlight);
 }
