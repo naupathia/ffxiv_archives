@@ -15,8 +15,7 @@ export function mapSynonymsToDict(synonyms: any) {
 }
 
 // @ts-ignore
-export const fetcher = (...args) =>
-  fetch(...args).then((res) => {
+export const fetcher = (...args) => fetch(...args).then((res) => {
     console.log("api call finished");
     return res.json();
   });
