@@ -27,6 +27,7 @@ export default function SearchBox({
     { label: "Relevance", value: "" },
     { label: "Category", value: "category" },
     { label: "Name", value: "name" },
+    { label: "Chronological", value: "row_id" },
   ];
 
   const categoryKey = "datatype.category:";

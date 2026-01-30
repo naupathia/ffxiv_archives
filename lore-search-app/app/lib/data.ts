@@ -81,6 +81,15 @@ export async function fetchSearchResults(
         _id: 1,
       },
     });
+  } else if (sort?.toLowerCase() == SORT_TYPES.ROW) {
+    agg.push({
+      $sort: {
+        "datatype.category": 1,
+        "datatype.name": 1,
+        row_id: 1,
+        _id: 1,
+      },
+    });
   } else {
     agg.push({
       $sort: { searchScore: { $meta: "searchScore" }, _id: 1 },
