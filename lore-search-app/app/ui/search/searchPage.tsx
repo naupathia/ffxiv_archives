@@ -17,7 +17,6 @@ export default function SearchPage() {
     sort: "",
   } as SearchParams);
   const PAGE_SIZE = 500;
-
   const shouldFetch = searchParams.q != null && searchParams.q != "";
   const categoryList = !isEmptyArray(searchParams.category)
     ? "&category=" + searchParams.category.join("&category=")
@@ -31,11 +30,8 @@ export default function SearchPage() {
   const searchUri = encodeURI(
     `/api/search?q=${searchParams.q}&sort=${searchParams.sort}${categoryList}${expansionList}${typeList}`,
   );
-
   console.log(searchUri);
-  // if (shouldFetch) {
-  //   console.log(searchParams);
-  // }
+
   const getKey = (pageIndex: number, previousPageData: any) => {
     // If no previous page data or no items in the previous page, it's the last page
     if (previousPageData && !previousPageData.items.length) return null;
@@ -51,18 +47,15 @@ export default function SearchPage() {
     useSWRInfinite(getKey, fetcher);
 
   const results = data?.flatMap((page) => page.documents) ?? [];
-  const isLoadingMore =
-    isLoading || (size > 0 && data && typeof data[size - 1] === "undefined");
-  const isEmpty = data?.[0]?.length === 0;
-  const isReachingEnd =
-    isEmpty || (data && data[data.length - 1]?.length < PAGE_SIZE);
-  const isRefreshing = isValidating && data && data.length === size;
+  const currentResults = data?.at(-1)?.documents ?? [];
+  const isEmpty = results.length == 0;
+  const isReachingEnd = isEmpty || currentResults.length < PAGE_SIZE;
   const totalResults = data?.at(-1).count ?? 0;
 
   return (
     <div className="flex flex-col">
       <div className="flex-1">
-        <SearchBox setSearchParams={setSearchParams} isSearching={isLoading}/>
+        <SearchBox setSearchParams={setSearchParams} isSearching={isLoading} />
 
         <p className="p-search-info">
           {isLoading
@@ -77,11 +70,11 @@ export default function SearchPage() {
 
       <div className="flex flex-col mt-8">
         <button
-          className={clsx(data && data.length > 0 ? "" : "hidden")}
-          disabled={isLoadingMore || isReachingEnd}
+          className={clsx(isEmpty ? "hidden" : "")}
+          disabled={isLoading || isReachingEnd}
           onClick={() => setSize(size + 1)}
         >
-          {isLoadingMore
+          {isLoading
             ? "loading..."
             : isReachingEnd
               ? "end of results"
