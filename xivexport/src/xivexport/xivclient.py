@@ -136,6 +136,7 @@ class JournalGenre(BaseModel):
     """JournalGenre model for xivapy"""
 
     Name: Optional[str] = ""
+    JournalCategory: Optional[JournalCategory] = None
 
 
 class ItemUICategory(BaseModel):

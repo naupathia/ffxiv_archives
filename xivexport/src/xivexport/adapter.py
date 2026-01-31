@@ -108,6 +108,7 @@ class DataAdapter:
 
 class TextFileDataAdapter(DataAdapter):
     speaker_pos = 3
+    use_speaker_range = False
 
     @classmethod
     def get_speakers(cls, data):
@@ -115,7 +116,7 @@ class TextFileDataAdapter(DataAdapter):
 
     @classmethod
     def get_pretty_text(cls, data):
-        return _scrub.parse_speaker_lines(data._sheet_rows, cls.speaker_pos)
+        return _scrub.parse_speaker_lines(data._sheet_rows, cls.speaker_pos, cls.use_speaker_range)
 
 
 class QuestAdapter(TextFileDataAdapter):
@@ -243,6 +244,7 @@ class CutsceneAdapter(TextFileDataAdapter):
 class CustomTextAdapter(TextFileDataAdapter):
     DATA_CLASS = xivclient.CustomText
     DATA_TYPE: str = model.DataTypes.CUSTOM
+    use_speaker_range = True
 
     @classmethod
     def get_name(cls, data: xivclient.CustomText):
