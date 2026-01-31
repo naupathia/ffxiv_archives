@@ -38,6 +38,7 @@ md = MarkdownBuilder
 
 
 RE_UNICODE = re.compile(r'[^\x00-\x7F]+')
+RE_SPEAKER_ALIAS = re.compile(r'\(-(.*?)-\)')
 
 def get_col_value(row, col_name):
 
@@ -45,19 +46,22 @@ def get_col_value(row, col_name):
 
     return str(value)
 
-def get_speaker(value, pos=3):
-    if not value:
+def get_speaker(tokens, pos=3):
+    if not tokens or len(tokens) < pos:
         return ""
 
-    value_tokens = value.split("_")
+    if len(tokens) > pos + 1:
+        speaker = '_'.join(tokens[pos:-1])
+    else:
+        speaker = tokens[pos]
 
-    speaker = value_tokens[pos]
     return SPEAKER_MAPS.get(speaker) or speaker
 
-def parse_speaker_lines(row_iterator, speaker_func = get_speaker):
+def parse_speaker_lines(row_iterator, speaker_pos = 3):
     
     speaker = ''
     speaker_lines = []
+    prev_line_num = None
 
     lines = []
 
@@ -72,17 +76,36 @@ def parse_speaker_lines(row_iterator, speaker_func = get_speaker):
 
         _, description, text = row.values()
 
-        # text = line[2] or ""
-        # description = line[1] or ""
-        next_speaker = speaker_func(description)
-            
+        if not text:
+            continue
+        
+        tokens = description.split("_")
+        next_speaker = get_speaker(tokens, speaker_pos)
+        line_num = None
+
+        if len(tokens) > speaker_pos + 1:
+            try:
+                line_num = int(tokens[-1])
+            except ValueError:
+                line_num = None
+
+        text, line_speaker = remove_speaker_aliases(text)
+        
+        if line_speaker:
+            next_speaker = line_speaker
+
         if speaker and speaker != next_speaker:
             add_lines()
+        # if speaker is the same but line number has jumped to next 10, add extra line break
+        elif line_num and prev_line_num and line_num > prev_line_num + 1 and line_num % 10 == 0:
+            speaker_lines.append('')
 
-        if text:
-            speaker_lines.append(text)
-        
+        if line_speaker and line_speaker != speaker:
+            speaker = speaker
+
+        speaker_lines.append(text)        
         speaker = next_speaker
+        prev_line_num = line_num
 
     add_lines()
 
@@ -92,7 +115,14 @@ def create_paragraph(speaker_lines):
     if not speaker_lines:
         return ''
     
-    return '\n'.join(speaker_lines)
+    return '\n\n'.join(speaker_lines)
+
+def remove_speaker_aliases(line):
+    matches = RE_SPEAKER_ALIAS.search(line)
+    if matches:
+        return RE_SPEAKER_ALIAS.sub('', line), matches.group(0)
+    
+    return line, None
 
 def remove_non_ascii(text_string):
     if not text_string:

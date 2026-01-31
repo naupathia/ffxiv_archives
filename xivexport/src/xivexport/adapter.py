@@ -115,8 +115,7 @@ class TextFileDataAdapter(DataAdapter):
 
     @classmethod
     def get_pretty_text(cls, data):
-        return _scrub.parse_speaker_lines(
-            data._sheet_rows, lambda x: _scrub.get_speaker(x, cls.speaker_pos))
+        return _scrub.parse_speaker_lines(data._sheet_rows, cls.speaker_pos)
 
 
 class QuestAdapter(TextFileDataAdapter):

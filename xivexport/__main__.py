@@ -69,10 +69,10 @@ def close():
 
 def save_batch(docs: list[model.SearchItem], remote_save=True):
     dump_docs(docs)
-    print(f"inserting batch records...")
     if remote_save:
+        print(f"inserting batch records...")
         search.ClientManager.upload_docs([d.model_dump() for d in docs])
-    print(f"Done inserting records.")
+        print(f"Done inserting records.")
 
 
 def clear_data(is_test):
@@ -87,12 +87,12 @@ def main():
     """Entry point for the xivexport application."""
     debug = False
     debug_adapter = None
-    single_batch = False
+    single_batch = True
 
     connect()
     clear_data(debug)
 
-    batch_size = 10 if debug else 1000
+    batch_size = 50 if debug else 1000
 
     try:
         adapters = debug_adapter if debug and debug_adapter else adapter.__all__
