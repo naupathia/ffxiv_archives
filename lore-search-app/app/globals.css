@@ -49,8 +49,10 @@ body {
 }
 
 main {
-  max-width: var(--max-width);
   margin: 2em auto;
+  @media (min-width: 1280px) {
+    max-width: 70%;
+  };
   padding: 2em;
 }
 
@@ -59,13 +61,11 @@ main {
 }
 
 h1 {
-  font-size: xx-large;
   text-shadow: var(--drop-shadow);
   color: var(--font-gold);
 }
 
 h2 {
-  font-size: x-large;
   font-weight: bold;
   margin-top: 2em;
   color: var(--font-gold);
@@ -188,7 +188,7 @@ a:hover {
   color: var(--light-gold);
 }
 
-.a-header > a {
+.a-header a {
   color: white !important;
 }
 

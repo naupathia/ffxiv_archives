@@ -1,8 +1,11 @@
+"use client"
 import Link from "next/link";
 import { Accordion, AccordionTab } from "primereact/accordion";
 import DiscordLink from "../discordLink";
+import { useState } from "react";
 
 export default function FaqPage() {
+  const [activeIndex, setActiveIndex] = useState(0);
   return (
     <div className="page-faq">
       <h1>FAQ</h1>
@@ -14,7 +17,7 @@ export default function FaqPage() {
 
       <p>Found what you need? Head back to the <Link href="/search">search page</Link> and start exploring!</p>
 
-      <Accordion activeIndex={0}>
+      <Accordion activeIndex={activeIndex}>
         <AccordionTab header="So how does this work?">
           <div>
             <p>

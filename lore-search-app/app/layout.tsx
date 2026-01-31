@@ -9,6 +9,7 @@ import { FiltersProvider } from "@/app/ui/context/FiltersContext";
 import { Source_Sans_3 } from "next/font/google";
 import DiscordLink from "./ui/discordLink";
 import Link from "next/link";
+import clsx from "clsx";
 
 
 const sourcesans3 = Source_Sans_3({
@@ -26,6 +27,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+      </head>
       <body className={sourcesans3.className}>
         <FiltersProvider>
           <div>
@@ -62,7 +66,9 @@ export default function RootLayout({
             {/* <PrimeReactProviders> */}
             {/* <PrimeReactThemeSync> */}
             {/* Children */}
-            <main className="min-h-screen">{children}</main>
+            <div className="min-h-screen max-w-full">
+              <main className="">{children}</main>
+            </div>
             {/* </PrimeReactThemeSync> */}
             {/* </PrimeReactProviders> */}
 
