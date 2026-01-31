@@ -17,12 +17,12 @@ export default function LoreCard({
   const typeText = lore.title ? lore.datatype.name.toUpperCase() : '';
 
   const headerTemplate = function (options: PanelHeaderTemplateOptions) {
-    const className = `${options.className} flex align-items-center justify-content-between pt-8 pb-8`;
-    const titleClassName = `text-xl`;
+    const className = `${options.className} flex align-items-center justify-content-between lg:pt-6 lg:pb-6`;
+    const titleClassName = `text-lg lg:text-2xl`;
 
     return (
       <div className={className}>
-        <div className="flex items-baseline gap-2">
+        <div className="flex flex-col md:flex-row items-baseline gap-2">
           <h1 className={titleClassName}>
             {toggleable ? (
               <a
@@ -36,7 +36,7 @@ export default function LoreCard({
               <>{headerText}</>
             )}
           </h1>
-          <span className="text-sm">{typeText}</span>
+          <span className="text-xs md:text-sm">{typeText}</span>
         </div>
         {options.togglerElement}
       </div>

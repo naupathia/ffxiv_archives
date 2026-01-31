@@ -178,7 +178,7 @@ export default function SearchBox({
             />
           </div>
 
-          <div className="flex flex-row gap-2 items-center max-w-full">
+          <div className="flex flex-col md:flex-row gap-2 md:items-center max-w-full">
             <MultiSelect
               options={
                 isLoading ? [] : createOptions(filters?.expansions ?? [])
@@ -210,7 +210,7 @@ export default function SearchBox({
               className="grow min-w-0"
             />
 
-            <label htmlFor="sort" className="min-w-fit">sort by</label>
+            <label htmlFor="sort" className="min-w-fit hidden md:block">sort by</label>
             <Dropdown
               options={sortOptions}
               id="sort"
@@ -221,7 +221,7 @@ export default function SearchBox({
               placeholder="Sort by"
               tooltip="How the results should be sorted. Default is `Relevance` based on term matching."
               tooltipOptions={{ position: "top", showDelay: 1000 }}
-              className="basis-60"
+              className="lg:basis-60"
             />
           </div>
         </div>

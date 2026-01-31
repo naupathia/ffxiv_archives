@@ -61,13 +61,11 @@ main {
 }
 
 h1 {
-  font-size: xx-large;
   text-shadow: var(--drop-shadow);
   color: var(--font-gold);
 }
 
 h2 {
-  font-size: x-large;
   font-weight: bold;
   margin-top: 2em;
   color: var(--font-gold);
@@ -190,7 +188,7 @@ a:hover {
   color: var(--light-gold);
 }
 
-.a-header > a {
+.a-header a {
   color: white !important;
 }
 
