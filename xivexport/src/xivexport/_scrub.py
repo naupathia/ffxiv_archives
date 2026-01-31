@@ -62,6 +62,7 @@ def get_speaker(tokens, pos=3, use_speaker_range=False):
 
     if use_speaker_range and len(tokens) > pos + 1:
         speaker = "_".join((t for t in tokens[pos:-1] if not is_int(t)))
+        speaker = speaker or tokens[pos]
     else:
         speaker = tokens[pos]
 
