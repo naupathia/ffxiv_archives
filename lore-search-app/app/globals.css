@@ -121,7 +121,6 @@ blockquote {
 
 p {
   font-size: larger;
-  line-height: 2em;
 }
 
 .p-panel-header-link:hover {
@@ -146,9 +145,13 @@ blockquote > ul > li::before {
   content: "- "; /* Inserts a hyphen and a space */
 }
 
-.lore-panel > p:not(:last-child) {
-  margin-bottom: 2em;
+.lore-panel > h3:not(:first-child) {
+  margin-top: 1em;
 }
+
+/* .lore-panel > p:not(:last-child) {
+  margin-bottom: 0.5em;
+} */
 
 mark {
   /* padding-left: 4px;
