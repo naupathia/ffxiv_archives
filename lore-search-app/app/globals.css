@@ -49,8 +49,10 @@ body {
 }
 
 main {
-  max-width: var(--max-width);
   margin: 2em auto;
+  @media (min-width: 1280px) {
+    max-width: 70%;
+  };
   padding: 2em;
 }
 

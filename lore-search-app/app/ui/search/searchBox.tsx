@@ -156,7 +156,7 @@ export default function SearchBox({
       <form onSubmit={submit}>
         <input type="submit" className="sr-only" name="submit" />
 
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 max-w-full">
           <div className="flex flex-row gap-2">
             <div className="grow">
               <InputText
@@ -178,7 +178,7 @@ export default function SearchBox({
             />
           </div>
 
-          <div className="flex flex-row gap-2 items-center">
+          <div className="flex flex-row gap-2 items-center max-w-full">
             <MultiSelect
               options={
                 isLoading ? [] : createOptions(filters?.expansions ?? [])
@@ -187,11 +187,12 @@ export default function SearchBox({
               onChange={(e) => updateSelectedExpansions(e.value)}
               placeholder={isLoading ? "loading..." : "Expansions"}
               showClear
-              maxSelectedLabels={2}
+              maxSelectedLabels={1}
               tooltip="Filter to specific expansions. Note that this only applies for `Quest` and `Cutscene` data types."
-              tooltipOptions={{position: "top",showDelay: 1000}}
-              className="basis-64"
+              tooltipOptions={{ position: "top", showDelay: 1000 }}
+              className="lg:basis-64"
             />
+
             <TreeSelect
               options={
                 isLoading ? [] : createTreeNodes(filters?.categories ?? [])
@@ -205,11 +206,11 @@ export default function SearchBox({
               metaKeySelection={false}
               showClear
               tooltip="Filter to specific game data types. You can select multiple types!"
-              tooltipOptions={{position: "top",showDelay: 1000}}
-              className="grow"
+              // tooltipOptions={{position: "top",showDelay: 1000}}
+              className="grow min-w-0"
             />
 
-            <label htmlFor="sort">sort by</label>
+            <label htmlFor="sort" className="min-w-fit">sort by</label>
             <Dropdown
               options={sortOptions}
               id="sort"
@@ -219,7 +220,7 @@ export default function SearchBox({
               onChange={(e) => setSort(e.value)}
               placeholder="Sort by"
               tooltip="How the results should be sorted. Default is `Relevance` based on term matching."
-              tooltipOptions={{position: "top",showDelay: 1000}}
+              tooltipOptions={{ position: "top", showDelay: 1000 }}
               className="basis-60"
             />
           </div>
