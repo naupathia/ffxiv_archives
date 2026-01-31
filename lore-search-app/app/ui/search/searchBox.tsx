@@ -206,7 +206,7 @@ export default function SearchBox({
               metaKeySelection={false}
               showClear
               tooltip="Filter to specific game data types. You can select multiple types!"
-              // tooltipOptions={{position: "top",showDelay: 1000}}
+              tooltipOptions={{position: "top",showDelay: 1000}}
               className="grow min-w-0"
             />
 
