@@ -31,7 +31,7 @@ export default function LoreBody({
       )}
 
       <div
-        className="lore-panel flex flex-col"
+        className="lore-panel flex flex-col gap-1"
         dangerouslySetInnerHTML={{
           __html: html,
         }}

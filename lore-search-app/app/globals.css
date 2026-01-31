@@ -146,8 +146,12 @@ blockquote > ul > li::before {
 }
 
 .lore-panel > h3:not(:first-child) {
-  margin-top: 2em;
+  margin-top: 1em;
 }
+
+/* .lore-panel > p:not(:last-child) {
+  margin-bottom: 0.5em;
+} */
 
 mark {
   /* padding-left: 4px;
