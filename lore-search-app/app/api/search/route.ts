@@ -5,7 +5,7 @@ import { NextRequest } from "next/server";
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
   const q = searchParams.get("q");
-  const page = parseInt(searchParams.get("page") || "1");
+  const page = parseInt(searchParams.get("page") || "0");
   const sort = searchParams.get("sort");
   const categories = searchParams.getAll("category") || [];
   const types = searchParams.getAll("type") || [];
