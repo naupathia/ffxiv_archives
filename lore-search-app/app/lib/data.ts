@@ -40,14 +40,13 @@ export async function fetchSearchResults(
   sort: string = "",
   filters: Filter[] = [],
 ) {
-  if (!querystring) {
-    return [];
-  }
-  if (currentPage <= 1) {
-    currentPage = 1;
+  console.log(`searching page: ${currentPage}`);
+
+  if (currentPage <= 0) {
+    currentPage = 0;
   }
 
-  const skip = (currentPage - 1) * ITEMS_PER_PAGE;
+  const skip = (currentPage) * ITEMS_PER_PAGE;
 
   let query: any = createQuery(querystring, filters);
 
@@ -128,7 +127,7 @@ export async function fetchSearchResults(
     client.close();
   }
 
-  return { items: [], query: agg };
+  return { documents: [], query: agg, count: 0 };
 }
 
 function createQuery(querystring: string, filters: Filter[]) {
@@ -145,7 +144,7 @@ function createQuery(querystring: string, filters: Filter[]) {
         path: SEARCH_FIELDS,
       },
     });
-  } else {
+  } else if (querystring) {
     minShould = 1;
     shouldFilters = [
       {
