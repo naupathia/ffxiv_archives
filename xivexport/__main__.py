@@ -86,16 +86,19 @@ def clear_data(is_test):
 def main():
     """Entry point for the xivexport application."""
     debug = False
-    debug_adapter = None
-    single_batch = True
+    debug_adapter = [adapter.GimmickBillAdapter, adapter.GimmickTalkAdapter]
+    single_batch = False
+    new_upload_only = True
 
-    connect()
-    clear_data(debug)
-
+    adapters = debug_adapter if debug_adapter else adapter.__all__
     batch_size = 50 if debug else 1000
 
+    connect()
+
+    if not new_upload_only:
+        clear_data(debug)
+
     try:
-        adapters = debug_adapter if debug and debug_adapter else adapter.__all__
 
         for adp in adapters:
 

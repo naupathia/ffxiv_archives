@@ -24,6 +24,7 @@ class DataTypes:
     CE_DEVELOPMENT_LOG = 'cosmic exploration log'
     CE_MISSION = 'cosmic exploration mission'
     SYSTEM_DESCRIPTION = 'system description'
+    GIMMICK_BILL = 'dungeon text'
 
     # not uploaded currently
     STATUS = 'status'
@@ -64,6 +65,9 @@ TYPE_CATEGORIES = {
     ],
     "story": [
         DataTypes.CUTSCENE
+    ],
+    "environment": [
+        DataTypes.GIMMICK_BILL
     ]
 }
 
