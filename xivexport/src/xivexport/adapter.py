@@ -475,6 +475,40 @@ class LeveAdapter(DataAdapter):
         return {"place_name": data.PlaceNameIssued and data.PlaceNameIssued.Name}
 
 
+class GimmickBillAdapter(DataAdapter):
+    DATA_CLASS = xivclient.GimmickBill
+    DATA_TYPE = model.DataTypes.GIMMICK_BILL
+
+    @classmethod
+    def get_name(cls, data):
+        return None
+
+    @classmethod
+    def get_text(cls, data):
+        return data.Text
+
+class GimmickTalkAdapter(DataAdapter):
+    DATA_CLASS = xivclient.GimmickTalk
+    DATA_TYPE = model.DataTypes.GIMMICK_BILL
+
+    @classmethod
+    def get_name(cls, data):
+        return None
+    
+    @classmethod
+    def get_text(cls, data):
+        return data.Message
+
+
+class LeveAdapter(DataAdapter):
+    DATA_CLASS = xivclient.Leve
+    DATA_TYPE = model.DataTypes.LEVE
+
+    @classmethod
+    def get_meta(cls, data: xivclient.Leve):
+        return {"place_name": data.PlaceNameIssued and data.PlaceNameIssued.Name}
+
+
 __all__ = [
     CustomTextAdapter,
     CutsceneAdapter,
@@ -498,6 +532,8 @@ __all__ = [
     WKSMissionTextAdapter,
     SpearfishingItemAdapter,
     SnipeTalkAdapter,
+    GimmickTalkAdapter,
+    GimmickBillAdapter,
     LeveAdapter,
     QuestAdapter,
 ]
