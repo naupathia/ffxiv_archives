@@ -6,7 +6,6 @@ import { fetcher, isEmptyArray } from "@/app/lib/functions";
 import SearchBox from "./searchBox";
 import LoreEntryList from "./loreEntryList";
 import { Button } from "primereact/button";
-import LoreCard from "../item/loreCard";
 import { ScrollTop } from "primereact/scrolltop";
 
 export default function SearchPage() {
@@ -59,10 +58,6 @@ export default function SearchPage() {
   const isLoadingMore =
     isValidating && data && typeof data[size - 1] === "undefined";
   const totalResults = data?.at(-1).count ?? 0;
-
-  const itemTemplate = (item: any) => {
-    return <LoreCard lore={item} toggleable={true} />;
-  };
 
   return (
     <div className="flex flex-col gap-2">

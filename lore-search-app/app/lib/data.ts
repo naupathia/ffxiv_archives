@@ -40,8 +40,6 @@ export async function fetchSearchResults(
   sort: string = "",
   filters: Filter[] = [],
 ) {
-  console.log(`searching page: ${currentPage}`);
-
   if (currentPage <= 0) {
     currentPage = 0;
   }
