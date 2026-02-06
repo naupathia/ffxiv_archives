@@ -342,6 +342,12 @@ class Leve(XivModel):
     Name: str
     PlaceNameIssued: Optional[PlaceName]
 
+class GimmickBill(XivModel):
+    Text: str
+
+class GimmickTalk(XivModel):
+    Message: str
+
 
 
 class XivApiClient:
