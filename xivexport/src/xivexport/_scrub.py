@@ -13,8 +13,8 @@ SPEAKER_MAPS = {
 
 RE_UNICODE = re.compile(r"[^\x00-\x7F]+")
 RE_SPEAKER_ALIAS = re.compile(r"\(-(.*?)-\)")
-RE_ANSWER = re.compile(r'^A\d*$')
-RE_QUESTION = re.compile(r'^Q\d*$')
+RE_ANSWER = re.compile(r"^A\d*$")
+RE_QUESTION = re.compile(r"^Q\d*$")
 
 
 class MarkdownBuilder:
@@ -39,8 +39,8 @@ class MarkdownBuilder:
     def replace_new_lines(cls, text):
         return text
 
-md = MarkdownBuilder
 
+md = MarkdownBuilder
 
 
 def get_col_value(row, col_name):
@@ -49,12 +49,14 @@ def get_col_value(row, col_name):
 
     return str(value)
 
+
 def is_int(text):
     try:
         int(text)
         return True
     except:
         return False
+
 
 def get_speaker(tokens, pos=3, use_speaker_range=False):
     if not tokens or len(tokens) < pos:
@@ -73,26 +75,34 @@ def parse_speaker_lines(row_iterator, speaker_pos=3, use_speaker_range=False):
 
     speaker = ""
     speaker_lines = []
+    speaker_lines_jp = []
     line_num = None
     prev_line_num = None
     index = 1
 
     lines = []
+    jp_lines = []
 
     def add_lines():
-        nonlocal speaker, speaker_lines, index
+        nonlocal lines, speaker, speaker_lines, index, speaker_lines_jp, jp_lines
         if speaker_lines and speaker not in SPEAKER_SKIPS:
             lines.append(md.h3(speaker) + create_paragraph(speaker_lines))
+            jp_lines.append(md.h3(speaker) + create_paragraph(speaker_lines_jp))
 
-        speaker_lines = []        
+        speaker_lines = []
+        speaker_lines_jp = []
         index = 1
 
     for row in row_iterator:
 
-        _, description, text = row.values()
+        _, description, text, jp_values = row.values()
+        _, _, jp_text = jp_values.values()
 
-        if not text:
+        if not description:
             continue
+        
+        text = text or ''
+        jp_text = jp_text or '' # not sure why some text is null for jp
 
         tokens = description.split("_")
         next_speaker = get_speaker(tokens, speaker_pos, use_speaker_range)
@@ -124,18 +134,22 @@ def parse_speaker_lines(row_iterator, speaker_pos=3, use_speaker_range=False):
 
         if is_answer(next_speaker) and line_num:
             text = f"{index}: {text}"
+            jp_text = f"{index}: {jp_text}"
             index += 1
 
         speaker_lines.append(text)
+        speaker_lines_jp.append(jp_text)
         speaker = next_speaker
         prev_line_num = line_num
 
     add_lines()
 
-    return md.br().join(lines)
+    return md.br().join(lines), md.br().join(jp_lines)
+
 
 def is_answer(text):
     return RE_ANSWER.match(text)
+
 
 def create_paragraph(speaker_lines):
     if not speaker_lines:

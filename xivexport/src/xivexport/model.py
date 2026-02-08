@@ -110,13 +110,20 @@ EXPANSIONS_LOOKUP = {
 
 class SearchItem(BaseModel):
     row_id: int
-    key: str
+    key: Optional[str] = None
     title: Optional[str] = None 
+    title_jp: Optional[str] = None
     text: str 
+    text_jp:  Optional[str] = None
     datatype: DataType
     expansion: Optional[Expansion] = None
     speakers: Optional[list] = None
     meta: Optional[object] = None
+    source: str
+
+    def doc_id(self):
+        subid = f'-{self.key}' if self.key else ''
+        return f'{self.source}-{self.row_id}{subid}'
 
     def plain_meta_data(self):
         if not self.meta:
@@ -138,9 +145,12 @@ Journal: {self.meta.journal_genre} [{self.expansion.name.title()}]
 
 # {self.title or self.datatype.name.title()}
 
-[{self.datatype.name.upper()}]
+[{self.source} #{self.row_id}]
+[{self.datatype.name.upper()}] 
 {self.plain_meta_data()}
 {self.text}
+
+{self.text_jp}
 """
 
 class QuestMeta(BaseModel):
