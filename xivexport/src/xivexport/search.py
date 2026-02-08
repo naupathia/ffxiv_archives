@@ -1,3 +1,4 @@
+from pymongo import UpdateOne
 from pymongo.mongo_client import MongoClient, Collection
 from pymongo.server_api import ServerApi
 
@@ -48,6 +49,28 @@ class ClientManager:
         try:
             cls.connect()
             cls._collection.delete_many({})
+
+        finally:
+            cls.close()
+
+
+    @classmethod
+    def upsert_docs(cls, docs):
+        """Inserts the records to mongodb"""
+        ops = [
+            UpdateOne(
+                {'_id': doc['_id']},  # Filter
+                {'$set': doc},        # Update data using $set
+                upsert=True           # Enable upsert
+            )
+            for doc in docs
+        ]
+        try:
+            cls.connect()
+            cls._collection.bulk_write(ops)
+
+        # except pymongo.errors.BulkWriteError as e:
+        #     LOGGER.warning(e, exc_info=e)
 
         finally:
             cls.close()

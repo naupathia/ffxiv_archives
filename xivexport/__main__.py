@@ -71,7 +71,8 @@ def save_batch(docs: list[model.SearchItem], remote_save=True):
     dump_docs(docs)
     if remote_save:
         print(f"inserting batch records...")
-        search.ClientManager.upload_docs([d.model_dump() for d in docs])
+        search.ClientManager.upsert_docs([{ "_id": d.doc_id(), **d.model_dump()} for d in docs])
+        # search.ClientManager.upload_docs([{ "_id": d.doc_id(), **d.model_dump()} for d in docs])
         print(f"Done inserting records.")
 
 
@@ -79,19 +80,19 @@ def clear_data(is_test):
     # pass
     delete_dump_file()
 
-    if not is_test:
-        print("Truncating records...")
-        search.ClientManager.truncate()    
+    # if not is_test:
+    #     print("Truncating records...")
+    #     search.ClientManager.truncate()    
 
 def main():
     """Entry point for the xivexport application."""
     debug = False
-    debug_adapter = [adapter.GimmickBillAdapter, adapter.GimmickTalkAdapter]
+    debug_adapter = None
     single_batch = False
-    new_upload_only = True
+    new_upload_only = False
 
     adapters = debug_adapter if debug_adapter else adapter.__all__
-    batch_size = 50 if debug else 1000
+    batch_size = 5 if debug else 1000
 
     connect()
 
@@ -106,8 +107,9 @@ def main():
                 f"*******************************\nLoading docs for {adp.__name__}!\n*******************************"
             )
             for docs in batched(adp.get_all(), batch_size):
-                save_batch(docs, not debug)
-                if debug and single_batch:
+                if docs:
+                    save_batch(docs, not debug)
+                if debug and docs and single_batch:
                     break
 
             print(f"Done with {adp.__name__}!\n")

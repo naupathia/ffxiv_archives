@@ -26,9 +26,9 @@ class DataAdapter:
         return True
 
     @classmethod
-    def get_all(cls, row=None) -> Iterator[model.SearchItem]:
+    def get_all(cls) -> Iterator[model.SearchItem]:
 
-        for data in cls.get_data(row):
+        for data in cls.get_data():
             if cls.should_include_model(data):
                 try:
                     result = cls.map_model(data)
@@ -47,17 +47,12 @@ class DataAdapter:
                 LOGGER.debug(f"skipping model for {cls.__name__}: {data.row_id}")
 
     @classmethod
-    def get_data(cls, row=None) -> Iterator[xivclient.XivModel]:
-        return xivclient.XivDataAccess.get_all(cls.DATA_CLASS, row)
+    def get_data(cls) -> Iterator[xivclient.XivModel]:
+        return xivclient.XivDataAccess.get_all(cls.DATA_CLASS)
 
     @classmethod
     def get_key(cls, data: xivclient.XivModel):
-        name = cls.get_name(data) or ""
-
-        if name:
-            return name.lower().replace(" ", "_")
-
-        return str(data.row_id)
+        return None
 
     @classmethod
     def get_name(cls, data):
@@ -92,6 +87,14 @@ class DataAdapter:
         return None
 
     @classmethod
+    def get_text_jp(cls, data: xivclient.XivModel):
+        return cls.get_pretty_text(data._japanese) if data._japanese else None
+
+    @classmethod
+    def get_title_jp(cls, data: xivclient.XivModel):
+        return cls.get_name(data._japanese) if data._japanese else None
+    
+    @classmethod
     def map_model(cls, data: xivclient.XivModel) -> model.SearchItem:
 
         return model.SearchItem(
@@ -103,12 +106,26 @@ class DataAdapter:
             speakers=cls.get_speakers(data),
             meta=cls.get_meta(data),
             datatype=model.DataType.from_type_name(cls.DATA_TYPE),
+            text_jp=cls.get_text_jp(data),
+            title_jp=cls.get_title_jp(data),
+            source=cls.DATA_CLASS.__name__
         )
 
 
 class TextFileDataAdapter(DataAdapter):
     speaker_pos = 3
+    en_text = None 
+    jp_text = None
     use_speaker_range = False
+
+    @classmethod
+    def map_model(cls, data):
+        en_text, jp_text = _scrub.parse_speaker_lines(data._sheet_rows, cls.speaker_pos, cls.use_speaker_range)
+        
+        cls.en_text = en_text
+        cls.jp_text = jp_text
+
+        return super().map_model(data)
 
     @classmethod
     def get_speakers(cls, data):
@@ -116,8 +133,15 @@ class TextFileDataAdapter(DataAdapter):
 
     @classmethod
     def get_pretty_text(cls, data):
-        return _scrub.parse_speaker_lines(data._sheet_rows, cls.speaker_pos, cls.use_speaker_range)
-
+        return cls.en_text
+    
+    @classmethod
+    def get_text_jp(cls, data):
+        return cls.jp_text
+    
+    @classmethod
+    def get_title_jp(cls, data):
+        return cls.get_name(data)
 
 class QuestAdapter(TextFileDataAdapter):
     DATA_CLASS = xivclient.Quest
@@ -129,7 +153,7 @@ class QuestAdapter(TextFileDataAdapter):
 
     @classmethod
     def get_key(cls, data: xivclient.Quest):
-        return data._sheet_name
+        return data.Id
 
     @classmethod
     def get_meta(cls, data: xivclient.Quest):
@@ -237,8 +261,8 @@ class CutsceneAdapter(TextFileDataAdapter):
         return data._expansion
 
     @classmethod
-    def get_key(cls, data: xivclient.XivModel):
-        return data._sheet_name
+    def get_key(cls, data: xivclient.CutsceneText):
+        return data.key
 
 
 class CustomTextAdapter(TextFileDataAdapter):
@@ -251,8 +275,12 @@ class CustomTextAdapter(TextFileDataAdapter):
         return data.Type or None
 
     @classmethod
+    def get_title_jp(cls, data):
+        return data.Type or None
+
+    @classmethod
     def get_key(cls, data: xivclient.CustomText):
-        return data.Name
+        return data.key
 
 
 class UnendingCodexAdapter(DataAdapter):
@@ -267,13 +295,13 @@ class UnendingCodexAdapter(DataAdapter):
         return ""
 
     @classmethod
-    def get_all(cls, row=None):
+    def get_all(cls):
 
         # Unending codex is all in one big file, with text split into the rows
         # we want to extract separate models for each "entry" in the journal
 
         entry = model.UnendingCodexEntry()
-        for row in super().get_data(row):
+        for row in super().get_data():
             if not row.Text:
                 continue
 
@@ -287,6 +315,7 @@ class UnendingCodexAdapter(DataAdapter):
                     title=entry.title,
                     text=cls.format_headers(entry.headers) + md.p(entry.text),
                     datatype=model.DataType.from_type_name(cls.DATA_TYPE),
+                    source=cls.DATA_CLASS.__name__
                 )
 
                 entry = model.UnendingCodexEntry()
@@ -347,12 +376,20 @@ class DescriptionPageAdapter(DataAdapter):
     DATA_TYPE: str = model.DataTypes.SYSTEM_DESCRIPTION
 
     @classmethod
+    def get_all(cls):
+        return super().get_all()
+
+    @classmethod
     def should_include_model(cls, data):
         return cls.get_name(data)
 
     @classmethod
     def get_name(cls, data: xivclient.DescriptionPage):
         return next((t.Text for t in data.Text if t.Text), "")
+    
+    @classmethod
+    def get_key(cls, data):
+        return str(data.subrow_id)
 
     @classmethod
     def get_text(cls, data: xivclient.DescriptionPage):
@@ -510,8 +547,6 @@ class LeveAdapter(DataAdapter):
 
 
 __all__ = [
-    CustomTextAdapter,
-    CutsceneAdapter,
     MountAdapter,
     CompanionAdapter,
     FishAdapter,
@@ -535,5 +570,7 @@ __all__ = [
     GimmickTalkAdapter,
     GimmickBillAdapter,
     LeveAdapter,
+    CustomTextAdapter,
+    CutsceneAdapter,
     QuestAdapter,
 ]

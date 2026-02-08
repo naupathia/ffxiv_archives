@@ -13,12 +13,14 @@ LOGGER.setLevel(logging.INFO)
 
 # Language constants
 ENGLISH_LANG = "en"
-LANGUAGES = [ENGLISH_LANG]
+JAPANESE_LANG = "ja"
+ALT_LANGUAGES = [JAPANESE_LANG]
 API_URL = "https://v2.xivapi.com/api"
 
 CUTSCENE = "cut_scene"
 CUSTOM = "custom"
-BATCH_SIZE = 500 # max api limit is 500
+BATCH_SIZE = 500  # max api limit is 500
+
 
 def expansion_name_from_number(number: int):
     if number == 2:
@@ -48,6 +50,7 @@ class SheetKey:
         self.name = self.key
         self.expansion = None
 
+
 class CutsceneKey(SheetKey):
     def __init__(self, sheet_name: str):
         super().__init__(sheet_name)
@@ -58,6 +61,7 @@ class CutsceneKey(SheetKey):
         patch_num = f"{expansion_num}.{expansion[2]}"
         self.expansion = expansion_name_from_number(expansion_num)
         self.name = f"{patch_num} {self.expansion} Cutscenes"
+
 
 def get_field_names(field, field_info: FieldInfo):
 
@@ -88,8 +92,11 @@ class XivModel(BaseModel):
     """Base model for XIV API usage"""
 
     row_id: int
+
     __sheetname__: str = None
     __transient__: type = None
+
+    _japanese: Any
 
     @classmethod
     def get_sheet_name(cls) -> str:
@@ -136,7 +143,7 @@ class JournalGenre(BaseModel):
     """JournalGenre model for xivapy"""
 
     Name: Optional[str] = ""
-    JournalCategory: Optional[JournalCategory] = None
+    JournalCategory: Optional["JournalCategory"]
 
 
 class ItemUICategory(BaseModel):
@@ -159,10 +166,10 @@ class Quest(XivModel):
     Name: Optional[str] = ""
     Expansion: ExVersion
     IssuerStart: Optional[ENpcResident]
-    PlaceName: Optional[PlaceName]
-    JournalGenre: Optional[JournalGenre]
-    PreviousQuest: List[PreviousQuest]
-    
+    PlaceName: Optional["PlaceName"]
+    JournalGenre: Optional["JournalGenre"]
+    PreviousQuest: List["PreviousQuest"]
+
     _sheet_name: Optional[str] = None
     _sheet_rows: Optional[list] = []
 
@@ -200,8 +207,10 @@ class FishParameter(XivModel):
     Text: str
     Item: Item
 
+
 class FateEvent(XivModel):
     Text: list
+
 
 class Fate(XivModel):
     """Fate model for xivapy"""
@@ -229,7 +238,7 @@ class SheetParseData(XivModel):
 
     key: str
     Name: str
-    
+
     _sheet_name: Optional[str] = None
     _sheet_rows: Optional[list] = []
     _expansion: Optional[str] = None
@@ -243,117 +252,143 @@ class SheetParseData(XivModel):
             key=keydef.key,
             Name=keydef.name,
         )
-        result._sheet_rows=text
-        result._sheet_name=sheetname
-        result._expansion=keydef.expansion
+        result._sheet_rows = text
+        result._sheet_name = sheetname
+        result._expansion = keydef.expansion
 
         return result
+
 
 class AkatsukiNoteString(XivModel):
     Text: str
 
+
 class NameField(BaseModel):
     Name: Optional[str] = None
+
 
 class MYCWarResultNotebook(XivModel):
     Description: str
     Name: str
     Quest: Quest
 
+
 class MKDLore(XivModel):
-    Name: str 
+    Name: str
     Description: str
 
+
 class VVDNotebookContents(XivModel):
-    Name: str 
+    Name: str
     Description: str
+
 
 class CustomTalk(XivModel):
     Name: Optional[str] = None
     MainOption: Optional[str] = None
 
+
 class CustomText(SheetParseData):
 
     Name: Optional[str] = None
-    Type: Optional[str] = None 
+    Type: Optional[str] = None
 
     __sheetname__: str = CUSTOM
     __key_type__ = SheetKey
+
 
 class CutsceneText(SheetParseData):
     __sheetname__: str = CUTSCENE
     __key_type__ = CutsceneKey
 
+
 class Balloon(XivModel):
     Dialogue: str
+
 
 class NpcYell(XivModel):
     Text: str
 
+
 class EventIdData(BaseModel):
-    Name: str    
+    Name: str
+
 
 class LevelData(BaseModel):
     EventId: EventIdData = None
 
+
 class Adventure(XivModel):
-    Description: str 
-    Impression: str 
+    Description: str
+    Impression: str
     Level: LevelData
     PlaceName: PlaceName
+
 
 class DescriptionString(BaseModel):
     Text: Optional[str] = None
 
+
 class DescriptionPage(XivModel):
+    subrow_id: Optional[int]
     Text: List[DescriptionString]
 
+
 class WKSPioneeringTrailString(XivModel):
-    DevelopmentLogName: str 
-    DevelopmentLogText: str 
+    DevelopmentLogName: str
+    DevelopmentLogText: str
     DevelopmentLogDescription: str
+
 
 class WKSMissionText(XivModel):
     Text: str
+
 
 class SpearfishingItem(XivModel):
     Description: str
     Item: Item
 
+
 class SnipeTalk(XivModel):
     Name: NameField
     Text: str
 
+
 class CompanionTransient(XivModel):
-    Description: str 
+    Description: str
     DescriptionEnhanced: str
     Tooltip: str
 
+
 class Companion(XivModel):
     Singular: str
-    Description: str 
+    Description: str
     DescriptionEnhanced: str
     Tooltip: str
 
     __transient__ = CompanionTransient
 
+
 class Leve(XivModel):
-    Description: str 
+    Description: str
     Name: str
     PlaceNameIssued: Optional[PlaceName]
+
 
 class GimmickBill(XivModel):
     Text: str
 
+
 class GimmickTalk(XivModel):
     Message: str
-
 
 
 class XivApiClient:
     """Wrapper for xivapi calls to provide common FFXIV data access patterns"""
 
     _client: httpx.Client = None
+    _sheets: dict = None
+    batch_size = BATCH_SIZE
 
     def __init__(self):
         self.base_url: str = "https://v2.xivapi.com"
@@ -421,6 +456,9 @@ class XivApiClient:
             },
         }
 
+        if "subrow_id" in data:
+            processed_data["subrow_id"] = data["subrow_id"]
+
         transient_fields = data.get("transient", {})
         if transient_fields:
             processed_data.update(transient_fields)
@@ -439,33 +477,57 @@ class XivApiClient:
         return data
 
     def _process_sheet_rows[T: XivModel](
-        self, data: list, model_class: type[T] = None
+        self, data: list, model_class: type[T] = None, lang_data=[]
     ) -> Iterator[T | dict]:
 
-        for item_data in data:
+        len_en = len(data)
+        len_jp = len(lang_data)
+
+        if len_en != len_jp:
+            raise f"Length of English results {len_en} does not match Japanese {len_jp}"
+
+        for item_data, lang_item_data in zip(data, lang_data):
             if not item_data:
                 continue
 
             # LOGGER.debug(f"raw item data from api: {item_data}")
 
             processed_data = self._flatten_item_data(item_data)
+            processed_lang_data = self._flatten_item_data(lang_item_data or {})
+            row_id = item_data.get("row_id")
 
             if model_class:
                 try:
-                    yield model_class.model_validate(processed_data)
+                    model = model_class.model_validate(processed_data)
+
+                    try:
+                        lang_model = (
+                            model_class.model_validate(processed_lang_data)
+                            if processed_lang_data
+                            else None
+                        )
+                    except ValidationError as ve:
+                        lang_model = None
+                        LOGGER.debug(
+                            f"Error with Japanese data for {model_class.__name__} {row_id}. Error detail:",
+                            exc_info=ve,
+                        )
+
+                    model._japanese = lang_model
                     LOGGER.debug(
                         f"Processed {model_class.__name__} sheet data for {processed_data.get("row_id")}"
                     )
+                    yield model
                 except ValidationError as e:
-                    row_id = item_data.get("row_id")
                     LOGGER.error(
                         f"Error with data for {model_class.__name__} {row_id}. Skipping."
                     )
-                    LOGGER.debug(
-                        f"Error with data for {model_class.__name__} {row_id}. Error detail:",
-                        exc_info=e,
-                    )
+                    # LOGGER.error(
+                    #     f"Error with data for {model_class.__name__} {row_id}.\nInput processed data: {processed_data}\n Error detail:",
+                    #     exc_info=e,
+                    # )
             else:
+                processed_data["ja"] = processed_lang_data
                 yield processed_data
 
     def sheets(self) -> List[str]:
@@ -475,10 +537,8 @@ class XivApiClient:
         return [row["name"] for row in res["sheets"]]
 
     def sheet[T: XivModel](
-        self, model_class: type[T] | str, start_at: Optional[int] = None
-    ) -> Iterator[T | dict]:
-        # rows_param = ",".join(str(id) for id in rows) if rows else None
-
+        self, model_class: type[T] | str, batch_size: int = None
+    ) -> Iterator[list]:
 
         is_model_query = not isinstance(model_class, str)
         sheet_name = (
@@ -491,13 +551,13 @@ class XivApiClient:
         if is_model_query and model_class.__transient__:
             transient_fields = model_class.__transient__.get_fields_str()
 
-        start = start_at or 0
-        limit = BATCH_SIZE  # xivapi max limit 500
+        start = 0
+        limit = batch_size or self.batch_size
         params = {
             "fields": fields,
             "transient": transient_fields,
             "limit": limit,
-            "after": start
+            "after": start,
         }
         has_more = True
         prev_results = None
@@ -505,6 +565,8 @@ class XivApiClient:
         while has_more:
 
             params["after"] = start
+            params["language"] = ENGLISH_LANG
+            lang_rows = []
 
             data = self._call_get_api(
                 f"sheet/{sheet_name}",
@@ -512,7 +574,9 @@ class XivApiClient:
             )
             rows = data.get("rows", [])
 
-            LOGGER.debug(f'received batched sheet response for {sheet_name} - after: {start} - rows: {len(rows)}')
+            LOGGER.debug(
+                f"received batched sheet response for {sheet_name} - after: {start} - rows: {len(rows)}"
+            )
 
             if not rows:
                 break
@@ -520,38 +584,41 @@ class XivApiClient:
             if prev_results and prev_results[0]["row_id"] == rows[0]["row_id"]:
                 raise "Received same API response"
 
+            params["language"] = JAPANESE_LANG
+            data = self._call_get_api(f"sheet/{sheet_name}", params)
+            lang_rows = data.get("rows", [])
+
             for item in self._process_sheet_rows(
-                rows, model_class if is_model_query else None
+                rows, model_class if is_model_query else None, lang_rows
             ):
                 yield item
 
-            if len(rows) < limit:
+            row_len = len(rows)
+            if row_len < limit:
                 has_more = False
 
             # use last row_id as the start of next batch
             start = rows[-1]["row_id"]
             prev_results = rows
 
-    def search[T: XivModel](self, model_class: type[T], query) -> Iterator[T]:
+    def get_sheet_names(self, name):
+        """
+        Gets the sheet names that start with 'name'
+        """
+        if not self.__class__._sheets:
+            self.__class__._sheets = {"quest": [], CUSTOM: [], CUTSCENE: []}
+            for sheet in self.sheets():
+                if sheet.startswith("quest/"):
+                    self.__class__._sheets["quest"].append(sheet)
+                if sheet.startswith("custom/"):
+                    self.__class__._sheets[CUSTOM].append(sheet)
+                if sheet.startswith("cut_scene/"):
+                    self.__class__._sheets[CUTSCENE].append(sheet)
 
-        data = self._call_get_api(
-            "search",
-            {
-                "query": query,
-                "sheets": model_class.__name__,
-                "fields": model_class.get_fields_str(),
-            },
+        LOGGER.debug(
+            f"found {len(self.__class__._sheets[name])} records for {name} sheets"
         )
-
-        rows = data.get("results", [])
-
-        for item in self._process_sheet_rows(rows, model_class):
-            yield item
-
-    def search_one[T: XivModel](self, model_class: type[T], query) -> T | None:
-
-        for item in self.search(model_class, query):
-            return item
+        return self.__class__._sheets[name]
 
 
 class XivApiClientManager:
@@ -567,64 +634,43 @@ class XivApiClientManager:
 
 
 class XivDataAccess:
-    _sheets: dict = None
 
     @classmethod
     def client(cls):
         return XivApiClientManager.client
 
     @classmethod
-    def get_all(cls, model_class, start_at=None):
+    def get_all(cls, model_class):
         if model_class == Quest:
-            return cls._get_quests(start_at)
-                
+            return cls._get_quests()
+
         if model_class == CustomText:
-            return cls._get_custom_text(start_at)
+            return cls._get_custom_text()
 
         elif issubclass(model_class, SheetParseData):
-            return cls._get_sheet_text_data(model_class, start_at)
+            return cls._get_sheet_text_data(model_class)
 
-        return cls.client().sheet(model_class, [start_at] if start_at else None)
-
-    @classmethod
-    def get_sheet_names(cls, name):
-        """
-        Gets the sheet names that start with 'name'
-        """
-
-        if not cls._sheets:
-            with Timer("get_sheets"):
-                cls._sheets = {"quest": [], CUSTOM: [], CUTSCENE: []}
-                for sheet in cls.client().sheets():
-                    if sheet.startswith("quest/"):
-                        cls._sheets["quest"].append(sheet)
-                    if sheet.startswith("custom/"):
-                        cls._sheets[CUSTOM].append(sheet)
-                    if sheet.startswith("cut_scene/"):
-                        cls._sheets[CUTSCENE].append(sheet)
-
-        LOGGER.info(f'found {len(cls._sheets[name])} records for {name} sheets')
-        return cls._sheets[name]
+        return cls._get_sheets(model_class)
 
     @classmethod
-    def _get_sheet_text_data(cls, model_class: type[SheetParseData], start_at=None):
+    def _get_sheet_text_data(cls, model_class: type[SheetParseData]):
         LOGGER.debug(f"loading data for {model_class.__name__}")
 
-        for sheet_name in cls.get_sheet_names(model_class.__sheetname__):
+        for sheet_name in cls.client().get_sheet_names(model_class.__sheetname__):
+            LOGGER.info(f'processing sheet data for {sheet_name}')
 
             # the sheet data will be the text contents
-            text = cls.client().sheet(sheet_name)
+            text = list(cls.client().sheet(sheet_name))
 
             yield model_class.from_sheet_and_text(sheet_name, text)
 
-
     @classmethod
-    def _get_custom_text(cls, start_at=None):
+    def _get_custom_text(cls):
 
         custom_text_data = {m.Name: m for m in cls.client().sheet(CustomTalk) if m.Name}
 
         model: CustomText
-        for model in cls._get_sheet_text_data(CustomText, start_at):
+        for model in cls._get_sheet_text_data(CustomText):
 
             # find the metadata
             metadata = custom_text_data.get(model.Name, None)
@@ -634,9 +680,9 @@ class XivDataAccess:
             yield model
 
     @classmethod
-    def _get_quests(cls, start_at=None):
+    def _get_quests(cls):
 
-        for quest_model in cls.client().sheet(Quest, start_at):
+        for quest_model in cls.client().sheet(Quest):
 
             # folder num is part of the key
             # example key: ChrHdy399_04784
@@ -644,7 +690,11 @@ class XivDataAccess:
             folder_num = quest_model.Id[-5:-2]
             sheet_name = f"quest/{folder_num}/{quest_model.Id}"
             # the sheet data will be the quest text
-            quest_model._sheet_rows = cls.client().sheet(sheet_name)
+            quest_model._sheet_rows = list(cls.client().sheet(sheet_name))
             quest_model._sheet_name = sheet_name
 
             yield quest_model
+
+    @classmethod
+    def _get_sheets(cls, model_class):
+        return cls.client().sheet(model_class)
