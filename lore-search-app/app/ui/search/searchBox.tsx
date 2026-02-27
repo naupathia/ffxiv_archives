@@ -34,26 +34,11 @@ export default function SearchBox({
   const categoryKey = "datatype.category:";
   const typeKey = "datatype.name:";
 
-  const questKey = typeKey + "quest";
-  const cutsceneKey = typeKey + "cutscene";
-
   function updateSelectedCategories(values: object) {
-    console.log("selected categories: " + JSON.stringify(values));
-    if (
-      !values ||
-      Object.keys(values).find((x) => x != cutsceneKey && x != questKey)
-    ) {
-      setSelectedExpansions([]);
-    }
     setSelectedCategories(values);
   }
 
   function updateSelectedExpansions(values: string[]) {
-    // set selected categories to only quest and cutscene
-    const valueMap: any = {};
-    valueMap[questKey] = true;
-    valueMap[cutsceneKey] = true;
-    setSelectedCategories(valueMap);
     setSelectedExpansions(values);
   }
 
