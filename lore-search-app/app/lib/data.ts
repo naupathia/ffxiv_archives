@@ -44,7 +44,7 @@ export async function fetchSearchResults(
     currentPage = 0;
   }
 
-  const skip = (currentPage) * ITEMS_PER_PAGE;
+  const skip = currentPage * ITEMS_PER_PAGE;
 
   let query: any = createQuery(querystring, filters);
 
@@ -181,12 +181,26 @@ function createQuery(querystring: string, filters: Filter[]) {
             value: element.values,
           },
         });
-      } else {
+      } else if (element.name == "expansion") {
         const filterName = "expansion.name";
+        // check for expansion field is null OR
+        // the value exists in the array
         innerMustFilter.push({
-          in: {
-            path: filterName,
-            value: element.values,
+          compound: {
+            should: [
+              {
+                equals: {
+                  path: "expansion",
+                  value: null
+                }
+              },
+              {
+                in: {
+                  path: filterName,
+                  value: element.values,
+                },
+              },
+            ],
           },
         });
       }
