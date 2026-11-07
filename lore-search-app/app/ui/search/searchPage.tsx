@@ -1,12 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useSWRInfinite from "swr/infinite";
 import { fetcher, isEmptyArray } from "@/app/lib/functions";
 import SearchBox from "./searchBox";
 import LoreEntryList from "./loreEntryList";
-import { Button } from "primereact/button";
-import { ScrollTop } from "primereact/scrolltop";
 
 export default function SearchPage() {
   const [searchParams, setSearchParams] = useState({
@@ -50,6 +48,14 @@ export default function SearchPage() {
 
   const { data, mutate, size, setSize, isValidating, isLoading } =
     useSWRInfinite(getKey, fetcher);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const updateScrollTopVisibility = () => setShowScrollTop(window.scrollY > 300);
+    updateScrollTopVisibility();
+    window.addEventListener("scroll", updateScrollTopVisibility, { passive: true });
+    return () => window.removeEventListener("scroll", updateScrollTopVisibility);
+  }, []);
 
   const results = data?.flatMap((page) => page.documents) ?? [];
   const currentResults = data?.at(-1)?.documents ?? [];
@@ -75,23 +81,32 @@ export default function SearchPage() {
 
       {isLoading ? <></> : <LoreEntryList items={results} />}
 
-      <div className="flex justify-center">
-        <Button
-          className="p-2"
-          label={
-            isReachingEnd
+      {!isEmpty && (
+        <div className="results-actions">
+          <button
+            className="primary-button load-more-button"
+            type="button"
+            onClick={() => setSize(size + 1)}
+            disabled={isReachingEnd || isLoadingMore}
+          >
+            {isReachingEnd
               ? "end of results"
               : isLoadingMore
                 ? "loading..."
-                : "load more"
-          }
-          loading={isLoadingMore}
-          onClick={() => setSize(size + 1)}
-          disabled={isReachingEnd || isLoadingMore}
-          visible={!isEmpty}
-        />
-        <ScrollTop/>
-      </div>
+                : "load more"}
+          </button>
+        </div>
+      )}
+      {showScrollTop && (
+        <button
+          className="scroll-top-button"
+          type="button"
+          aria-label="Scroll to top"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        >
+          ↑
+        </button>
+      )}
 
     </div>
   );

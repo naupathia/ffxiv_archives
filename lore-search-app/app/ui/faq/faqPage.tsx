@@ -1,25 +1,23 @@
 "use client"
 import Link from "next/link";
-import { Accordion, AccordionTab } from "primereact/accordion";
 import DiscordLink from "../discordLink";
-import { useState } from "react";
 
 export default function FaqPage() {
-  const [activeIndex, setActiveIndex] = useState(0);
   return (
     <div className="page-faq">
       <h1>FAQ</h1>
       <p>
         Welcome to the FAQ page! Hopefully this page will answer any pressing
-        questions you may have about how to use TEA Tools. If you don't find an
+        questions you may have about how to use TEA Tools. If you don&apos;t find an
         answer, reach out to us over on our <DiscordLink showText={true} />!
       </p>
 
       <p>Found what you need? Head back to the <Link href="/search">search page</Link> and start exploring!</p>
 
-      <Accordion activeIndex={activeIndex}>
-        <AccordionTab header="So how does this work?">
-          <div>
+      <div className="faq-list">
+        <details className="faq-item" open>
+          <summary>So how does this work?</summary>
+          <div className="faq-answer">
             <p>
               Pretty simple really! Head over to the{" "}
               <Link href="/search">search page</Link> and enter in some text.
@@ -42,21 +40,23 @@ export default function FaqPage() {
               </li>
             </ul>
           </div>
-        </AccordionTab>
-        <AccordionTab header="I don't see something in the results. Where is it?">
-          <div>
+        </details>
+        <details className="faq-item">
+          <summary>I don&apos;t see something in the results. Where is it?</summary>
+          <div className="faq-answer">
             Not every possible bit of text from the game is stored in our search
             engine. Unfortunately there are some limitations to what data we can
             extract. If you feel there is something missing that you should be
             able to find, come over to our <DiscordLink showText={true} /> and let us know!
           </div>
-        </AccordionTab>
-        <AccordionTab header="What if I have more questions?">
-          <div>
+        </details>
+        <details className="faq-item">
+          <summary>What if I have more questions?</summary>
+          <div className="faq-answer">
             The easiest way is to join our <DiscordLink showText={true} /> and reach out!
           </div>
-        </AccordionTab>
-      </Accordion>
+        </details>
+      </div>
     </div>
   );
 }

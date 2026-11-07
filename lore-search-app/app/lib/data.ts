@@ -1,6 +1,6 @@
 // import "server-only";
 
-import { MongoClient, ServerApiVersion, ObjectId } from "mongodb";
+import { MongoClient, ServerApiVersion, ObjectId, Document } from "mongodb";
 import { SORT_TYPES } from "@/types/enums";
 import { mapSynonymsToDict } from "./functions";
 
@@ -16,6 +16,9 @@ const COLLECTION = "lore";
 const INDEX_NAME = "default";
 const SYNONYMS = "synonym_mapping";
 const SEARCH_FIELDS = ["title", "text"];
+
+type StoredLoreEntry = Omit<LoreEntry, "_id"> &
+  Document & { _id: string | ObjectId };
 
 async function connect(col: string = COLLECTION) {
   const client = new MongoClient(uri, {
@@ -262,17 +265,20 @@ export async function fetchFilters() {
 
 export async function fetchLoreEntry(id: string) {
   const client = await connect();
-  const col = await collection(client);
+  const col = client.db(DATABASE).collection<StoredLoreEntry>(COLLECTION);
   try {
-    const document = await col.findOne<LoreEntry>({
-      _id: new ObjectId(id),
-    });
+    const stringIdDocument = await col.findOne({ _id: id });
+    const document =
+      stringIdDocument ??
+      (/^[a-f\d]{24}$/i.test(id)
+        ? await col.findOne({ _id: new ObjectId(id) })
+        : null);
 
-    if (document) {
-      document._id = document._id.toString();
+    if (!document) {
+      return null;
     }
 
-    return await document;
+    return { ...document, _id: document._id.toString() };
   } catch (error) {
     console.error("Data Error:", error);
   } finally {

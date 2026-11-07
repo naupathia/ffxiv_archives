@@ -1,11 +1,14 @@
 import { fetchLoreEntry } from "@/app/lib/data";
+import { notFound } from "next/navigation";
 import ItemPage from "../../ui/item/itemPage";
 
 export default async function Page({ params }: { params: { id: string } }) {
   const { id } = await params;
-  let data = await fetchLoreEntry(id);
+  const data = await fetchLoreEntry(id);
 
-  console.log(data);
+  if (!data) {
+    notFound();
+  }
 
-  return <div>{data ? <ItemPage lore={data} /> : "Not Found"}</div>;
+  return <ItemPage lore={data} />;
 }
