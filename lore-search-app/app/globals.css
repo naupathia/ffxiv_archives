@@ -309,6 +309,24 @@ blockquote > ul > li::before {
   cursor: pointer;
 }
 
+.clear-filters-button {
+  grid-column: 1 / -1;
+  justify-self: end;
+  padding: 0.25rem 0;
+  border: 0;
+  color: var(--light-gold);
+  background: transparent;
+  font: inherit;
+  font-size: 0.85rem;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+.clear-filters-button:hover {
+  color: white;
+}
+
 .p-search-info {
   margin: 0.5em;
   font-size: smaller;

@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FocusEvent, FormEvent, PointerEvent, useMemo, useState } from "react";
 import { useFilters } from "@/app/ui/context/FiltersContext";
 import { convertToTitleCase } from "@/app/lib/functions";
 
@@ -46,6 +46,11 @@ export default function SearchBox({
             selectedCategories.includes(category) && types.includes(type),
         ),
     ).length;
+  const hasSelections =
+    selectedCategories.length > 0 ||
+    selectedTypes.length > 0 ||
+    selectedExpansions.length > 0 ||
+    sort !== "";
 
   function toggleCategory(category: string, types: string[], checked: boolean) {
     setSelectedCategories((current) =>
@@ -81,6 +86,13 @@ export default function SearchBox({
     );
   }
 
+  function clearSelections() {
+    setSelectedCategories([]);
+    setSelectedTypes([]);
+    setSelectedExpansions([]);
+    setSort("");
+  }
+
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSearchParams({
@@ -92,8 +104,30 @@ export default function SearchBox({
     });
   }
 
+  function closeFilterOnBlur(event: FocusEvent<HTMLDetailsElement>) {
+    const nextTarget = event.relatedTarget;
+    if (nextTarget instanceof Node && !event.currentTarget.contains(nextTarget)) {
+      event.currentTarget.open = false;
+    }
+  }
+
+  function closeOtherFiltersOnPointerDown(event: PointerEvent<HTMLFormElement>) {
+    const target = event.target;
+    if (!(target instanceof Node)) return;
+
+    event.currentTarget
+      .querySelectorAll<HTMLDetailsElement>(".filter-picker[open]")
+      .forEach((filter) => {
+        if (!filter.contains(target)) filter.open = false;
+      });
+  }
+
   return (
-    <form className="search-box" onSubmit={submit}>
+    <form
+      className="search-box"
+      onSubmit={submit}
+      onPointerDownCapture={closeOtherFiltersOnPointerDown}
+    >
       <div className="search-row">
         <input
           className="search-input"
@@ -111,7 +145,7 @@ export default function SearchBox({
       </div>
 
       <div className="search-filters">
-        <details className="filter-picker">
+        <details className="filter-picker" onBlur={closeFilterOnBlur}>
           <summary>
             {isLoading
               ? "loading..."
@@ -139,7 +173,10 @@ export default function SearchBox({
           </div>
         </details>
 
-        <details className="filter-picker categories-picker">
+        <details
+          className="filter-picker categories-picker"
+          onBlur={closeFilterOnBlur}
+        >
           <summary>
             {isLoading
               ? "loading..."
@@ -204,6 +241,15 @@ export default function SearchBox({
           <option value="name">Name</option>
           <option value="row_id">Chronological</option>
         </select>
+        {hasSelections && (
+          <button
+            className="clear-filters-button"
+            type="button"
+            onClick={clearSelections}
+          >
+            Clear all
+          </button>
+        )}
       </div>
     </form>
   );
