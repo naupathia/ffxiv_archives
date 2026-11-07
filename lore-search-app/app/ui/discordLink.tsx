@@ -4,7 +4,7 @@ import { FaDiscord } from "react-icons/fa"; // Example from react-icons/fa
 const DiscordLink = ({ showText = false }) => {
   return (
     <Link
-      href="https://discord.gg/eorzeanarchives"
+      href="https://discord.gg/YjU8wXCqjh"
       passHref
       target="_blank"
       rel="noopener noreferrer"

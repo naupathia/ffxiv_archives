@@ -1,10 +1,8 @@
 "use client";
 
-import { Panel, PanelHeaderTemplateOptions } from "primereact/panel";
 import { useState } from "react";
 import LoreBody from "./loreBody";
 import { convertToTitleCase } from "@/app/lib/functions";
-import { ToggleButton } from "primereact/togglebutton";
 
 export default function LoreCard({
   lore,
@@ -22,49 +20,49 @@ export default function LoreCard({
 
   const hasJpText = lore.text_jp != null && lore.text_jp != '';
 
-  const headerTemplate = function (options: PanelHeaderTemplateOptions) {
-    const className = `${options.className} flex align-items-center gap-2 lg:pt-6 lg:pb-6`;
-    const titleClassName = `text-lg lg:text-2xl`;
-
-    return (
-      <div className={className}>
-        <div className="flex flex-col md:flex-row md:flex-1 items-baseline md:gap-2 grow">
-          <h1 className={titleClassName}>
+  return (
+    <article className="lore-card">
+      <header className="lore-card-header">
+        <div className="lore-card-heading">
+          <h2 className="lore-card-title">
             {toggleable ? (
-              <a
-                className="p-panel-header-link"
-                href={`/item/${lore._id}`}
-                target="_blank"
-              >
+              <a href={`/item/${lore._id}`} target="_blank" rel="noreferrer">
                 {headerText}
               </a>
             ) : (
-              <>{headerText}</>
+              headerText
             )}
-          </h1>
-          <span className="text-xs md:text-sm">{typeText}</span>
+          </h2>
+          {typeText && <span className="lore-card-type">{typeText}</span>}
         </div>
-        <ToggleButton
-          onLabel="JP"
-          offLabel="EN"
-          checked={showJP}
-          onChange={(e) => setShowJP(!showJP)}
-          disabled={!hasJpText}
-          className="text-xs p-1"
-        />
-        {options.togglerElement}
-      </div>
-    );
-  };
-
-  return (
-    <Panel
-      headerTemplate={headerTemplate}
-      toggleable={toggleable}
-      collapsed={collapsed}
-      onToggle={(e) => setCollapsed(e.value)}
-    >
-      <LoreBody lore={lore} showJP={showJP} />
-    </Panel>
+        <div className="lore-card-actions">
+          <button
+            className="language-toggle"
+            type="button"
+            aria-pressed={showJP}
+            disabled={!hasJpText}
+            onClick={() => setShowJP((current) => !current)}
+          >
+            {showJP ? "JP" : "EN"}
+          </button>
+          {toggleable && (
+            <button
+              className="collapse-toggle"
+              type="button"
+              aria-expanded={!collapsed}
+              aria-label={collapsed ? "Expand entry" : "Collapse entry"}
+              onClick={() => setCollapsed((current) => !current)}
+            >
+              <span aria-hidden="true">{collapsed ? "+" : "−"}</span>
+            </button>
+          )}
+        </div>
+      </header>
+      {!collapsed && (
+        <div className="lore-card-content">
+          <LoreBody lore={lore} showJP={showJP} />
+        </div>
+      )}
+    </article>
   );
 }

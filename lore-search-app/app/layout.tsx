@@ -1,7 +1,4 @@
 import type { Metadata } from "next";
-// import "primereact/resources/themes/lara-dark-blue/theme.css";
-import "primereact/resources/primereact.min.css";
-import "primeicons/primeicons.css";
 import "./globals.css";
 import Image from "next/image";
 import { HeartIcon } from "@heroicons/react/24/solid";
@@ -9,7 +6,6 @@ import { FiltersProvider } from "@/app/ui/context/FiltersContext";
 import { Source_Sans_3 } from "next/font/google";
 import DiscordLink from "./ui/discordLink";
 import Link from "next/link";
-import clsx from "clsx";
 
 
 const sourcesans3 = Source_Sans_3({
@@ -32,7 +28,7 @@ export default function RootLayout({
       </head>
       <body className={sourcesans3.className}>
         <FiltersProvider>
-          <div>
+          <div id="top">
             {/* TEA Tools header */}
             <div className="flex site-title">
               {/* Image as title */}
@@ -63,16 +59,9 @@ export default function RootLayout({
               </div>
             </div>
 
-            {/* <PrimeReactProviders> */}
-            {/* <PrimeReactThemeSync> */}
-            {/* Children */}
             <div className="min-h-screen max-w-full">
               <main className="">{children}</main>
             </div>
-            {/* </PrimeReactThemeSync> */}
-            {/* </PrimeReactProviders> */}
-
-            {/* end */}
           </div>
         </FiltersProvider>
       </body>
